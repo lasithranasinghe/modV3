@@ -1,0 +1,25 @@
+---
+title: "Main TB Data Set"
+output: html_notebook
+---
+
+AIM: Compile all the age and sex disaggregated TB data for years 2012 to 2020. All countries included. 
+
+STEP 1: Set working directory and load the data 
+
+```{r}
+setwd("~/Desktop/AFP/modV3/data")
+library(dplyr)
+library(tidyverse)
+data <- read_csv("TB_notifications.csv")
+data_tb <- data[, c(1,3,5,6,71:73, 82:84, 100:104, 113,115:119, 128,171,173,175,194)]
+big_data <- filter(data_tb, year > 2012)
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+

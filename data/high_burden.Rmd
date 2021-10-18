@@ -1,0 +1,61 @@
+---
+title: "Data for the high burden countries only"
+output: html_notebook
+---
+
+AIM: TB data for just the high burden countries
+
+```{r}
+library(dplyr)
+library(tidyverse)
+
+setwd("~/Desktop/AFP/modV3/data")
+high_burden <- big_data[big_data$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+pop <- read_csv("pop_data.csv")
+
+burden_yearly1 <- high_burden[order(high_burden$iso3), ] 
+burden_yearly2 <- burden_yearly1[order(burden_yearly1$year), ]
+burden_yearly2 <- burden_yearly2[, -c(5:10)] ##Removing columns for EPTB as no data available 
+burden_yearly2 <- burden_yearly2[, -c(6,7,12,13,18:20)]
+```
+
+Filtering the population data 
+
+```{r}
+library(tidyr)
+colnames(pop) <- c("Country", "iso3", "series", "series_code", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+pop$`2013` <- as.numeric(pop$`2013`)
+pop$`2014` <- as.numeric(pop$`2014`)
+pop$`2015` <- as.numeric(pop$`2015`)
+pop$`2016` <- as.numeric(pop$`2016`)
+pop$`2017` <- as.numeric(pop$`2017`)
+pop$`2018` <- as.numeric(pop$`2018`)
+pop$`2019` <- as.numeric(pop$`2019`)
+pop$`2020` <- as.numeric(pop$`2020`)
+
+#Pivoting data to create data frame that can be merged with the high burden data frame 
+
+pivot <- pivot_longer(pop, c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"), names_to = "Year")
+
+pivot2 <- pivot_wider(pivot, id_cols = c("Country", "iso3", "Year"), names_from = "series", values_from = "value")
+
+pivot3 <- pivot2[-c(241:264), -17]
+
+#Ordering the data by year 
+pivot3$Year <- as.numeric(pivot3$Year)
+
+pop_order1 <- pivot3[order(pivot3$iso3), ]
+pop_order2 <- pop_order1[order(pop_order1$Year), ]
+
+colnames(pop_order2)[colnames(pop_order2) == "Year"] <- "year"
+```
+
+Creating data frame with world bank population data and the age and sex disaggregated TB notification data 
+
+```{r}
+tb_pop <- merge(burden_yearly2, pop_order2, by = c("iso3", "year"))
+
+tb_pop <- tb_pop[, -14]
+```
+
