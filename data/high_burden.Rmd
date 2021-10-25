@@ -120,3 +120,14 @@ Exporting the file as CSV
 write.csv(perc_tb_final, file = "tb_cleaned_notifs.csv")
 ```
 
+Including version of the data grouped by WHO region 
+
+```{r}
+omitsum <- function(x){ 
+        sum(na.omit(x))}
+
+africa_2013 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+
+
+
