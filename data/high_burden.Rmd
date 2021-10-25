@@ -120,14 +120,204 @@ Exporting the file as CSV
 write.csv(perc_tb_final, file = "tb_cleaned_notifs.csv")
 ```
 
-Including version of the data grouped by WHO region 
+Creating data frame with WHO regional data - Africa 
+
 
 ```{r}
 omitsum <- function(x){ 
         sum(na.omit(x))}
 
-africa_2013 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+africa_2013 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame() 
 
 
+africa_2014 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2014) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
 
+africa_2015 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2015) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+africa_2016 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2016) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+africa_2017 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2017) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+africa_2018 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2018) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+africa_2019 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2019) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+africa_2020 <- perc_tb_final %>% filter(g_whoregion == "AFR")  %>% filter(year == 2020) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+africa_final <- cbind(africa_2013, africa_2014$., africa_2015$., africa_2016$., africa_2017$., africa_2018$., africa_2019$., africa_2020$.)
+
+colnames(africa_final) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+trans_africa <- as.data.frame(t(africa_final))
+
+year_vector <- c(2013:2020)
+trans_africa$year <- year_vector 
+afr <- trans_africa[, c(27, 1:26)]
+
+```
+
+Data frame for south-east asia (SEA)
+
+```{r}
+sea_2013 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame() 
+
+
+sea_2014 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2014) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_2015 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2015) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_2016 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2016) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_2017 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2017) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_2018 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2018) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_2019 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2019) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_2020 <- perc_tb_final %>% filter(g_whoregion == "SEA")  %>% filter(year == 2020) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+sea_final <- cbind(sea_2013, sea_2014$., sea_2015$., sea_2016$., sea_2017$., sea_2018$., sea_2019$., sea_2020$.)
+
+colnames(sea_final) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+trans_sea <- as.data.frame(t(sea_final))
+
+trans_sea$year <- year_vector 
+sea <- trans_sea[, c(27, 1:26)]
+
+```
+
+Adding americas 
+
+```{r}
+amr_2013 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame() 
+
+
+amr_2014 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2014) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_2015 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2015) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_2016 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2016) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_2017 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2017) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_2018 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2018) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_2019 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2019) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_2020 <- perc_tb_final %>% filter(g_whoregion == "AMR")  %>% filter(year == 2020) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+amr_final <- cbind(amr_2013, amr_2014$., amr_2015$., amr_2016$., amr_2017$., amr_2018$., amr_2019$., amr_2020$.)
+
+colnames(amr_final) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+trans_amr <- as.data.frame(t(amr_final))
+
+trans_amr$year <- year_vector 
+amr <- trans_amr[, c(27, 1:26)]
+```
+
+Adding wpr zone
+
+```{r}
+wpr_2013 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame() 
+
+
+wpr_2014 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2014) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_2015 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2015) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_2016 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2016) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_2017 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2017) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_2018 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2018) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_2019 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2019) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_2020 <- perc_tb_final %>% filter(g_whoregion == "WPR")  %>% filter(year == 2020) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+wpr_final <- cbind(wpr_2013, wpr_2014$., wpr_2015$., wpr_2016$., wpr_2017$., wpr_2018$., wpr_2019$., wpr_2020$.)
+
+colnames(wpr_final) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+trans_wpr <- as.data.frame(t(wpr_final))
+
+trans_wpr$year <- year_vector 
+wpr <- trans_wpr[, c(27, 1:26)]
+```
+
+Adding EMR 
+
+```{r}
+emr_2013 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame() 
+
+
+emr_2014 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2014) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_2015 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2015) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_2016 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2016) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_2017 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2017) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_2018 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2018) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_2019 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2019) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_2020 <- perc_tb_final %>% filter(g_whoregion == "EMR")  %>% filter(year == 2020) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+emr_final <- cbind(emr_2013, emr_2014$., emr_2015$., emr_2016$., emr_2017$., emr_2018$., emr_2019$., emr_2020$.)
+
+colnames(emr_final) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+trans_emr <- as.data.frame(t(emr_final))
+
+trans_emr$year <- year_vector 
+emr <- trans_emr[, c(27, 1:26)]
+```
+
+Adding europe
+
+```{r}
+eur_2013 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2013) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame() 
+
+
+eur_2014 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2014) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_2015 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2015) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_2016 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2016) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_2017 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2017) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_2018 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2018) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_2019 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2019) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_2020 <- perc_tb_final %>% filter(g_whoregion == "EUR")  %>% filter(year == 2020) %>% select(c("newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "newrel_mtot", "newrel_ftot", "newrel_TOT", "pop_f04", "pop_m04", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_m514", "pop_f514", "pop_f014", "pop_m014", "pop_tot014", "pop_female", "pop_male", "pop_tot")) %>% apply(MARGIN = 2, FUN = omitsum) %>% as.data.frame()
+
+eur_final <- cbind(eur_2013, eur_2014$., eur_2015$., eur_2016$., eur_2017$., eur_2018$., eur_2019$., eur_2020$.)
+
+colnames(eur_final) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+
+trans_eur <- as.data.frame(t(eur_final))
+
+trans_eur$year <- year_vector 
+eur <- trans_eur[, c(27, 1:26)]
+```
+
+creating derived columns for incidence per 100k 
+
+```{r}
+incid_100k <- function(df){
+        mutate(df, "tb_m04_100k" = newrel_m04/(pop_m04/100000), "tb_f04_100k" = newrel_f04/(pop_f04/100000), "tb_m514_100k" = newrel_m514/(pop_m514/100000), "tb_f514_100k" = newrel_f514/(pop_f514/100000), "tb_m_100k" = newrel_mtot/(pop_male/100000), "tb_f_100k" = newrel_ftot/(pop_female/100000), "tb_tot_100k" = newrel_TOT/(pop_tot/100000))}
+
+incid_afr <- incid_100k(afr)
+incid_sea <- incid_100k(sea)
+incid_amr <- incid_100k(amr)
+incid_wpr <- incid_100k(wpr)
+incid_emr <- incid_100k(emr)
+incid_eur <- incid_100k(eur)
+```
 
