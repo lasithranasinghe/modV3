@@ -59,3 +59,64 @@ tb_pop <- merge(burden_yearly2, pop_order2, by = c("iso3", "year"))
 tb_pop <- tb_pop[, -14]
 ```
 
+Creating additional columns for 5-14 years male and female 
+
+```{r}
+colnames(tb_pop) <- c("iso3", "year", "country", "g_whoregion", "newrel_m04", "newrel_m514", "newrel_m014", "newrel_m15plus", "newrel_f04", "newrel_f514", "newrel_f014", "newrel_f15plus", "newrel_hivpos", "pop_f04", "pop_m04", "pop_014%", "pop_f014", "pop_m014", "pop_tot014", "pop_f59", "pop_m59", "pop_f1014", "pop_m1014", "pop_tot", "pop_male", "pop_female")
+
+tb_pop$pop_m59 <- as.numeric(tb_pop$pop_m59)
+tb_pop$pop_m1014 <- as.numeric(tb_pop$pop_m1014)
+tb_pop$pop_f59 <- as.numeric(tb_pop$pop_f59)
+tb_pop$pop_f1014 <- as.numeric(tb_pop$pop_f1014)
+pop_new1 <- mutate(tb_pop, "pop_m514" = pop_m59 + pop_m1014, "pop_f514" = pop_f59 + pop_f1014)
+
+pop_new2 <- pop_new1[, c(1:15, 20:23, 27, 28, 17, 18, 16, 19, 26, 25, 24)]
+```
+
+Expressing incidence per 100,000 in each age group 
+
+```{r}
+pop_new2$pop_f04 <- as.numeric(pop_new2$pop_f04)
+pop_new2$pop_m04 <- as.numeric(pop_new2$pop_m04)
+pop_new2$pop_f014 <- as.numeric(pop_new2$pop_f014)
+pop_new2$pop_m014 <- as.numeric(pop_new2$pop_m014)
+pop_new2$`pop_014%` <- as.numeric(pop_new2$`pop_014%`)
+pop_new2$pop_tot014 <- as.numeric(pop_new2$pop_tot014)
+pop_new2$pop_female <- as.numeric(pop_new2$pop_female)
+pop_new2$pop_male <- as.numeric(pop_new2$pop_male)
+pop_new2$pop_tot <- as.numeric(pop_new2$pop_tot)
+
+pop_100k <- mutate(pop_new2, "tb_m04_100k" = newrel_m04/(pop_m04/100000), "tb_f04_100k" = newrel_f04/(pop_f04/100000), "tb_m514_100k" = newrel_m514/(pop_m514/100000), "tb_f514_100k" = newrel_f514/(pop_f514/100000))
+```
+
+Adding columns for total male, female and combined TB incidence for all ages 
+
+```{r}
+tot_pop_100k <- mutate(pop_100k, "newrel_mtot" = newrel_m014 + newrel_m15plus, "newrel_ftot" = newrel_f014 + newrel_f15plus, "newrel_TOT" = newrel_mtot + newrel_ftot)
+
+tot_pop_100k <- tot_pop_100k[, c(1:13, 33:35, 29:32, 14:23, 25:28)]
+tot_pop_100k2 <- mutate(tot_pop_100k, "tb_m_100k" = newrel_mtot/(pop_male/100000), "tb_f_100k" = newrel_ftot/(pop_female/100000), "tb_tot_100k" = newrel_TOT/(pop_tot/100000))
+
+tb_100k <- tot_pop_100k2[, c(1:20, 35:37, 21:34)]
+
+```
+
+Adding column for percentage of TB notifications in children 0-4 and 0-14 as percentage of total TB notifications 
+
+```{r}
+perc_tb_100k <- mutate(tb_100k, "perc_tb04" = ((newrel_m04 + newrel_f04)/newrel_TOT)*100, "perc_tb014" = ((newrel_m014 + newrel_f014)/newrel_TOT)*100)
+
+```
+
+Adding column for percentage of TB notifications in children 0-4 as percentage of TB notifications in children 0-14 
+
+```{r}
+perc_tb_final <- mutate(perc_tb_100k, "perc_youngkids" = 100 * ((newrel_m04 + newrel_f04)/(newrel_m014 + newrel_f014)))
+```
+
+Exporting the file as CSV 
+
+```{r}
+write.csv(perc_tb_final, file = "tb_cleaned_notifs.csv")
+```
+
