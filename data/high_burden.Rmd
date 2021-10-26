@@ -321,3 +321,114 @@ incid_emr <- incid_100k(emr)
 incid_eur <- incid_100k(eur)
 ```
 
+Creating combined data frame for WHO-regional data to allow creation of graphs
+
+```{r}
+region <- "AFR"
+AFR1 <- cbind(incid_africa, region)
+AFR1 <- AFR1[, c(35, 1:34)]
+
+region <- "SEA"
+SEA1 <- cbind(incid_sea, region)
+SEA1 <- SEA1[, c(35, 1:34)]
+
+region <- "AMR"
+AMR1 <- cbind(incid_amr, region)
+AMR1 <- AMR1[, c(35, 1:34)]
+
+region <- "WPR"
+WPR1 <- cbind(incid_wpr, region)
+WPR1 <- WPR1[, c(35, 1:34)]
+
+region <- "EMR"
+EMR1 <- cbind(incid_emr, region)
+EMR1 <- EMR1[, c(35, 1:34)]
+
+region <- "EUR"
+EUR1 <- cbind(incid_eur, region)
+EUR1 <- EUR1[, c(35, 1:34)]
+
+region_combo <- rbind(AFR1, SEA1, AMR1, WPR1, EMR1, EUR1)
+
+```
+
+
+Adding columns for derived data (e.g. notifications in children < 5 as percentage of notifications in all children)
+
+```{r}
+region_perc <- mutate(region_combo, "perc_tb_04" = 100 * ((newrel_m04 + newrel_f04)/newrel_TOT),
+                      "perc_tb_014" = 100 * ((newrel_m014 + newrel_f014)/newrel_TOT),
+                      "perc_youngkids" = 100 * ((newrel_m04 + newrel_f04)/(newrel_m014 + newrel_f014)))
+
+```
+
+Plotting the regional data for percentage of cases in 0-4, 0-14 and 0-4 as a percentage of 0-14 
+
+```{r}
+plot_perc_04 <- ggplot(region_perc, aes(x = year, y = perc_tb_04, colour = region)) + 
+        geom_point(size = 2) + 
+        geom_smooth()
+
+plot_perc_014 <- ggplot(region_perc, aes(x = year, y = perc_tb_014, colour = region)) + 
+        geom_point(size = 2) + 
+        geom_smooth()
+
+plot_perc_kids <- ggplot(region_perc, aes(x = year, y = perc_youngkids, colour = region)) + 
+        geom_point(size = 2) + 
+        geom_smooth()
+
+```
+
+Plotting graphs looking at the changes in reporting of cases in each continent 
+
+```{r}
+region_tot <- mutate(region_perc, "newrel_tot04" = newrel_m04 + newrel_f04, "newrel_tot514" = newrel_m514 + newrel_f514, "newrel_tot014" = newrel_m014 + newrel_f014)
+
+region_tot <- region_tot[, c(1:11, 39:41, 12:38)]
+
+africa_only <- filter(region_tot, region == "AFR")
+
+afr_notif <- ggplot(africa_only, aes(year)) +
+        geom_smooth(aes(y = newrel_tot04), colour = "pink") +
+        geom_smooth(aes(y = newrel_tot514), colour = "red") + 
+        xlab("year") + ylab("notifications")
+
+sea_only <- filter(region_tot, region == "SEA")
+
+sea_notif <- ggplot(sea_only, aes(year)) +
+        geom_smooth(aes(y = newrel_tot04), colour = "pink") +
+        geom_smooth(aes(y = newrel_tot514), colour = "red") + 
+        xlab("year") + ylab("notifications")
+
+amr_only <- filter(region_tot, region == "AMR") 
+
+amr_notif <- ggplot(amr_only, aes(year)) +
+        geom_smooth(aes(y = newrel_tot04), colour = "pink") +
+        geom_smooth(aes(y = newrel_tot514), colour = "red") + 
+        xlab("year") + ylab("notifications")
+
+wpr_only <- filter(region_tot, region == "WPR")
+
+wpr_notif <- ggplot(wpr_only, aes(year)) +
+        geom_smooth(aes(y = newrel_tot04), colour = "pink") +
+        geom_smooth(aes(y = newrel_tot514), colour = "red") + 
+        xlab("year") + ylab("notifications")
+
+emr_only <- filter(region_tot, region == "EMR")
+
+emr_notif <- ggplot(emr_only, aes(year)) +
+        geom_smooth(aes(y = newrel_tot04), colour = "pink") +
+        geom_smooth(aes(y = newrel_tot514), colour = "red") + 
+        xlab("year") + ylab("notifications")
+
+eur_only <- filter(region_tot, region == "EUR")
+
+eur_notif <- ggplot(eur_only, aes(year)) +
+        geom_smooth(aes(y = newrel_tot04), colour = "pink") +
+        geom_smooth(aes(y = newrel_tot514), colour = "red") + 
+        xlab("year") + ylab("notifications")
+
+  
+```
+
+
