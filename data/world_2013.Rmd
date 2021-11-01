@@ -1,0 +1,505 @@
+---
+title: "All Countries Regional Data"
+output: html_notebook
+---
+
+AIM: Create region by region analysis of male vs female for each age groups (0-4, 5-14, 0-14 and 15 plus) for all countries separated by region
+
+```{r}
+setwd("~/Desktop/AFP/modV3/data")
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+install.packages("forecast")
+library(forecast)
+install.packages("fpp2")
+library(fpp2)
+
+world <- read_csv("TB_notifications.csv")
+tidyworld <- world[, c(1,3,5,6,100,103,104,113,115,118,119,128)]
+world_2013 <- tidyworld %>% filter(year > 2012)
+```
+
+Organising the data by g_whoregion
+
+```{r}
+grouped_2013 <- group_by(world_2013, g_whoregion) %>% filter(year == 2013) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2013)
+
+grouped_2014 <- group_by(world_2013, g_whoregion) %>% filter(year == 2014) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2014)
+
+grouped_2015 <- group_by(world_2013, g_whoregion) %>% filter(year == 2015) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2015)
+
+grouped_2016 <- group_by(world_2013, g_whoregion) %>% filter(year == 2016) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2016)
+
+grouped_2017 <- group_by(world_2013, g_whoregion) %>% filter(year == 2017) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2017)
+
+grouped_2018 <- group_by(world_2013, g_whoregion) %>% filter(year == 2018) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2018)
+
+grouped_2019 <- group_by(world_2013, g_whoregion) %>% filter(year == 2019) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2019)
+
+grouped_2020 <- group_by(world_2013, g_whoregion) %>% filter(year == 2020) %>% summarise(newrel_m04 = sum(na.omit(newrel_m04)), 
+                                                                                         newrel_f04 = sum(na.omit(newrel_f04)),
+                 newrel_m514 = sum(na.omit(newrel_m514)), newrel_f514 = sum(na.omit(newrel_f514)), 
+                 newrel_m014 = sum(na.omit(newrel_m014)), newrel_f014 = sum(na.omit(newrel_f014)), 
+                 newrel_m15plus = sum(na.omit(newrel_m15plus)), newrel_f15plus = sum(na.omit(newrel_f15plus))) %>% as.data.frame() %>% cbind(year = 2020)
+
+bind_world <- rbind(grouped_2013, grouped_2014, grouped_2015, grouped_2016, grouped_2017, grouped_2018, grouped_2019, grouped_2020)
+
+bind_world <- bind_world[, c(1, 10, 2:9)]
+
+arrange_world <- arrange(bind_world, g_whoregion)
+
+##Including columns for total values 
+
+mutate_world <- mutate(arrange_world, "newrel_tot04" = newrel_m04 + newrel_f04, "newrel_tot514" = newrel_m514 + newrel_f514, "newrel_tot014" = newrel_m014 + newrel_f014, "newrel_tot15plus" = newrel_m15plus + newrel_f15plus)
+
+perc_world <- mutate(mutate_world, "perc_014" = 100 * (newrel_tot014/(newrel_tot014 + newrel_tot15plus)), "perc_youngkids" = 100 * (newrel_tot04/newrel_tot014))
+
+
+
+```
+
+Creating graphs for male vs female for 0-4 by g_whoregion
+
+```{r}
+afr_04 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AFR")
+
+amr_04 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AMR")
+
+emr_04 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EMR")
+
+eur_04 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EUR")
+
+sea_04 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,60000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in SEA")
+
+wpr_04 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in WPR")
+
+
+```
+Creating graphs for notifications in 5-14 years by g_whoregion
+
+```{r}
+afr_514 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,40000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-514 years in AFR")
+
+amr_514 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,4000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in AMR")
+
+emr_514 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EMR")
+
+eur_514 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EUR")
+
+sea_514 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,80000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in SEA")
+
+wpr_514 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in WPR")
+```
+Creating plot for 0-14 
+
+```{r}
+afr_014 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m014, newrel_f014) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,70000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in AFR")
+
+amr_014 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m014, newrel_f014) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,6000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in AMR")
+
+emr_014 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m014, newrel_f014) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,50000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in EMR")
+
+eur_014 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m014, newrel_f014) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,8000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in EUR")
+
+sea_014 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m014, newrel_f014) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,150000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in SEA")
+
+wpr_014 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m014, newrel_f014) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,50000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in WPR")
+```
+Creating plot for 15 plus 
+
+```{r}
+afr_15plus <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in AFR")
+
+amr_15plus <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,300000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15 plus years in AMR")
+
+emr_15plus <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EMR")
+
+eur_15plus <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EUR")
+
+sea_15plus <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,2000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in SEA")
+
+wpr_15plus <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in WPR")
+```
+Plotting total notifications over time 
+
+```{r}
+tot_world <- mutate(perc_world, "newrel_mtot" = newrel_m014 + newrel_m15plus, "newrel_ftot" = newrel_f014 + newrel_f15plus, "TOT" = newrel_mtot + newrel_ftot)
+
+afr_tot <- tot_world %>% filter(g_whoregion == "AFR") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in AFR")
+
+amr_tot <- tot_world %>% filter(g_whoregion == "AMR") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in AMR")
+
+aemr_tot <- tot_world %>% filter(g_whoregion == "EMR") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in EMR")
+
+eur_tot <- tot_world %>% filter(g_whoregion == "EUR") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in EUR")
+
+sea_tot <- tot_world %>% filter(g_whoregion == "SEA") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in SEA")
+
+wpr_tot <- tot_world %>% filter(g_whoregion == "WPR") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in WPR")
+
+```
+```{r}
+##Attempt at creating a forecast 
+
+filt_afr04 <- perc_world %>% filter(g_whoregion == "AFR") %>% filter(year != 2020)
+
+ts_afr04 <- ts(filt_afr04[, c(3)], start = 2013, frequency = 1)
+
+arima_afr04 <- auto.arima(ts_afr04, d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+print(summary(arima_afr04))
+checkresiduals(arima_afr04)
+
+fcst_afrm04 <- forecast(arima_afr04, h = 1)
+autoplot(fcst)
+sum_afrm04 <- print(summary(fcst))
+
+####Attempt at creating function to produce predictions 
+
+out_2020 <- function(df = tot_world, region){
+        df %>% filter(year != 2020) %>% filter(g_whoregion == region) %>% return() }
+
+arima_TB <- function(df = tot_world, group) {
+        data1 <- df %>% select(group) %>% ts(start = 2013, frequency = 1) %>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE) 
+        print(summary(data1))
+        FCST <- forecast(data1, h = 1)
+        autoplot(FCST)
+        print(summary(FCST))}
+
+##AFRICA ESTIMATES 
+
+afr_m04 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m04") 
+rownames(afr_m04) <- "afr_m04"
+
+afr_f04 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f04")
+rownames(afr_f04) <- "afr_f04"
+
+afr_m514 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m514")
+rownames(afr_m514) <- "afr_m514"
+
+afr_f514 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f514")
+rownames(afr_f514) <- "afr_f514"
+
+afr_m014 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m014")
+rownames(afr_m014) <- "afr_m014"
+
+afr_f014 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f014")
+rownames(afr_f014) <- "afr_f014"
+
+afr_m15plus <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m15plus")
+rownames(afr_m15plus) <- "afr_m15plus"
+
+afr_f15plus <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f15plus")
+rownames(afr_f15plus) <- "afr_f15plus"
+
+afr_estimates <- rbind(afr_m04, afr_f04, afr_m514, afr_f514, afr_m014, afr_f014, afr_m15plus, afr_f15plus)
+
+
+#SEA predictions 
+sea_m04 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m04") 
+rownames(sea_m04) <- "sea_m04"
+
+sea_f04 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f04")
+rownames(sea_f04) <- "sea_f04"
+
+sea_m514 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m514")
+rownames(sea_m514) <- "sea_m514"
+
+sea_f514 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f514")
+rownames(sea_f514) <- "sea_f514"
+
+sea_m014 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m014")
+rownames(sea_m014) <- "sea_m014"
+
+sea_f014 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f014")
+rownames(sea_f014) <- "sea_f014"
+
+sea_m15plus <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m15plus")
+rownames(sea_m15plus) <- "sea_m15plus"
+
+sea_f15plus <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f15plus")
+rownames(sea_f15plus) <- "sea_f15plus"
+
+sea_estimates <- rbind(sea_m04, sea_f04, sea_m514, sea_f514, sea_m014, sea_f014, sea_m15plus, sea_f15plus)
+
+#WPR estimates 
+
+wpr_m04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m04") 
+rownames(wpr_m04) <- "wpr_m04"
+
+wpr_f04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f04")
+rownames(wpr_f04) <- "wpr_f04"
+
+wpr_m514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m514")
+rownames(wpr_m514) <- "wpr_m514"
+
+wpr_f514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f514")
+rownames(wpr_f514) <- "wpr_f514"
+
+wpr_m014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m014")
+rownames(wpr_m014) <- "wpr_m014"
+
+wpr_f014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f014")
+rownames(wpr_f014) <- "wpr_f014"
+
+wpr_m15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m15plus")
+rownames(wpr_m15plus) <- "wpr_m15plus"
+
+wpr_f15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f15plus")
+rownames(wpr_f15plus) <- "wpr_f15plus"
+
+wpr_estimates <- rbind(wpr_m04, wpr_f04, wpr_m514, wpr_f514, wpr_m014, wpr_f014, wpr_m15plus, wpr_f15plus)
+
+#EUR Estimates
+
+eur_m04 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m04") 
+rownames(eur_m04) <- "eur_m04"
+
+eur_f04 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f04")
+rownames(eur_f04) <- "eur_f04"
+
+eur_m514 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m514")
+rownames(eur_m514) <- "eur_m514"
+
+eur_f514 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f514")
+rownames(eur_f514) <- "eur_f514"
+
+eur_m014 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m014")
+rownames(eur_m014) <- "eur_m014"
+
+eur_f014 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f014")
+rownames(eur_f014) <- "eur_f014"
+
+eur_m15plus <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m15plus")
+rownames(eur_m15plus) <- "eur_m15plus"
+
+eur_f15plus <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f15plus")
+rownames(eur_f15plus) <- "eur_f15plus"
+
+eur_estimates <- rbind(eur_m04, eur_f04, eur_m514, eur_f514, eur_m014, eur_f014, eur_m15plus, eur_f15plus)
+
+#AMR Estimates
+
+emr_m04 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m04") 
+rownames(emr_m04) <- "emr_m04"
+
+emr_f04 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f04")
+rownames(emr_f04) <- "emr_f04"
+
+emr_m514 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m514")
+rownames(emr_m514) <- "emr_m514"
+
+emr_f514 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f514")
+rownames(emr_f514) <- "emr_f514"
+
+emr_m014 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m014")
+rownames(emr_m014) <- "emr_m014"
+
+emr_f014 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f014")
+rownames(emr_f014) <- "emr_f014"
+
+emr_m15plus <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m15plus")
+rownames(emr_m15plus) <- "emr_m15plus"
+
+emr_f15plus <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f15plus")
+rownames(emr_f15plus) <- "emr_f15plus"
+
+emr_estimates <- rbind(emr_m04, emr_f04, emr_m514, emr_f514, emr_m014, emr_f014, emr_m15plus, emr_f15plus)
+
+#WPR Estimates
+
+wpr_m04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m04") 
+rownames(wpr_m04) <- "wpr_m04"
+
+wpr_f04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f04")
+rownames(wpr_f04) <- "wpr_f04"
+
+wpr_m514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m514")
+rownames(wpr_m514) <- "wpr_m514"
+
+wpr_f514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f514")
+rownames(wpr_f514) <- "wpr_f514"
+
+wpr_m014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m014")
+rownames(wpr_m014) <- "wpr_m014"
+
+wpr_f014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f014")
+rownames(wpr_f014) <- "wpr_f014"
+
+wpr_m15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m15plus")
+rownames(wpr_m15plus) <- "wpr_m15plus"
+
+wpr_f15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f15plus")
+rownames(wpr_f15plus) <- "wpr_f15plus"
+
+wpr_estimates <- rbind(wpr_m04, wpr_f04, wpr_m514, wpr_f514, wpr_m014, wpr_f014, wpr_m15plus, wpr_f15plus)
+
+#AMR Estimates
+
+amr_m04 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m04") 
+rownames(amr_m04) <- "amr_m04"
+
+amr_f04 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f04")
+rownames(amr_f04) <- "amr_f04"
+
+amr_m514 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m514")
+rownames(amr_m514) <- "amr_m514"
+
+amr_f514 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f514")
+rownames(amr_f514) <- "amr_f514"
+
+amr_m014 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m014")
+rownames(amr_m014) <- "amr_m014"
+
+amr_f014 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f014")
+rownames(amr_f014) <- "amr_f014"
+
+amr_m15plus <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m15plus")
+rownames(amr_m15plus) <- "amr_m15plus"
+
+amr_f15plus <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f15plus")
+rownames(amr_f15plus) <- "amr_f15plus"
+
+amr_estimates <- rbind(amr_m04, amr_f04, amr_m514, amr_f514, amr_m014, amr_f014, amr_m15plus, amr_f15plus)
+
+```
+Combining the data for 2020 with the model estimates 
+
+```{r}
+##AFR difference calculations 
+
+afr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "AFR") %>% t() 
+afr_2020 <- as.data.frame(afr_2020[c(3:10), ])
+
+rownames(afr_2020) <- c("afr_m04", "afr_f04", "afr_m514", "afr_f514", "afr_m014", "afr_f014", "afr_m15plus", "afr_f15plus")
+colnames(afr_2020) <- "notif_2020"
+
+est_afr_2020 <- cbind(afr_2020, afr_estimates)
+colnames(est_afr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
+est_afr_2020$notif_2020 <- as.numeric(est_afr_2020$notif_2020)
+
+dif_afr <- mutate(est_afr_2020, "Difference" = notif_2020 - est_2020)
+
+##SEA difference calculations 
+sea_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "SEA") %>% t() 
+sea_2020 <- as.data.frame(sea_2020[c(3:10), ])
+
+rownames(sea_2020) <- c("sea_m04", "sea_f04", "sea_m514", "sea_f514", "sea_m014", "sea_f014", "sea_m15plus", "sea_f15plus")
+colnames(sea_2020) <- "notif_2020"
+est_sea_2020 <- cbind(sea_2020, sea_estimates)
+colnames(est_sea_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
+est_sea_2020$notif_2020 <- as.numeric(est_sea_2020$notif_2020)
+
+dif_sea <- mutate(est_sea_2020, "Difference" = notif_2020 - est_2020) 
+
+#WPR difference calculations 
+wpr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "WPR") %>% t() 
+wpr_2020 <- as.data.frame(wpr_2020[c(3:10), ])
+
+rownames(wpr_2020) <- c("wpr_m04", "wpr_f04", "wpr_m514", "wpr_f514", "wpr_m014", "wpr_f014", "wpr_m15plus", "wpr_f15plus")
+colnames(wpr_2020) <- "wpr_2020"
+est_wpr_2020 <- cbind(wpr_2020, wpr_estimates)
+colnames(est_wpr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
+est_wpr_2020$notif_2020 <- as.numeric(est_wpr_2020$notif_2020)
+
+dif_wpr <- mutate(est_wpr_2020, "Difference" = notif_2020 - est_2020) 
+
+#WPR difference calculations 
+eur_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "EUR") %>% t() 
+eur_2020 <- as.data.frame(eur_2020[c(3:10), ])
+
+rownames(eur_2020) <- c("eur_m04", "eur_f04", "eur_m514", "eur_f514", "eur_m014", "eur_f014", "eur_m15plus", "eur_f15plus")
+colnames(eur_2020) <- "eur_2020"
+est_eur_2020 <- cbind(eur_2020, eur_estimates)
+colnames(est_eur_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
+est_eur_2020$notif_2020 <- as.numeric(est_eur_2020$notif_2020)
+
+dif_eur <- mutate(est_eur_2020, "Difference" = notif_2020 - est_2020) 
+
+#AMR difference calculations
+amr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "AMR") %>% t() 
+amr_2020 <- as.data.frame(amr_2020[c(3:10), ])
+
+rownames(amr_2020) <- c("amr_m04", "amr_f04", "amr_m514", "amr_f514", "amr_m014", "amr_f014", "amr_m15plus", "amr_f15plus")
+colnames(eur_2020) <- "amr_2020"
+est_amr_2020 <- cbind(amr_2020, amr_estimates)
+colnames(est_amr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
+est_amr_2020$notif_2020 <- as.numeric(est_amr_2020$notif_2020)
+
+dif_amr <- mutate(est_amr_2020, "Difference" = notif_2020 - est_2020) 
+
+#EMR difference calculations
+emr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "EMR") %>% t() 
+emr_2020 <- as.data.frame(emr_2020[c(3:10), ])
+
+rownames(emr_2020) <- c("emr_m04", "emr_f04", "emr_m514", "emr_f514", "emr_m014", "emr_f014", "emr_m15plus", "emr_f15plus")
+colnames(emr_2020) <- "emr_2020"
+est_emr_2020 <- cbind(emr_2020, emr_estimates)
+colnames(est_emr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
+est_emr_2020$notif_2020 <- as.numeric(est_emr_2020$notif_2020)
+
+dif_emr <- mutate(est_emr_2020, "Difference" = notif_2020 - est_2020) 
+
+#Combined data frame with difference data 
+combo_dif <- cbind(dif_afr, dif_sea$Difference, dif_eur$Difference, dif_amr$Difference, dif_wpr$Difference, dif_emr$Difference)
+
+
+```

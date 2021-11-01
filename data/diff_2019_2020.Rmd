@@ -1,0 +1,159 @@
+---
+title: "Comparison of difference data for 2019 and 2020"
+output: html_notebook
+---
+
+AIM: Compare the gap in TB estimate and notifications for 2019 with 2020
+
+Load the TB data for 2019
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+setwd("~/Desktop/AFP/Original Data")
+burden_2019 <- read_csv("TBburden.csv")
+notif_2019 <- read_csv("TBnotif.csv")
+
+
+```
+
+Cleaning the estimates for 2019 
+
+```{r}
+all_burden <- burden_2019 %>% filter(risk_factor == "all")
+
+filtered_04 <- all_burden %>% filter(age_group == "0-4")
+filtered_04 <- filtered_04[, c(1,3,9,11)]
+filtered_514 <- all_burden %>% filter(age_group == "5-14")
+filtered_514 <- filtered_514[, c(1,3,9,11)]
+filtered_014 <- all_burden %>% filter(age_group == "0-14") %>% filter(sex != "a")
+filtered_014 <- filtered_014[, c(1,3,9,11)]
+filtered_15plus <- all_burden %>% filter(age_group == "15plus") %>% filter(sex != "a")
+filtered_15plus <- filtered_15plus[, c(1,3,9,11)]
+
+
+pivot_04 <- pivot_wider(filtered_04, names_from = "sex", values_from = "best")
+pivot_04 <- pivot_04[, c(1,2,4,3)]
+
+pivot_514 <- pivot_wider(filtered_514, names_from = "sex", values_from = "best")
+pivot_514 <- pivot_514[, c(1,2,4,3)]
+
+pivot_014 <- pivot_wider(filtered_014, names_from = "sex", values_from = "best")
+pivot_014 <- pivot_014[, c(1,2,4,3)]
+
+pivot_15plus <- pivot_wider(filtered_15plus, names_from = "sex", values_from = "best")
+pivot_15plus <- pivot_15plus[, c(1,2,4,3)]
+
+pivot_bound <- cbind(pivot_04, pivot_514$m, pivot_514$f, pivot_014$m, pivot_014$f, pivot_15plus$m, pivot_15plus$f)
+colnames(pivot_bound) <- c("country", "iso3", "est_m04", "est_f04", "est_m514", "est_f514", "est_m014", "est_f014", "est_m15plus", "est_f15plus")
+
+tidyburden_2019 <- pivot_bound
+```
+
+Cleaning the burden data for 2019
+
+```{r}
+notif_2019 %<>% filter(year == "2019")
+
+filtered_2019 <- notif_2019[, c(1,3,5, 100, 103, 104, 113, 115, 118, 119, 128)]
+
+colnames(filtered_2019) <- c("country", "iso3", "g_whoregion", "notif_m04", "notif_m514", "notif_m014", "notif_m15plus", "notif_f04", "notif_f514", "notif_f014", "notif_f15plus")
+
+filtered_2019 <- filtered_2019[, c(1:4, 8, 5, 9, 6, 10, 7, 11)]
+
+tidynotif_2019 <- filtered_2019
+```
+
+Merging the notification and burden data for 2019 
+
+```{r}
+merge_2019 <- merge(tidyburden_2019, tidynotif_2019, by = c("country", "iso3"))
+
+merge_2019 %<>% select(country, iso3, g_whoregion, everything())
+
+dif_2019 <- mutate(merge_2019, "dif_m04" = est_m04 - notif_m04, "dif_f04" = est_f04 - notif_f04, "dif_m514" = est_m514 - notif_m514, "dif_f514" = est_f514 - notif_f514, "dif_m014" = est_m014 - notif_m014, "dif_f014" = est_f014 - notif_f014, "dif_m15plus" = est_m15plus - notif_m15plus, "dif_f15plus" = est_f15plus - notif_f15plus)
+
+sum_dif_2019 <- apply(na.omit(dif_2019[, c(4:27)]), MARGIN = 2, FUN = sum) %>% as.data.frame() %>% t()
+rownames(sum_dif_2019) <- "2019"
+```
+
+
+Loading the burden data for 2020
+```{r}
+setwd("~/Desktop/AFP/modV3/data")
+burden_2020 <- read_csv("TB_burden_2020.csv")
+
+burden_2020 %<>% filter(risk_factor == "all")
+burden_2020 %<>% filter(sex != "a")
+
+filt_04 <- burden_2020 %>% filter(age_group == "0-4")
+filt_04 <- filt_04[, c(1,3,9,11)]
+filt_514 <- burden_2020 %>% filter(age_group == "5-14")
+filt_514 <- filt_514[, c(1,3,9,11)]
+filt_014 <- burden_2020 %>% filter(age_group == "0-14")
+filt_014 <- filt_014[, c(1,3,9,11)]
+filt_15plus <- burden_2020 %>% filter(age_group == "15plus") 
+filt_15plus <- filt_15plus[, c(1,3,9,11)]
+
+piv_04 <- pivot_wider(filt_04, names_from = "sex", values_from = "best")
+piv_04 <- piv_04[, c(1,2,4,3)]
+
+piv_514 <- pivot_wider(filt_514, names_from = "sex", values_from = "best")
+piv_514 <- piv_514[, c(1,2,4,3)]
+
+piv_014 <- pivot_wider(filt_014, names_from = "sex", values_from = "best")
+piv_014 <- piv_014[, c(1,2,4,3)]
+
+piv_15plus <- pivot_wider(filt_15plus, names_from = "sex", values_from = "best")
+piv_15plus <- piv_15plus[, c(1,2,4,3)]
+
+piv_bound<- cbind(piv_04, piv_514$m, piv_514$f, piv_014$m, piv_014$f, piv_15plus$m, piv_15plus$f)
+colnames(piv_bound) <- c("country", "iso3", "est_m04", "est_f04", "est_m514", "est_f514", "est_m014", "est_f014", "est_m15plus", "est_f15plus")
+
+tidyburden_2020 <- piv_bound
+
+```
+
+Loading the notification data for 2020
+
+```{r}
+setwd("~/Desktop/AFP/modV3/data")
+notif_2020 <- read_csv("TB_notifications.csv")
+
+notif_2020 %<>% filter(year == "2020")
+
+filtered_2020 <- notif_2020[, c(1,3,5, 100, 103, 104, 113, 115, 118, 119, 128)]
+
+colnames(filtered_2020) <- c("country", "iso3", "g_whoregion", "notif_m04", "notif_m514", "notif_m014", "notif_m15plus", "notif_f04", "notif_f514", "notif_f014", "notif_f15plus")
+
+filtered_2020 <- filtered_2020[, c(1:4, 8, 5, 9, 6, 10, 7, 11)]
+
+tidynotif_2020 <- filtered_2020
+
+```
+
+Merging notifications and burden data for 2020
+
+```{r}
+merge_2020 <- merge(tidyburden_2020, tidynotif_2020, by = c("country", "iso3"))
+
+merge_2020 %<>% select(country, iso3, g_whoregion, everything())
+
+dif_2020 <- mutate(merge_2020, "dif_m04" = est_m04 - notif_m04, "dif_f04" = est_f04 - notif_f04, "dif_m514" = est_m514 - notif_m514, "dif_f514" = est_f514 - notif_f514, "dif_m014" = est_m014 - notif_m014, "dif_f014" = est_f014 - notif_f014, "dif_m15plus" = est_m15plus - notif_m15plus, "dif_f15plus" = est_f15plus - notif_f15plus)
+
+sum_dif_2020 <- apply(na.omit(dif_2020[, c(4:27)]), MARGIN = 2, FUN = sum) %>% as.data.frame() %>% t()
+rownames(sum_dif_2020) <- "2020"
+```
+
+Merging two summed data frames
+
+```{r}
+dif_compare <- rbind(sum_dif_2019, sum_dif_2020)
+dif_only <- dif_compare[, c(17:24)]
+
+bar_compare <- barplot(dif_only, col = c("skyblue", "seagreen1"), beside = TRUE)
+
+
+```
+

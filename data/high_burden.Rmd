@@ -120,6 +120,29 @@ Exporting the file as CSV
 write.csv(perc_tb_final, file = "tb_cleaned_notifs.csv")
 ```
 
+Creating graphs for the 30 high burden countries
+
+```{r}
+##Adding columns to the graph for non-sex disaggregated incidence in each age groups 
+
+tb_graphplot <- mutate(perc_tb_final, "incid_04" = (newrel_m04 + newrel_f04)/((pop_m04 + pop_f04)/100000), "incid_514" = (newrel_m514 + newrel_f514)/((pop_m514 + newrel_f514)/100000), "incid_014" = (newrel_f014 + newrel_m014)/(pop_tot014/100000))
+
+countries_04 <- ggplot(tb_graphplot, aes(x = year, y = incid_04, colour = country)) + 
+  geom_point(size = 2) + geom_smooth() + xlab("year") + ylab("notifications in 0-4 yrs per 100k") + labs(title = "Notifications in children aged 0-4 years per 100k population in that age group")
+
+countries_514 <- ggplot(tb_graphplot, aes(x = year, y = incid_514, colour = country)) + 
+  geom_point(size = 2) + geom_smooth() + xlab("year") + ylab("notifications in 5-14 yrs per 100k") + labs(title = "Notifications in children aged 5-14 years per 100k population in that age group")
+
+countries_014 <- ggplot(tb_graphplot, aes(x = year, y = incid_014, colour = country)) + 
+  geom_point(size = 2) + geom_smooth() + xlab("year") + ylab("notifications in 0-14 yrs per 100k") + labs(title = "Notifications in children aged 0-14 years per 100k population in that age group")
+
+
+```
+
+
+
+
+
 Creating data frame with WHO regional data - Africa 
 
 
@@ -367,15 +390,15 @@ Plotting the regional data for percentage of cases in 0-4, 0-14 and 0-4 as a per
 ```{r}
 plot_perc_04 <- ggplot(region_perc, aes(x = year, y = perc_tb_04, colour = region)) + 
         geom_point(size = 2) + 
-        geom_smooth()
+        geom_smooth() + xlab("year") + ylab("notifications in 0-4 as % of total") + labs(title = "Notifications in 0-4 as % of total by continent")
 
 plot_perc_014 <- ggplot(region_perc, aes(x = year, y = perc_tb_014, colour = region)) + 
         geom_point(size = 2) + 
-        geom_smooth()
+        geom_smooth() + xlab("year") + ylab("notifications in 0-14 as % of total") + labs(title = "Notifications in 0-14 as % of total by continent")
 
 plot_perc_kids <- ggplot(region_perc, aes(x = year, y = perc_youngkids, colour = region)) + 
         geom_point(size = 2) + 
-        geom_smooth()
+        geom_smooth() + xlab("year") + ylab("notifications in 0-4 as % of notifs in 0-14 yrs") + labs(title = "Notifications in 0-4 as % of notifs in 0-14 yrs by continent")
 
 ```
 
@@ -391,44 +414,179 @@ africa_only <- filter(region_tot, region == "AFR")
 afr_notif <- ggplot(africa_only, aes(year)) +
         geom_smooth(aes(y = newrel_tot04), colour = "pink") +
         geom_smooth(aes(y = newrel_tot514), colour = "red") + 
-        xlab("year") + ylab("notifications")
+        xlab("year") + ylab("notifications") + labs(title = "africa")
 
 sea_only <- filter(region_tot, region == "SEA")
 
 sea_notif <- ggplot(sea_only, aes(year)) +
         geom_smooth(aes(y = newrel_tot04), colour = "pink") +
         geom_smooth(aes(y = newrel_tot514), colour = "red") + 
-        xlab("year") + ylab("notifications")
+        xlab("year") + ylab("notifications") + labs(title = "South-East Asia")
 
 amr_only <- filter(region_tot, region == "AMR") 
 
 amr_notif <- ggplot(amr_only, aes(year)) +
         geom_smooth(aes(y = newrel_tot04), colour = "pink") +
         geom_smooth(aes(y = newrel_tot514), colour = "red") + 
-        xlab("year") + ylab("notifications")
+        xlab("year") + ylab("notifications") + labs(title = "Americas")
 
 wpr_only <- filter(region_tot, region == "WPR")
 
 wpr_notif <- ggplot(wpr_only, aes(year)) +
         geom_smooth(aes(y = newrel_tot04), colour = "pink") +
         geom_smooth(aes(y = newrel_tot514), colour = "red") + 
-        xlab("year") + ylab("notifications")
+        xlab("year") + ylab("notifications") + labs(title = "Western-Pacific")
 
 emr_only <- filter(region_tot, region == "EMR")
 
 emr_notif <- ggplot(emr_only, aes(year)) +
         geom_smooth(aes(y = newrel_tot04), colour = "pink") +
         geom_smooth(aes(y = newrel_tot514), colour = "red") + 
-        xlab("year") + ylab("notifications")
+        xlab("year") + ylab("notifications") + labs(title = "Eastern Mediterranean")
 
 eur_only <- filter(region_tot, region == "EUR")
 
 eur_notif <- ggplot(eur_only, aes(year)) +
         geom_smooth(aes(y = newrel_tot04), colour = "pink") +
         geom_smooth(aes(y = newrel_tot514), colour = "red") + 
-        xlab("year") + ylab("notifications")
+        xlab("year") + ylab("notifications") + labs(title = "Europe")
 
   
 ```
 
+Plotting incidence data over time for each age group - separated by WHO region 
+
+```{r}
+##Including columns for incidence of TB for 0-4, 5-14 and 0-14 that is NOT sex disaggregated 
+
+incid_new <- mutate(region_tot, "incid_04" = (newrel_m04 + newrel_f04)/((pop_m04 + pop_f04)/100000), "incid_514" = (newrel_m514 + newrel_f514)/((pop_m514 + newrel_f514)/100000), "incid_014" = (newrel_tot014)/(pop_tot014/100000))
+
+plot_incid04 <- ggplot(incid_new, aes(x = year, y = incid_04, colour = region)) + 
+  geom_point(size = 2) + 
+  geom_smooth() + xlab("year") + ylab("notifs per 100k") + labs(title = "notifications per 100,000 children aged 0-4 yrs")
+
+plot_incid514 <- ggplot(incid_new, aes(x = year, y = incid_514, colour = region)) + 
+  geom_point(size = 2) +
+  geom_smooth() + xlab("year") + ylab("notifications in 5-14 as % of total") + labs(title = "Notifications in 5-14 as % of total by WHO region")
+
+plot_incid014 <- ggplot(incid_new, aes(x = year, y = incid_014, colour = region)) + 
+  geom_point(size = 2) + 
+  geom_smooth() + xlab("year") + ylab("notifications in 0-14 as % of total") + labs(title = "Notifications in 0-14 as % of total by WHO region")
+
+plot_perc_04 <- ggplot(region_perc, aes(x = year, y = perc_tb_04, colour = region)) + 
+        geom_point(size = 2) + 
+        geom_smooth() + xlab("year") + ylab("notifications in 0-4 as % of total") + labs(title = "Notifications in 0-4 as % of total by continent")
+```
+
+Creating sex disaggregated stacked bar charts for children aged 0-4 years for each continent across the years 
+
+```{r}
+afr_sex04 <- incid_new %>% filter(region == "AFR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,25000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AFR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+sea_sex04 <- incid_new %>% filter(region == "SEA") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,60000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in SEA")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+amr_sex04 <- incid_new %>% filter(region == "AMR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AMR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+wpr_sex04 <- incid_new %>% filter(region == "WPR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,25000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 0-4 years in WPR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+emr_sex04 <- incid_new %>% filter(region == "EMR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,25000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 0-4 years in EMR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+eur_sex04 <- incid_new %>% filter(region == "EUR") %>% select(newrel_m04, newrel_f04) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000), xlab = "year", ylab = "notifications") +
+  title("Sex disaggregated notifications for ages 0-4 years in EUR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+```
+Creating sex disaggregated side-by-side bar charts for children aged 5-14 years 
+
+```{r}
+afr_sex514 <- incid_new %>% filter(region == "AFR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,40000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 5-14 years in AFR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+sea_sex514 <- incid_new %>% filter(region == "SEA") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,100000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 5-14 years in SEA")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+amr_sex514 <- incid_new %>% filter(region == "AMR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 5-14 years in AMR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+wpr_sex514 <- incid_new %>% filter(region == "WPR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,25000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 5-14 years in WPR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+emr_sex514 <- incid_new %>% filter(region == "EMR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,25000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 5-14 years in EMR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+eur_sex514 <- incid_new %>% filter(region == "EUR") %>% select(newrel_m514, newrel_f514) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,2000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 5-14 years in EUR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+```
+Creating sex disaggregated bar charts for cases above the age of 15 years 
+
+```{r}
+afr_sex_15plus <- incid_new %>% filter(region == "AFR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for 15plus years in AFR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+sea_sex_15plus <- incid_new %>% filter(region == "SEA") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for 15plus years in SEA")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+amr_sex_15plus <- incid_new %>% filter(region == "AMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,100000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for 15plus years in AMR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+wpr_sex_15plus <- incid_new %>% filter(region == "WPR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for 15plus years in WPR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+emr_sex_15plus <- incid_new %>% filter(region == "EMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + 
+  title("Sex disaggregated notifications for ages 15plus years in EMR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+
+eur_sex_15plus <- incid_new %>% filter(region == "EUR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
+  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,100000), xlab = "year", ylab = "notifications") +
+  title("Sex disaggregated notifications for 15plus years in EUR")
+
+legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
+```
 
