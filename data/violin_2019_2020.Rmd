@@ -77,7 +77,7 @@ Creating boxplots
 
 ```{r}
 sub_m04 <- violin19_04[, c(1, 3, 4, 5)]
-subpiv_m04 <- pivot_longer(sub_m04, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_04")
+subpiv_m04 <- pivot_longer(sub_m04, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_m04")
 subpiv_m04 <- subpiv_m04[, c(1,3)]
 subnot_m04 <- violin19_04[, c(1,9)]
 list_m04 <- as.vector(violin19_04$notif_m04)
@@ -89,15 +89,14 @@ points(x = list_m04,
        pch = 16)
 
 
-
 ```
 
-Creating boxplots and excluding Indonesia and India
+Creating boxplots and excluding Indonesia and India for 0-4 years 
 
 ```{r}
 iisub_m04 <- violin19_04[, c(1, 3, 4, 5)]
 iisub_m04 %<>% filter(country != c("India", "Indonesia"))
-iisubpiv_m04 <- pivot_longer(iisub_m04, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_04")
+iisubpiv_m04 <- pivot_longer(iisub_m04, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_m04")
 iisubpiv_m04 <- iisubpiv_m04[, c(1,3)]
 iisubnot_m04 <- violin19_04[, c(1,9)]
 iisubnot_m04 %<>% filter(country != c("India", "Indonesia"))
@@ -108,6 +107,78 @@ points(x = iisubnot_m04$notif_m04,
        col = "red",
        pch = 16)
 
+iisub_f04 <- violin19_04[, c(1, 6:8)]
+iisub_f04 %<>% filter(country != c("India", "Indonesia"))
+iisubpiv_f04 <- pivot_longer(iisub_f04, cols = c("best_f", "lo_f", "hi_f"), names_to = "est_f04")
+iisubpiv_f04 <- iisubpiv_f04[, c(1,3)]
+iisubnot_f04 <- violin19_04[, c(1,10)]
+iisubnot_f04 %<>% filter(country != c("India", "Indonesia"))
+
+box_f04 <- boxplot(value ~ country, iisubpiv_f04, horizontal = TRUE)
+points(x = iisubnot_f04$notif_f04,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+
+```
+Creating box plots excluding India and Indonesia for 0-14 years 
+
+```{r}
+iisub_m014 <- violin19_014[, c(1, 3, 4, 5)]
+iisub_m014 %<>% filter(country != c("India", "Indonesia"))
+iisubpiv_m014 <- pivot_longer(iisub_m014, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_m014")
+iisubpiv_m014 <- iisubpiv_m014[, c(1,3)]
+iisubnot_m014 <- violin19_014[, c(1,9)]
+iisubnot_m014 %<>% filter(country != c("India", "Indonesia"))
+
+box_m014 <- boxplot(value ~ country, iisubpiv_m014, horizontal = TRUE)
+points(x = iisubnot_m014$notif_m014,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+iisub_f014 <- violin19_014[, c(1, 6:8)]
+iisub_f014 %<>% filter(country != c("India", "Indonesia"))
+iisubpiv_f014 <- pivot_longer(iisub_f014, cols = c("best_f", "lo_f", "hi_f"), names_to = "est_f014")
+iisubpiv_f014 <- iisubpiv_f014[, c(1,3)]
+iisubnot_f014 <- violin19_014[, c(1,10)]
+iisubnot_f014 %<>% filter(country != c("India", "Indonesia"))
+
+box_f014 <- boxplot(value ~ country, iisubpiv_f014, horizontal = TRUE)
+points(x = iisubnot_f014$notif_f014,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+```
+Creating box plots for 15plus years 
+
+```{r}
+iisub_m15plus <- violin19_15plus[, c(1, 3, 4, 5)]
+iisub_m15plus %<>% filter(country != c("India", "Indonesia"))
+iisubpiv_m15plus <- pivot_longer(iisub_m15plus, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_m15plus")
+iisubpiv_m15plus <- iisubpiv_m15plus[, c(1,3)]
+iisubnot_m15plus <- violin19_15plus[, c(1,9)]
+iisubnot_m15plus %<>% filter(country != c("India", "Indonesia"))
+
+box_m15plus <- boxplot(value ~ country, iisubpiv_m15plus, horizontal = TRUE)
+points(x = iisubnot_m15plus$notif_m15plus,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+iisub_f15plus <- violin19_15plus[, c(1, 6:8)]
+iisub_f15plus %<>% filter(country != c("India", "Indonesia"))
+iisubpiv_f15plus <- pivot_longer(iisub_f15plus, cols = c("best_f", "lo_f", "hi_f"), names_to = "est_f04")
+iisubpiv_f15plus <- iisubpiv_f15plus[, c(1,3)]
+iisubnot_f15plus <- violin19_15plus[, c(1,10)]
+iisubnot_f15plus %<>% filter(country != c("India", "Indonesia"))
+
+box_f15plus <- boxplot(value ~ country, iisubpiv_f15plus, horizontal = TRUE)
+points(x = iisubnot_f15plus$notif_f15plus,
+       y = 1:28,
+       col = "red",
+       pch = 16)
 
 ```
 
