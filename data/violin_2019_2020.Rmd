@@ -1,0 +1,113 @@
+---
+title: "Attempt at creating violin plots for 30 high burden countries for 2019 and 2020"
+output: html_notebook
+---
+
+AIM: To create violin plots that compare the actual notified cases vs the expected cases in each age group in the 30 high burden countries 
+
+Loading the libraries and the data for 2019 
+```{r}
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+setwd("~/Desktop/AFP/Original Data")
+estimate_2019 <- read_csv("TBburden.csv")
+cases_2019 <- read_csv("TBnotif.csv")
+
+estimate_2019 %<>% filter(risk_factor == "all")
+estimate_2019 %<>% filter(sex != "a")
+estimate_2019 <- estimate_2019[, c(1,3,8,9,11,12,13)]
+
+high_estimate <- estimate_2019[estimate_2019$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+est19_04 <- filter(high_estimate, age_group == "0-4")
+est19_514 <- filter(high_estimate, age_group == "5-14")
+est19_014 <- filter(high_estimate, age_group == "0-14")
+est19_15plus <- filter(high_estimate, age_group == "15plus")
+
+piv19_04 <- pivot_wider(est19_04, names_from = "sex", values_from = c("best", "lo", "hi"))
+piv19_04 <- piv19_04[, c(1,2, 5, 7, 9, 4, 6, 8)]
+
+piv19_514 <- pivot_wider(est19_514, names_from = "sex", values_from = c("best", "lo", "hi"))
+piv19_514 <- piv19_514[, c(1,2, 5, 7, 9, 4, 6, 8)]
+
+piv19_014 <- pivot_wider(est19_014, names_from = "sex", values_from = c("best", "lo", "hi"))
+piv19_014 <- piv19_014[, c(1,2, 5, 7, 9, 4, 6, 8)]
+
+piv19_15plus <- pivot_wider(est19_15plus, names_from = "sex", values_from = c("best", "lo", "hi"))
+piv19_15plus <- piv19_15plus[, c(1,2, 5, 7, 9, 4, 6, 8)]
+
+
+```
+
+Sorting the notificaiton data for 2019 
+
+```{r}
+cases_2019 %<>% filter(year == 2019)
+casefilter_2019 <- cases_2019[, c(1,3,5, 100, 103, 104, 113, 115, 118, 119, 128)]
+
+high_case2019 <- casefilter_2019[casefilter_2019$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+
+```
+
+Combining each data frame 
+
+```{r}
+violin19_04 <- cbind(piv19_04, high_case2019$newrel_m04, high_case2019$newrel_f04)
+colnames(violin19_04)[colnames(violin19_04) == "high_case2019$newrel_m04"] <- "notif_m04"
+colnames(violin19_04)[colnames(violin19_04) == "high_case2019$newrel_f04"] <- "notif_f04"
+
+violin19_514 <- cbind(piv19_514, high_case2019$newrel_m514, high_case2019$newrel_f514)
+colnames(violin19_514)[colnames(violin19_514) == "high_case2019$newrel_m514"] <- "notif_m514"
+colnames(violin19_514)[colnames(violin19_514) == "high_case2019$newrel_f514"] <- "notif_f514"
+
+violin19_014 <- cbind(piv19_014, high_case2019$newrel_m014, high_case2019$newrel_f014)
+colnames(violin19_014)[colnames(violin19_014) == "high_case2019$newrel_m014"] <- "notif_m014"
+colnames(violin19_014)[colnames(violin19_014) == "high_case2019$newrel_f014"] <- "notif_f014"
+
+
+violin19_15plus <- cbind(piv19_15plus, high_case2019$newrel_m15plus, high_case2019$newrel_f15plus)
+colnames(violin19_15plus)[colnames(violin19_15plus) == "high_case2019$newrel_m15plus"] <- "notif_m15plus"
+colnames(violin19_15plus)[colnames(violin19_15plus) == "high_case2019$newrel_f15plus"] <- "notif_f15plus"
+
+```
+
+Creating boxplots 
+
+```{r}
+sub_m04 <- violin19_04[, c(1, 3, 4, 5)]
+subpiv_m04 <- pivot_longer(sub_m04, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_04")
+subpiv_m04 <- subpiv_m04[, c(1,3)]
+subnot_m04 <- violin19_04[, c(1,9)]
+list_m04 <- as.vector(violin19_04$notif_m04)
+
+box_m04 <- boxplot(value ~ country, subpiv_m04, horizontal = TRUE)
+points(x = list_m04,
+       y = 1:30,
+       col = "red",
+       pch = 16)
+
+
+
+```
+
+Creating boxplots and excluding Indonesia and India
+
+```{r}
+iisub_m04 <- violin19_04[, c(1, 3, 4, 5)]
+iisub_m04 %<>% filter(country != c("India", "Indonesia"))
+iisubpiv_m04 <- pivot_longer(iisub_m04, cols = c("best_m", "lo_m", "hi_m"), names_to = "est_04")
+iisubpiv_m04 <- iisubpiv_m04[, c(1,3)]
+iisubnot_m04 <- violin19_04[, c(1,9)]
+iisubnot_m04 %<>% filter(country != c("India", "Indonesia"))
+
+box_m04 <- boxplot(value ~ country, iisubpiv_m04, horizontal = TRUE)
+points(x = iisubnot_m04$notif_m04,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+
+```
+
