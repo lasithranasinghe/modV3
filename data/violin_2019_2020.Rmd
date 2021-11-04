@@ -82,12 +82,11 @@ subpiv_m04 <- subpiv_m04[, c(1,3)]
 subnot_m04 <- violin19_04[, c(1,9)]
 list_m04 <- as.vector(violin19_04$notif_m04)
 
-box_m04 <- boxplot(value ~ country, subpiv_m04, horizontal = TRUE)
+box_m04 <- boxplot(value ~ country, subpiv_m04, ylab = NULL, horizontal = TRUE, las = 1, cex.names = 0.3, par(mar = c(1, 11, 2, 2)))
 points(x = list_m04,
        y = 1:30,
        col = "red",
-       pch = 16)
-
+       pch = 16,)
 
 ```
 
@@ -101,7 +100,7 @@ iisubpiv_m04 <- iisubpiv_m04[, c(1,3)]
 iisubnot_m04 <- violin19_04[, c(1,9)]
 iisubnot_m04 %<>% filter(country != c("India", "Indonesia"))
 
-box_m04 <- boxplot(value ~ country, iisubpiv_m04, horizontal = TRUE)
+box_m04 <- boxplot(value ~ country, iisubpiv_m04, horizontal = TRUE, las = 1, cex.names = 0.1)
 points(x = iisubnot_m04$notif_m04,
        y = 1:28,
        col = "red",
@@ -114,7 +113,7 @@ iisubpiv_f04 <- iisubpiv_f04[, c(1,3)]
 iisubnot_f04 <- violin19_04[, c(1,10)]
 iisubnot_f04 %<>% filter(country != c("India", "Indonesia"))
 
-box_f04 <- boxplot(value ~ country, iisubpiv_f04, horizontal = TRUE)
+box_f04 <- boxplot(value ~ country, iisubpiv_f04, horizontal = TRUE, las = 1, cex.names = 0.1)
 points(x = iisubnot_f04$notif_f04,
        y = 1:28,
        col = "red",
@@ -132,7 +131,7 @@ iisubpiv_m014 <- iisubpiv_m014[, c(1,3)]
 iisubnot_m014 <- violin19_014[, c(1,9)]
 iisubnot_m014 %<>% filter(country != c("India", "Indonesia"))
 
-box_m014 <- boxplot(value ~ country, iisubpiv_m014, horizontal = TRUE)
+box_m014 <- boxplot(value ~ country, iisubpiv_m014, horizontal = TRUE, las = 1, cex.names = 0.5)
 points(x = iisubnot_m014$notif_m014,
        y = 1:28,
        col = "red",
@@ -145,7 +144,7 @@ iisubpiv_f014 <- iisubpiv_f014[, c(1,3)]
 iisubnot_f014 <- violin19_014[, c(1,10)]
 iisubnot_f014 %<>% filter(country != c("India", "Indonesia"))
 
-box_f014 <- boxplot(value ~ country, iisubpiv_f014, horizontal = TRUE)
+box_f014 <- boxplot(value ~ country, iisubpiv_f014, horizontal = TRUE, las = 1, cex.names = 0.5)
 points(x = iisubnot_f014$notif_f014,
        y = 1:28,
        col = "red",
@@ -161,7 +160,7 @@ iisubpiv_m15plus <- iisubpiv_m15plus[, c(1,3)]
 iisubnot_m15plus <- violin19_15plus[, c(1,9)]
 iisubnot_m15plus %<>% filter(country != c("India", "Indonesia"))
 
-box_m15plus <- boxplot(value ~ country, iisubpiv_m15plus, horizontal = TRUE)
+box_m15plus <- boxplot(value ~ country, iisubpiv_m15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
 points(x = iisubnot_m15plus$notif_m15plus,
        y = 1:28,
        col = "red",
@@ -174,9 +173,512 @@ iisubpiv_f15plus <- iisubpiv_f15plus[, c(1,3)]
 iisubnot_f15plus <- violin19_15plus[, c(1,10)]
 iisubnot_f15plus %<>% filter(country != c("India", "Indonesia"))
 
-box_f15plus <- boxplot(value ~ country, iisubpiv_f15plus, horizontal = TRUE)
+box_f15plus <- boxplot(value ~ country, iisubpiv_f15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
 points(x = iisubnot_f15plus$notif_f15plus,
        y = 1:28,
+       col = "red",
+       pch = 16)
+
+```
+
+
+Repeating same data analysis for 2020
+
+```{r}
+setwd("~/Desktop/AFP/modV3/data")
+burden_2020 <- read_csv("TB_burden_2020.csv")
+notif_2020 <- read_csv("TB_notifications.csv")
+
+burden_clean <- filter(burden_2020, risk_factor == "all")
+burden_clean %<>% filter(sex != "a")
+burden20_04 <- filter(burden_clean, age_group == "0-4")
+burden20_514 <- filter(burden_clean, age_group == "5-14")
+burden20_014 <- filter(burden_clean, age_group == "0-14")
+burden20_15plus <- filter(burden_clean, age_group == "15plus")
+
+burden20_04 <- burden20_04[, c(1,3,9,11,12,13)]
+burden20_514 <- burden20_514[, c(1,3,9,11,12,13)]
+burden20_014 <- burden20_014[, c(1,3,9,11,12,13)]
+burden20_15plus <- burden20_15plus[, c(1,3,9,11,12,13)]
+
+male20_04 <- filter(burden20_04, sex == "m")
+female20_04 <- filter(burden20_04, sex == "f")
+male20_514 <- filter(burden20_514, sex == "m")
+female20_514 <- filter(burden20_514, sex == "f")
+male20_014 <- filter(burden20_014, sex == "m")
+female20_014 <- filter(burden20_014, sex == "f")
+male20_15plus <- filter(burden20_15plus, sex == "m")
+female20_15plus <- filter(burden20_15plus, sex == "f")
+
+#Pivoted tables of estimates for creation of bar plots 
+pivmale_04 <- pivot_longer(male20_04, cols = c("best", "lo", "hi"), names_to = "est")
+pivmale_04 <- pivmale_04[, c(1,4)]
+pivfemale_04 <- pivot_longer(female20_04, cols = c("best", "lo", "hi"), names_to = "est")
+pivfemale_04 <- pivfemale_04[, c(1,4)]
+pivmale_514 <- pivot_longer(male20_514, cols = c("best", "lo", "hi"), names_to = "est")
+pivmale_514 <- pivmale_514[, c(1,4)]
+pivfemale_514 <- pivot_longer(female20_514, cols = c("best", "lo", "hi"), names_to = "est")
+pivfemale_514 <- pivfemale_514[, c(1,4)]
+pivmale_014 <- pivot_longer(male20_014, cols = c("best", "lo", "hi"), names_to = "est")
+pivmale_014 <- pivmale_014[, c(1,4)]
+pivfemale_014 <- pivot_longer(female20_014, cols = c("best", "lo", "hi"), names_to = "est")
+pivfemale_014 <- pivfemale_014[, c(1,4)]
+pivmale_15plus <- pivot_longer(male20_15plus, cols = c("best", "lo", "hi"), names_to = "est")
+pivmale_15plus <- pivmale_15plus[, c(1,4)]
+pivfemale_15plus <- pivot_longer(female20_15plus, cols = c("best", "lo", "hi"), names_to = "est")
+pivfemale_15plus <- pivfemale_15plus[, c(1,4)]
+
+#Extracting the notification data for 2020 to add to the bar plot 
+notif_2020 %<>% filter(year == 2020)
+comboM20_04 <- merge(male20_04, notif_2020[, c(3, 100)], by = "iso3")
+comboM20_514 <- merge(male20_514, notif_2020[, c(3, 103)], by = "iso3")
+comboM20_014 <- merge(male20_014, notif_2020[, c(3, 104)], by = "iso3")
+comboM20_15plus <- merge(male20_15plus, notif_2020[, c(3, 113)], by = "iso3")
+
+comboF20_04 <- merge(female20_04, notif_2020[, c(3, 115)], by = "iso3")
+comboF20_514 <- merge(female20_514, notif_2020[, c(3, 118)], by = "iso3")
+comboF20_014 <- merge(female20_014, notif_2020[, c(3, 119)], by = "iso3")
+comboF20_15plus <- merge(female20_15plus, notif_2020[, c(3, 128)], by = "iso3")
+
+```
+Isolating the data for high burden countries excluding India and Indonesia
+```{r}
+ii_2020_m04 <-  comboM20_04[comboM20_04$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_f04 <-  comboF20_04[comboF20_04$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_m514 <-  comboM20_514[comboM20_514$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_f514 <-  comboF20_514[comboF20_514$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_m014 <-  comboM20_014[comboM20_014$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_f014 <-  comboF20_014[comboF20_014$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_m15plus <-  comboM20_15plus[comboM20_15plus$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+ii_2020_f15plus <-  comboF20_15plus[comboF20_15plus$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+
+
+```
+
+Prepping data for box plots 
+
+```{r}
+topiv_m04 <- ii_2020_m04[, c(2,4:6)]
+pivved_m04 <- pivot_longer(topiv_m04, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_m04 <- pivved_m04[, c(1,3)]
+
+topiv_f04 <- ii_2020_f04[, c(2,4:6)]
+pivved_f04 <- pivot_longer(topiv_f04, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_f04 <- pivved_f04[, c(1,3)]
+
+topiv_m514 <- ii_2020_m514[, c(2,4:6)]
+pivved_m514 <- pivot_longer(topiv_m514, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_m514 <- pivved_m514[, c(1,3)]
+
+topiv_f514 <- ii_2020_f514[, c(2,4:6)]
+pivved_f514 <- pivot_longer(topiv_f514, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_f514 <- pivved_f514[, c(1,3)]
+
+topiv_m014 <- ii_2020_m014[, c(2,4:6)]
+pivved_m014 <- pivot_longer(topiv_m014, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_m014 <- pivved_m014[, c(1,3)]
+
+topiv_f014 <- ii_2020_f014[, c(2,4:6)]
+pivved_f014 <- pivot_longer(topiv_f014, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_f014 <- pivved_f014[, c(1,3)]
+
+
+topiv_m15plus <- ii_2020_m15plus[, c(2,4:6)]
+pivved_m15plus <- pivot_longer(topiv_m15plus, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_m15plus <- pivved_m15plus[, c(1,3)]
+
+
+topiv_f15plus <- ii_2020_f15plus[, c(2,4:6)]
+pivved_f15plus <- pivot_longer(topiv_f15plus, cols = c("best", "lo", "hi"), names_to = "est")
+pivved_f15plus <- pivved_f15plus[, c(1,3)]
+
+
+```
+
+Creating box plots for high burden countries excluding 
+```{r}
+box20_m04 <- boxplot(value ~ country, pivved_m04, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_m04 <- ii_2020_m04[order(ii_2020_m04$country), ]
+points(x = ii_2020_m04$newrel_m04,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_f04 <- boxplot(value ~ country, pivved_f04, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_f04 <- ii_2020_f04[order(ii_2020_f04$country), ]
+points(x = ii_2020_f04$newrel_f04,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_m514 <- boxplot(value ~ country, pivved_m514, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_m514 <- ii_2020_m514[order(ii_2020_m514$country), ]
+points(x = ii_2020_m514$newrel_m514,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_f514 <- boxplot(value ~ country, pivved_f514, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_f514 <- ii_2020_f514[order(ii_2020_f514$country), ]
+points(x = ii_2020_f514$newrel_f514,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_m014 <- boxplot(value ~ country, pivved_m014, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_m014 <- ii_2020_m014[order(ii_2020_m014$country), ]
+points(x = ii_2020_m014$newrel_m014,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_f014 <- boxplot(value ~ country, pivved_f014, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_f014 <- ii_2020_f014[order(ii_2020_f014$country), ]
+points(x = ii_2020_f014$newrel_f014,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_m15plus <- boxplot(value ~ country, pivved_m15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_m15plus <- ii_2020_m15plus[order(ii_2020_m15plus$country), ]
+points(x = ii_2020_m15plus$newrel_m15plus,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+box20_f15plus <- boxplot(value ~ country, pivved_f15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
+ii_2020_f15plus <- ii_2020_f15plus[order(ii_2020_f15plus$country), ]
+points(x = ii_2020_f15plus$newrel_f15plus,
+       y = 1:28,
+       col = "red",
+       pch = 16)
+
+```
+
+Performing same analysis by continent starting with 2019 data 
+
+```{r}
+est19_04 <- filter(estimate_2019, age_group == "0-4")
+est19_514 <- filter(estimate_2019, age_group == "5-14")
+est19_014 <- filter(estimate_2019, age_group == "0-14")
+est19_15plus <- filter(estimate_2019, age_group == "15plus")
+
+estM19_04 <- filter(est19_04, sex == "m")
+estF19_04 <- filter(est19_04, sex == "f")
+estM19_514 <- filter(est19_514, sex == "m")
+estF19_514 <- filter(est19_514, sex == "f")
+estM19_014 <- filter(est19_014, sex == "m")
+estF19_014 <- filter(est19_014, sex == "f")
+estM19_15plus <- filter(est19_15plus, sex == "m")
+estF19_15plus <- filter(est19_15plus, sex == "f")
+
+estM19_04 <- estM19_04[, -c(3,4)]
+estF19_04 <- estF19_04[, -c(3,4)]
+estM19_514 <- estM19_514[, -c(3,4)]
+estF19_514 <- estF19_514[, -c(3,4)]
+estM19_014 <- estM19_014[, -c(3,4)]
+estF19_014 <- estF19_014[, -c(3,4)]
+estM19_15plus <- estM19_15plus[, -c(3,4)]
+estF19_15plus <- estF19_15plus[, -c(3,4)]
+
+###Adding in the case notification data for 2019
+tot_19_m04 <- merge(estM19_04, casefilter_2019[,c(1:4)], by = c("country", "iso3"))
+tot_19_m04 <- tot_19_m04[,c(1,2,6,3:5, 7)]
+colnames(tot_19_m04)[colnames(tot_19_m04) == "newrel_m04"] <- "cases"
+
+tot_19_f04 <- merge(estF19_04, casefilter_2019[,c(1:3, 8)], by = c("country", "iso3"))
+tot_19_f04 <- tot_19_f04[,c(1,2,6,3:5, 7)]
+colnames(tot_19_f04)[colnames(tot_19_f04) == "newrel_f04"] <- "cases"
+
+tot_19_m514 <- merge(estM19_514, casefilter_2019[,c(1:3, 5)], by = c("country", "iso3"))
+tot_19_m514 <- tot_19_m514[,c(1,2,6,3:5, 7)]
+colnames(tot_19_m514)[colnames(tot_19_m514) == "newrel_m514"] <- "cases"
+
+tot_19_f514 <- merge(estF19_514, casefilter_2019[,c(1:3, 9)], by = c("country", "iso3"))
+tot_19_f514 <- tot_19_f514[,c(1,2,6,3:5, 7)]
+colnames(tot_19_f514)[colnames(tot_19_f514) == "newrel_f514"] <- "cases"
+
+tot_19_m014 <- merge(estM19_014, casefilter_2019[,c(1:3, 6)], by = c("country", "iso3"))
+tot_19_m014 <- tot_19_m014[,c(1,2,6,3:5, 7)]
+colnames(tot_19_m014)[colnames(tot_19_m014) == "newrel_m014"] <- "cases"
+
+tot_19_f014 <- merge(estF19_014, casefilter_2019[,c(1:3, 10)], by = c("country", "iso3"))
+tot_19_f014 <- tot_19_f014[,c(1,2,6,3:5, 7)]
+colnames(tot_19_f014)[colnames(tot_19_f014) == "newrel_f014"] <- "cases"
+
+tot_19_m15plus <- merge(estM19_15plus, casefilter_2019[,c(1:3, 7)], by = c("country", "iso3"))
+tot_19_m15plus <- tot_19_m15plus[,c(1,2,6,3:5, 7)]
+colnames(tot_19_m15plus)[colnames(tot_19_m15plus) == "newrel_m15plus"] <- "cases"
+
+tot_19_f15plus <- merge(estF19_15plus, casefilter_2019[,c(1:3, 11)], by = c("country", "iso3"))
+tot_19_f15plus <- tot_19_f15plus[,c(1,2,6,3:5, 7)]
+colnames(tot_19_f15plus)[colnames(tot_19_f15plus) == "newrel_f15plus"] <- "cases"
+
+
+##Extracting information percontinent 
+sum_best_m04 <- tot_19_m04 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_m04 <- tot_19_m04 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_m04 <- tot_19_m04 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_m04 <- tot_19_m04 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_m04 <- cbind(sum_best_m04, sum_lo_m04$total, sum_hi_m04$total, sum_cases_m04$total)
+colnames(merge19_m04) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_f04 <- tot_19_f04 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_f04 <- tot_19_f04 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_f04 <- tot_19_f04 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_f04 <- tot_19_f04 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_f04 <- cbind(sum_best_f04, sum_lo_f04$total, sum_hi_f04$total, sum_cases_f04$total)
+colnames(merge19_f04) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_m014 <- tot_19_m014 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_m014 <- tot_19_m014 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_m014 <- tot_19_m014 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_m014 <- tot_19_m014 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_m014 <- cbind(sum_best_m014, sum_lo_m014$total, sum_hi_m014$total, sum_cases_m014$total)
+colnames(merge19_m014) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_f014 <- tot_19_f014 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_f014 <- tot_19_f014 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_f014 <- tot_19_f014 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_f014 <- tot_19_f014 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_f014 <- cbind(sum_best_f014, sum_lo_f014$total, sum_hi_f014$total, sum_cases_f014$total)
+colnames(merge19_f014) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_m514 <- tot_19_m514 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_m514 <- tot_19_m514 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_m514 <- tot_19_m514 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_m514 <- tot_19_m514 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_m514 <- cbind(sum_best_m514, sum_lo_m514$total, sum_hi_m514$total, sum_cases_m514$total)
+colnames(merge19_m514) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_f514 <- tot_19_f514 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_f514 <- tot_19_f514 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_f514 <- tot_19_f514 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_f514 <- tot_19_f514 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_f514 <- cbind(sum_best_f514, sum_lo_f514$total, sum_hi_f514$total, sum_cases_f514$total)
+colnames(merge19_f514) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_m15plus <- tot_19_m15plus %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_m15plus <- tot_19_m15plus %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_m15plus <- tot_19_m15plus %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_m15plus <- tot_19_m15plus %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_m15plus <- cbind(sum_best_m15plus, sum_lo_m15plus$total, sum_hi_m15plus$total, sum_cases_m15plus$total)
+colnames(merge19_m15plus) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum_best_f15plus <- tot_19_f15plus %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum_lo_f15plus <- tot_19_f15plus %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum_hi_f15plus <- tot_19_f15plus %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum_cases_f15plus <- tot_19_f15plus %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge19_f15plus <- cbind(sum_best_f15plus, sum_lo_f15plus$total, sum_hi_f15plus$total, sum_cases_f15plus$total)
+colnames(merge19_f15plus) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+```
+
+Plotting boxplots for continent data for 2019 
+
+```{r}
+pivtot_m04 <- pivot_longer(merge19_m04, cols = c("best", "lo", "hi"), names_to = "est")
+box19_m04 <- boxplot(value ~ g_whoregion, pivtot_m04, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_m04$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+pivtot_f04 <- pivot_longer(merge19_f04, cols = c("best", "lo", "hi"), names_to = "est")
+box19_f04 <- boxplot(value ~ g_whoregion, pivtot_f04, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_f04$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+pivtot_m514 <- pivot_longer(merge19_m514, cols = c("best", "lo", "hi"), names_to = "est")
+box19_m514 <- boxplot(value ~ g_whoregion, pivtot_m514, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_m514$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+pivtot_f514 <- pivot_longer(merge19_f514, cols = c("best", "lo", "hi"), names_to = "est")
+box19_f514 <- boxplot(value ~ g_whoregion, pivtot_f514, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_f514$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+pivtot_m014 <- pivot_longer(merge19_m014, cols = c("best", "lo", "hi"), names_to = "est")
+box19_m014 <- boxplot(value ~ g_whoregion, pivtot_m014, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_m014$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+pivtot_f014 <- pivot_longer(merge19_f014, cols = c("best", "lo", "hi"), names_to = "est")
+box19_f014 <- boxplot(value ~ g_whoregion, pivtot_f014, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_f014$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+
+pivtot_m15plus <- pivot_longer(merge19_m15plus, cols = c("best", "lo", "hi"), names_to = "est")
+box19_m15plus <- boxplot(value ~ g_whoregion, pivtot_m15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_m15plus$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+pivtot_f15plus <- pivot_longer(merge19_f15plus, cols = c("best", "lo", "hi"), names_to = "est")
+box19_f15plus <- boxplot(value ~ g_whoregion, pivtot_f15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge19_f15plus$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+```
+Performing continental analysis with 2020 data 
+
+```{r}
+#Adding g_whoregion to the combined data frames
+regionM20_04 <- merge(male20_04, notif_2020[, c(3, 5,100)], by = "iso3")
+regionM20_514 <- merge(male20_514, notif_2020[, c(3, 5, 103)], by = "iso3")
+regionM20_014 <- merge(male20_014, notif_2020[, c(3, 5, 104)], by = "iso3")
+regionM20_15plus <- merge(male20_15plus, notif_2020[, c(3, 5, 113)], by = "iso3")
+
+regionF20_04 <- merge(female20_04, notif_2020[, c(3, 5, 115)], by = "iso3")
+regionF20_514 <- merge(female20_514, notif_2020[, c(3, 5, 118)], by = "iso3")
+regionF20_014 <- merge(female20_014, notif_2020[, c(3, 5, 119)], by = "iso3")
+regionF20_15plus <- merge(female20_15plus, notif_2020[, c(3, 5, 128)], by = "iso3")
+
+colnames(regionM20_04)[colnames(regionM20_04) == "newrel_m04"] <- "cases"
+colnames(regionM20_514)[colnames(regionM20_514) == "newrel_m514"] <- "cases"
+colnames(regionM20_014)[colnames(regionM20_014) == "newrel_m014"] <- "cases"
+colnames(regionM20_15plus)[colnames(regionM20_15plus) == "newrel_m15plus"] <- "cases"
+
+colnames(regionF20_04)[colnames(regionF20_04) == "newrel_f04"] <- "cases"
+colnames(regionF20_514)[colnames(regionF20_514) == "newrel_f514"] <- "cases"
+colnames(regionF20_014)[colnames(regionF20_014) == "newrel_f014"] <- "cases"
+colnames(regionF20_15plus)[colnames(regionF20_15plus) == "newrel_f15plus"] <- "cases"
+
+#Creating data for the boxplots 
+sum20_best_m04 <- regionM20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_m04 <- regionM20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_m04 <- regionM20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_m04 <- regionM20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_m04 <- cbind(sum20_best_m04, sum20_lo_m04$total, sum20_hi_m04$total, sum20_cases_m04$total)
+colnames(merge20_m04) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_f04 <- regionF20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_f04 <- regionF20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_f04 <- regionF20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_f04 <- regionF20_04 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_f04 <- cbind(sum20_best_f04, sum20_lo_f04$total, sum20_hi_f04$total, sum20_cases_f04$total)
+colnames(merge20_f04) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_m514 <- regionM20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_m514 <- regionM20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_m514 <- regionM20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_m514 <- regionM20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_m514 <- cbind(sum20_best_m514, sum20_lo_m514$total, sum20_hi_m514$total, sum20_cases_m514$total)
+colnames(merge20_m514) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_f514 <- regionF20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_f514 <- regionF20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_f514 <- regionF20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_f514 <- regionF20_514 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_f514 <- cbind(sum20_best_f514, sum20_lo_f514$total, sum20_hi_f514$total, sum20_cases_f514$total)
+colnames(merge20_f514) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_m014 <- regionM20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_m014 <- regionM20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_m014 <- regionM20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_m014 <- regionM20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_m014 <- cbind(sum20_best_m014, sum20_lo_m014$total, sum20_hi_m014$total, sum20_cases_m014$total)
+colnames(merge20_m014) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_f014 <- regionF20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_f014 <- regionF20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_f014 <- regionF20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_f014 <- regionF20_014 %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_f014 <- cbind(sum20_best_f014, sum20_lo_f014$total, sum20_hi_f014$total, sum20_cases_f014$total)
+colnames(merge20_f014) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_m15plus <- regionM20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_m15plus <- regionM20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_m15plus <- regionM20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_m15plus <- regionM20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_m15plus <- cbind(sum20_best_m15plus, sum20_lo_m15plus$total, sum20_hi_m15plus$total, sum20_cases_m15plus$total)
+colnames(merge20_m15plus) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+sum20_best_f15plus <- regionF20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(best))
+sum20_lo_f15plus <- regionF20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(lo))
+sum20_hi_f15plus <- regionF20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(hi))
+sum20_cases_f15plus <- regionF20_15plus %>% group_by(g_whoregion) %>% summarise(total = sum(na.omit(cases)))
+merge20_f15plus <- cbind(sum20_best_f15plus, sum20_lo_f15plus$total, sum20_hi_f15plus$total, sum20_cases_f15plus$total)
+colnames(merge20_f15plus) <- c("g_whoregion", "best", "lo", "hi", "cases")
+
+
+#Drawing box plots for 2020
+
+piv20_m04 <- pivot_longer(merge20_m04, cols = c("best", "lo", "hi"), names_to = "est")
+box20_m04 <- boxplot(value ~ g_whoregion, piv20_m04, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_m04$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_f04 <- pivot_longer(merge20_f04, cols = c("best", "lo", "hi"), names_to = "est")
+box20_f04 <- boxplot(value ~ g_whoregion, piv20_f04, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_f04$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_m514 <- pivot_longer(merge20_m514, cols = c("best", "lo", "hi"), names_to = "est")
+box20_m514 <- boxplot(value ~ g_whoregion, piv20_m514, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_m514$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_f514 <- pivot_longer(merge20_f514, cols = c("best", "lo", "hi"), names_to = "est")
+box20_f514 <- boxplot(value ~ g_whoregion, piv20_f514, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_f514$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_m014 <- pivot_longer(merge20_m014, cols = c("best", "lo", "hi"), names_to = "est")
+box20_m014 <- boxplot(value ~ g_whoregion, piv20_m014, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_m014$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_f014 <- pivot_longer(merge20_f014, cols = c("best", "lo", "hi"), names_to = "est")
+box20_f014 <- boxplot(value ~ g_whoregion, piv20_f014, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_f014$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_m15plus <- pivot_longer(merge20_m15plus, cols = c("best", "lo", "hi"), names_to = "est")
+box20_m15plus <- boxplot(value ~ g_whoregion, piv20_m15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_m15plus$cases,
+       y = 1:6,
+       col = "red",
+       pch = 16)
+
+piv20_f15plus <- pivot_longer(merge20_f15plus, cols = c("best", "lo", "hi"), names_to = "est")
+box20_f15plus <- boxplot(value ~ g_whoregion, piv20_f15plus, horizontal = TRUE, las = 1, cex.names = 0.5)
+points(x = merge20_f15plus$cases,
+       y = 1:6,
        col = "red",
        pch = 16)
 

@@ -152,7 +152,7 @@ Merging two summed data frames
 dif_compare <- rbind(sum_dif_2019, sum_dif_2020)
 dif_only <- dif_compare[, c(17:24)]
 
-bar_compare <- barplot(dif_only, col = c("skyblue", "seagreen1"), beside = TRUE)
+bar_compare <- barplot(dif_only, col = c("skyblue", "seagreen1"), beside = TRUE, las = 2, cex.names = 1)
 legend("topleft", 
        legend = c("2019", "2020"),
        fill = c("skyblue", "seagreen1"))
