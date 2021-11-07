@@ -91,22 +91,34 @@ Creating graphs for male vs female for 0-4 by g_whoregion
 
 ```{r}
 afr_04 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m04, newrel_f04) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AFR")
+  t()
+colnames(afr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AFR")
 
 amr_04 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m04, newrel_f04) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AMR")
+  t()
+colnames(amr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AMR")
 
 emr_04 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m04, newrel_f04) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EMR")
+  t()
+colnames(emr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EMR")
 
 eur_04 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m04, newrel_f04) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EUR")
+  t()
+colnames(eur_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EUR")
 
 sea_04 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m04, newrel_f04) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,60000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in SEA")
+  t() 
+colnames(sea_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,60000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in SEA")
 
 wpr_04 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m04, newrel_f04) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in WPR")
+  t()
+colnames(wpr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in WPR")
 
 
 ```
@@ -114,64 +126,100 @@ Creating graphs for notifications in 5-14 years by g_whoregion
 
 ```{r}
 afr_514 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m514, newrel_f514) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,40000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-514 years in AFR")
+  t() 
+colnames(afr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,40000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-514 years in AFR")
 
 amr_514 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m514, newrel_f514) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,4000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in AMR")
+  t() 
+colnames(afr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,4000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in AMR")
 
 emr_514 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m514, newrel_f514) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EMR")
+  t() 
+colnames(emr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EMR")
 
 eur_514 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m514, newrel_f514) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EUR")
+  t()
+colnames(eur_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EUR")
 
 sea_514 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m514, newrel_f514) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,80000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in SEA")
+  t() 
+colnames(sea_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,100000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in SEA")
 
 wpr_514 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m514, newrel_f514) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in WPR")
+  t()
+colnames(wpr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in WPR")
 ```
 Creating plot for 0-14 
 
 ```{r}
 afr_014 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m014, newrel_f014) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,70000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in AFR")
+  t()
+colnames(afr_014) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_014 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,70000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in AFR")
 
 amr_014 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m014, newrel_f014) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,6000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in AMR")
+  t()
+colnames(amr_014) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_014 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,6000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in AMR")
 
 emr_014 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m014, newrel_f014) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,50000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in EMR")
+  t() 
+colnames(emr_014) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_014 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,50000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in EMR")
 
 eur_014 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m014, newrel_f014) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,8000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in EUR")
+  t() 
+colnames(eur_014) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_014 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,8000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in EUR")
 
 sea_014 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m014, newrel_f014) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,150000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in SEA")
+  t()
+colnames(sea_014) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_014 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,150000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in SEA")
 
 wpr_014 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m014, newrel_f014) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,50000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in WPR")
+  t() 
+colnames(wpr_014) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_014 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,50000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-14 years in WPR")
 ```
 Creating plot for 15 plus 
 
 ```{r}
 afr_15plus <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in AFR")
+  t() 
+colnames(afr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in AFR")
 
 amr_15plus <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,300000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15 plus years in AMR")
+  t()
+colnames(amr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,300000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15 plus years in AMR")
 
 emr_15plus <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EMR")
+  t() 
+colnames(emr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EMR")
 
 eur_15plus <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EUR")
+  t() 
+colnames(eur_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EUR")
 
 sea_15plus <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m15plus, newrel_f15plus) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,2000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in SEA")
+  t() 
+colnames(sea_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,2000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in SEA")
 
 wpr_15plus <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in WPR")
+  t() 
+colnames(wpr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in WPR")
 ```
 Plotting total notifications over time 
 
@@ -179,22 +227,34 @@ Plotting total notifications over time
 tot_world <- mutate(perc_world, "newrel_mtot" = newrel_m014 + newrel_m15plus, "newrel_ftot" = newrel_f014 + newrel_f15plus, "TOT" = newrel_mtot + newrel_ftot)
 
 afr_tot <- tot_world %>% filter(g_whoregion == "AFR") %>% select(newrel_mtot, newrel_ftot) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in AFR")
+  t() 
+colnames(afr_tot) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_tot %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in AFR")
 
 amr_tot <- tot_world %>% filter(g_whoregion == "AMR") %>% select(newrel_mtot, newrel_ftot) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in AMR")
+  t()
+colnames(amr_tot) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_tot %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in AMR")
 
-aemr_tot <- tot_world %>% filter(g_whoregion == "EMR") %>% select(newrel_mtot, newrel_ftot) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in EMR")
+emr_tot <- tot_world %>% filter(g_whoregion == "EMR") %>% select(newrel_mtot, newrel_ftot) %>% 
+  t() 
+colnames(emr_tot) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_tot %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in EMR")
 
 eur_tot <- tot_world %>% filter(g_whoregion == "EUR") %>% select(newrel_mtot, newrel_ftot) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in EUR")
+  t()
+colnames(eur_tot) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_tot %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in EUR")
 
 sea_tot <- tot_world %>% filter(g_whoregion == "SEA") %>% select(newrel_mtot, newrel_ftot) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in SEA")
+  t() 
+colnames(sea_tot) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_tot %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in SEA")
 
 wpr_tot <- tot_world %>% filter(g_whoregion == "WPR") %>% select(newrel_mtot, newrel_ftot) %>% 
-  t() %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in WPR")
+  t() 
+colnames(wpr_tot) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_tot %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages years in WPR")
 
 ```
 ```{r}
