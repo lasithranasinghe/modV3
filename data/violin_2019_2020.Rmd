@@ -684,3 +684,93 @@ points(x = merge20_f15plus$cases,
 
 ```
 
+Creating comibned data frame comparing 2019 and 2020 data 
+
+```{r}
+#Age 04 side-by-side
+sexM <- "male"
+merg_m04 <- merge(pivtot_m04, piv20_m04, by = c("g_whoregion", "est"), all.x = TRUE)
+colnames(merg_m04) <- c("g_whoregion", "est", "case_2019", "est_2019", "case_2020", "est_2020")
+merg_m04 <- cbind(merg_m04, sexM)
+colnames(merg_m04)[colnames(merg_m04) == "sexM"] <- "sex"
+
+sexF <- "female"
+merg_f04 <- merge(pivtot_f04, piv20_f04, by = c("g_whoregion", "est"), all.x = TRUE)
+colnames(merg_f04) <- c("g_whoregion", "est", "case_2019", "est_2019", "case_2020", "est_2020")
+merg_f04 <- cbind(merg_f04, sexF)
+colnames(merg_f04)[colnames(merg_f04) == "sexF"] <- "sex"
+
+merged_04 <- rbind(merg_m04, merg_f04)
+merged_044 <- merged_04[, -c(3,5)]
+long_04 <- pivot_longer(merged_044, cols = c("est_2019", "est_2020"))
+
+gg_try04 <- ggplot(long_04, aes(x = g_whoregion, y = value, color = name)) + geom_boxplot() + facet_wrap(~long_04$sex)
+
+#Age 5-14 side-by-side
+sexM <- "male"
+merg_m514 <- merge(pivtot_m514, piv20_m514, by = c("g_whoregion", "est"), all.x = TRUE)
+colnames(merg_m514) <- c("g_whoregion", "est", "case_2019", "est_2019", "case_2020", "est_2020")
+merg_m514 <- cbind(merg_m514, sexM)
+colnames(merg_m514)[colnames(merg_m514) == "sexM"] <- "sex"
+
+sexF <- "female"
+merg_f514 <- merge(pivtot_f514, piv20_f514, by = c("g_whoregion", "est"), all.x = TRUE)
+colnames(merg_f514) <- c("g_whoregion", "est", "case_2019", "est_2019", "case_2020", "est_2020")
+merg_f514 <- cbind(merg_f514, sexF)
+colnames(merg_f514)[colnames(merg_f514) == "sexF"] <- "sex"
+
+merged_514 <- rbind(merg_m514, merg_f514)
+merged_5144 <- merged_514[, -c(3,5)]
+long_514 <- pivot_longer(merged_5144, cols = c("est_2019", "est_2020"))
+
+gg_try514 <- ggplot(long_514, aes(x = g_whoregion, y = value, color = name)) + geom_boxplot() + facet_wrap(~long_514$sex)
+
+#Age 15 plus side-by-side
+sexM <- "male"
+merg_m15plus <- merge(pivtot_m15plus, piv20_m15plus, by = c("g_whoregion", "est"), all.x = TRUE)
+colnames(merg_m15plus) <- c("g_whoregion", "est", "case_2019", "est_2019", "case_2020", "est_2020")
+merg_m15plus <- cbind(merg_m15plus, sexM)
+colnames(merg_m15plus)[colnames(merg_m15plus) == "sexM"] <- "sex"
+
+sexF <- "female"
+merg_f15plus <- merge(pivtot_f15plus, piv20_f15plus, by = c("g_whoregion", "est"), all.x = TRUE)
+colnames(merg_f15plus) <- c("g_whoregion", "est", "case_2019", "est_2019", "case_2020", "est_2020")
+merg_f15plus <- cbind(merg_f15plus, sexF)
+colnames(merg_f15plus)[colnames(merg_f15plus) == "sexF"] <- "sex"
+
+merged_15plus <- rbind(merg_m15plus, merg_f15plus)
+merged_15plus4 <- merged_15plus[, -c(3,5)]
+long_15plus <- pivot_longer(merged_15plus4, cols = c("est_2019", "est_2020"))
+
+gg_try15plus <- ggplot(long_15plus, aes(x = g_whoregion, y = value, color = name)) + geom_boxplot() + facet_wrap(~long_15plus$sex) 
+
+
+```
+
+Creating data frame to overlay the case data for each graph 
+
+```{r}
+cases_04 <- merged_04[, -c(2, 4,6)]
+case_ready04 <- pivot_longer(cases_04, cols = c("case_2019", "case_2020"))
+
+no_dups04 <- case_ready04[!duplicated(case_ready04),]
+
+gg_try04 <- ggplot(long_04, aes(x = g_whoregion, y = value, color = name)) + geom_boxplot() + facet_wrap(~long_04$sex)
+
+
+gg_alone <- ggplot(no_dups04, aes(x = g_whoregion, y = value, color = name)) + geom_point() + facet_wrap(~no_dups04$sex)
+
+gg_try05 <- ggplot(long_04, aes(x = g_whoregion, y = value, color = name)) + geom_boxplot() + geom_point(data = no_dups04, aes(x = g_whoregion, y = value, color = name), inherit.aes = )  + facet_wrap(~long_04$sex)
+
+
+###Trying again 
+merged_05 <- merged_04[, -2]
+incl_case <- pivot_longer(merged_05, cols = c("est_2019", "est_2020"))
+incl_case2 <- pivot_longer(incl_case, cols = c("case_2019", "case_2020"), values_to = "cases", names_repair= "unique")
+colnames(incl_case2) <- c("g_whoregion", "sex", "est", "est_value", "case", "case_value")
+
+gg_incl04 <- ggplot(incl_case2, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case2$sex)
+
+
+```
+
