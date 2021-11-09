@@ -14,6 +14,8 @@ install.packages("forecast")
 library(forecast)
 install.packages("fpp2")
 library(fpp2)
+install.packages("stringr")
+library(stringr)
 
 world <- read_csv("TB_notifications.csv")
 tidyworld <- world[, c(1,3,5,6,100,103,104,113,115,118,119,128)]
@@ -496,7 +498,7 @@ est_afr_2020 <- cbind(afr_2020, afr_estimates)
 colnames(est_afr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_afr_2020$notif_2020 <- as.numeric(est_afr_2020$notif_2020)
 
-dif_afr <- mutate(est_afr_2020, "Difference" = notif_2020 - est_2020)
+dif_afr <- mutate(est_afr_2020, "Difference" = notif_2020 - est_2020, "afr_perc" = 100*(Difference/est_2020))
 
 ##SEA difference calculations 
 sea_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "SEA") %>% t() 
@@ -508,7 +510,7 @@ est_sea_2020 <- cbind(sea_2020, sea_estimates)
 colnames(est_sea_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_sea_2020$notif_2020 <- as.numeric(est_sea_2020$notif_2020)
 
-dif_sea <- mutate(est_sea_2020, "Difference" = notif_2020 - est_2020) 
+dif_sea <- mutate(est_sea_2020, "Difference" = notif_2020 - est_2020, "sea_perc" = 100*(Difference/est_2020))
 
 #WPR difference calculations 
 wpr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "WPR") %>% t() 
@@ -520,7 +522,7 @@ est_wpr_2020 <- cbind(wpr_2020, wpr_estimates)
 colnames(est_wpr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_wpr_2020$notif_2020 <- as.numeric(est_wpr_2020$notif_2020)
 
-dif_wpr <- mutate(est_wpr_2020, "Difference" = notif_2020 - est_2020) 
+dif_wpr <- mutate(est_wpr_2020, "Difference" = notif_2020 - est_2020, "wpr_perc" = 100*(Difference/est_2020))
 
 #WPR difference calculations 
 eur_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "EUR") %>% t() 
@@ -532,7 +534,7 @@ est_eur_2020 <- cbind(eur_2020, eur_estimates)
 colnames(est_eur_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_eur_2020$notif_2020 <- as.numeric(est_eur_2020$notif_2020)
 
-dif_eur <- mutate(est_eur_2020, "Difference" = notif_2020 - est_2020) 
+dif_eur <- mutate(est_eur_2020, "Difference" = notif_2020 - est_2020, "eur_perc" = 100*(Difference/est_2020)) 
 
 #AMR difference calculations
 amr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "AMR") %>% t() 
@@ -544,7 +546,7 @@ est_amr_2020 <- cbind(amr_2020, amr_estimates)
 colnames(est_amr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_amr_2020$notif_2020 <- as.numeric(est_amr_2020$notif_2020)
 
-dif_amr <- mutate(est_amr_2020, "Difference" = notif_2020 - est_2020) 
+dif_amr <- mutate(est_amr_2020, "Difference" = notif_2020 - est_2020, "amr_perc" = 100*(Difference/est_2020)) 
 
 #EMR difference calculations
 emr_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "EMR") %>% t() 
@@ -556,10 +558,28 @@ est_emr_2020 <- cbind(emr_2020, emr_estimates)
 colnames(est_emr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_emr_2020$notif_2020 <- as.numeric(est_emr_2020$notif_2020)
 
-dif_emr <- mutate(est_emr_2020, "Difference" = notif_2020 - est_2020) 
+dif_emr <- mutate(est_emr_2020, "Difference" = notif_2020 - est_2020, "emr_perc" = 100*(Difference/est_2020)) 
 
 #Combined data frame with difference data 
-combo_dif <- cbind(dif_afr, dif_sea$Difference, dif_eur$Difference, dif_amr$Difference, dif_wpr$Difference, dif_emr$Difference)
+combined_dif <- data.frame(dif_afr[, c(7,8)], dif_amr[,c(7,8)], dif_emr[, c(7,8)], dif_eur[,c(7:8)], dif_sea[,c(7:8)], dif_wpr[,c(7:8)])
+combined_dif$group <- as.vector(rownames(combined_dif))
+combined_dif$group <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus")
+rownames(combined_dif) <- c(1:8)
+combined_dif <- combined_dif[, c(13,1:12)]
 
+colnames(combined_dif) <- c("group", "AFR_dif", "AFR_perc", "AMR_dif", "AMR_perc", "EMR_dif", "EMR_perc", "EUR_dif", "EUR_perc", "SEA_dif", "SEA_perc", "WPR_dif", "WPR_perc")
+
+#isolating only the percentage data to be able to plot a bar plot 
+bar_data <- combined_dif[, c(1,3,5,7,9,11,13)]
+bar_newgroup <- str_split_fixed(bar_data$group, "", 2)
+bar_data2 <- cbind(bar_data, bar_newgroup)
+colnames(bar_data2) <- c("group", "AFR", "AMR", "EMR", "EUR", "SEA", "WPR", "sex", "age_group")
+bar_data2 <- bar_data2[, c(9,8,2:7)]
+
+
+piv_dif <- pivot_longer(bar_data2, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"), names_to = "g_whoregion", values_to = "value")
+
+##Attempt at drawing plots 
+arima_dif <- ggplot(piv_dif, aes(x = g_whoregion, y = value, fill = sex)) + facet_wrap(~piv_dif$age_group) + geom_bar(stat = "identity", position = "dodge")
 
 ```
