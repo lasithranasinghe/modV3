@@ -196,12 +196,12 @@ Plotting bar graphs
 ```{r}
 comparison_plot <- barplot(comp_perc_ALL$perc_diff ~ comp_perc_ALL$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 10))
 
-compare_04 <- barplot(comp_perc_04$perc_diff ~ comp_perc_04$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20))
+compare_04 <- barplot(comp_perc_04$perc_diff ~ comp_perc_04$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20), main = "Change in Perc Notification for 0-4 Years")
 
-compare_514 <- barplot(comp_perc_514$perc_diff ~ comp_perc_514$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20))
+compare_514 <- barplot(comp_perc_514$perc_diff ~ comp_perc_514$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20),  main = "Change in Perc Notification for 5-14 Years")
 
 compare_014 <- barplot(comp_perc_014$perc_diff ~ comp_perc_014$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20))
 
-compare_15plus <- barplot(comp_perc_15plus$perc_diff ~ comp_perc_15plus$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20))
+compare_15plus <- barplot(comp_perc_15plus$perc_diff ~ comp_perc_15plus$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20), main = "Change in Perc Notification for 15plus Years")
 ```
 

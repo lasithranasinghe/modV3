@@ -769,8 +769,9 @@ incl_case <- pivot_longer(merged_05, cols = c("est_2019", "est_2020"))
 incl_case2 <- pivot_longer(incl_case, cols = c("case_2019", "case_2020"), values_to = "cases", names_repair= "unique")
 colnames(incl_case2) <- c("g_whoregion", "sex", "est", "est_value", "case", "case_value")
 
-gg_incl04 <- ggplot(incl_case2, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case2$sex)
+gg_incl04 <- ggplot(incl_case2, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case2$sex) + labs(title = "2019 vs 2020 estimate and notification data for 0-4 yrs")
 
+gg_incl04
 
 ##Trying5-14 
 merged_514_ready <- merged_514[, -2]
@@ -778,7 +779,8 @@ incl_case514 <- pivot_longer(merged_514_ready, cols = c("est_2019", "est_2020"))
 incl_case5142 <- pivot_longer(incl_case514, cols = c("case_2019", "case_2020"), values_to = "cases", names_repair= "unique")
 colnames(incl_case5142) <- c("g_whoregion", "sex", "est", "est_value", "case", "case_value")
 
-gg_incl514 <- ggplot(incl_case5142, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case5142$sex)
+gg_incl514 <- ggplot(incl_case5142, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case5142$sex) + labs(title = "2019 vs 2020 estimate and notification data for 5-14 yrs")
+gg_incl514
 
 #Trying 15plus
 merged_15plus_ready <- merged_15plus[, -2]
@@ -786,8 +788,8 @@ incl_case15plus <- pivot_longer(merged_15plus_ready, cols = c("est_2019", "est_2
 incl_case15plus2 <- pivot_longer(incl_case15plus, cols = c("case_2019", "case_2020"), values_to = "cases", names_repair= "unique")
 colnames(incl_case15plus2) <- c("g_whoregion", "sex", "est", "est_value", "case", "case_value")
 
-gg_incl15plus <- ggplot(incl_case15plus2, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case15plus2$sex)
-
+gg_incl15plus <- ggplot(incl_case15plus2, aes(x = g_whoregion, y = est_value, color = est)) + geom_boxplot() + geom_point(aes(x = g_whoregion, y = case_value, color = case)) + facet_wrap(~incl_case15plus2$sex) + labs(title = "2019 vs 2020 estimate and notification data for 15plus yrs")
+gg_incl15plus
 
 
 ```
