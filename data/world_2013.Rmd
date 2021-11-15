@@ -592,5 +592,141 @@ arima_copy
 
 arima_three <- ggplot(piv_three, aes(x = g_whoregion, y = value, fill = sex)) + facet_wrap(~piv_three$age_group) + geom_bar(stat = "identity", position = "dodge")
 arima_three
+    
+``` 
+
+
+
+```{r}
+#Attempt at the forecasting models 
+#Rearranging data for 0-4 males 
+
+males_04 <- select(perc_world, c(g_whoregion, year, newrel_m04)) 
+piv_na <- pivot_wider(males_04, names_from = "year", values_from = "newrel_m04")
+piv_na$`2020` <- NA
+males_back <- pivot_longer(piv_na, cols = c(as.vector(colnames(piv_na[,2:9]))), names_to = "year")
+males_back$year <- as.numeric(males_back$year)
+males_no_pivot <- males_04
+males_pivot <- pivot_wider(males_04, names_from = "g_whoregion", values_from = "newrel_m04")
+
+select(afr_m04, "Point Forecast")
+
+fore2020 <- function(df){
+  a <- select(df, "Point Forecast")
+  b <- "2020"
+  colnames(a) <- "Number"
+  rownames(a) <- NULL
+  a$Year <- b
+  return(a)
+}
+
+#males 04 
+fore_afrm04 <- fore2020(afr_m04)
+fore_amrm04 <- fore2020(amr_m04)
+fore_emrm04 <- fore2020(emr_m04)
+fore_eurm04 <- fore2020(eur_m04)
+fore_seam04 <- fore2020(sea_m04)
+fore_wprm04 <- fore2020(wpr_m04)
+
+bound_fore <- cbind(fore_afrm04, fore_amrm04$Number, fore_emrm04$Number, fore_eurm04$Number, fore_seam04$Number, fore_wprm04$Number)
+
+colnames(bound_fore) <- c("AFR", "Year", "AMR", "EMR", "EUR", "SEA", "WPR")
+bound_fore <- bound_fore[, c(2, 1, 3:7)]
+
+#females04
+fore_afrf04 <- fore2020(afr_f04)
+fore_amrf04 <- fore2020(amr_f04)
+fore_emrf04 <- fore2020(emr_f04)
+fore_eurf04 <- fore2020(eur_f04)
+fore_seaf04 <- fore2020(sea_f04)
+fore_wprf04 <- fore2020(wpr_f04)
+
+bound_f04 <- cbind(fore_afrf04, fore_amrf04$Number, fore_emrf04$Number, fore_eurf04$Number, fore_seaf04$Number, fore_wprf04$Number)
+
+colnames(bound_f04) <- c("AFR", "Year", "AMR", "EMR", "EUR", "SEA", "WPR")
+bound_f04 <- bound_f04[, c(2, 1, 3:7)]
+
+#males 514 
+fore_afrm514 <- fore2020(afr_m514)
+fore_amrm514 <- fore2020(amr_m514)
+fore_emrm514 <- fore2020(emr_m514)
+fore_eurm514 <- fore2020(eur_m514)
+fore_seam514 <- fore2020(sea_m514)
+fore_wprm514 <- fore2020(wpr_m514)
+
+bound_m514 <- cbind(fore_afrm514, fore_amrm514$Number, fore_emrm514$Number, fore_eurm514$Number, fore_seam514$Number, fore_wprm514$Number)
+
+colnames(bound_m514) <- c("AFR", "Year", "AMR", "EMR", "EUR", "SEA", "WPR")
+bound_m514 <- bound_m514[, c(2, 1, 3:7)]
+
+#females 514 
+fore_afrf514 <- fore2020(afr_f514)
+fore_amrf514 <- fore2020(amr_f514)
+fore_emrf514 <- fore2020(emr_f514)
+fore_eurf514 <- fore2020(eur_f514)
+fore_seaf514 <- fore2020(sea_f514)
+fore_wprf514 <- fore2020(wpr_f514)
+
+bound_f514 <- cbind(fore_afrf514, fore_amrf514$Number, fore_emrf514$Number, fore_eurf514$Number, fore_seaf514$Number, fore_wprf514$Number)
+
+colnames(bound_f514) <- c("AFR", "Year", "AMR", "EMR", "EUR", "SEA", "WPR")
+bound_f514 <- bound_f514[, c(2, 1, 3:7)]
+
+#males 15plus 
+fore_afrm15plus <- fore2020(afr_m15plus)
+fore_amrm15plus <- fore2020(amr_m15plus)
+fore_emrm15plus <- fore2020(emr_m15plus)
+fore_eurm15plus <- fore2020(eur_m15plus)
+fore_seam15plus <- fore2020(sea_m15plus)
+fore_wprm15plus <- fore2020(wpr_m15plus)
+
+bound_m15plus <- cbind(fore_afrm15plus, fore_amrm15plus$Number, fore_emrm15plus$Number, fore_eurm15plus$Number, fore_seam15plus$Number, fore_wprm15plus$Number)
+
+colnames(bound_m15plus) <- c("AFR", "Year", "AMR", "EMR", "EUR", "SEA", "WPR")
+bound_m15plus <- bound_m15plus[, c(2, 1, 3:7)]
+
+#females 15plus 
+fore_afrf15plus <- fore2020(afr_f15plus)
+fore_amrf15plus <- fore2020(amr_f15plus)
+fore_emrf15plus <- fore2020(emr_f15plus)
+fore_eurf15plus <- fore2020(eur_f15plus)
+fore_seaf15plus <- fore2020(sea_f15plus)
+fore_wprf15plus <- fore2020(wpr_f15plus)
+
+bound_f15plus <- cbind(fore_afrf15plus, fore_amrf15plus$Number, fore_emrf15plus$Number, fore_eurf15plus$Number, fore_seaf15plus$Number, fore_wprf15plus$Number)
+
+colnames(bound_f15plus) <- c("AFR", "Year", "AMR", "EMR", "EUR", "SEA", "WPR")
+bound_f15plus <- bound_f15plus[, c(2, 1, 3:7)]
+
 
 ```
+
+Attempt 2 at creating the time series analyses 
+
+```{r}
+#males04 plot
+males_04 <- select(perc_world, c(g_whoregion, year, newrel_m04)) 
+gg_males04 <- ggplot(males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 27043, col = "red") + geom_point(x = 2020, y = 2062, col = "brown") + geom_point(x = 2020, y = 17243.17, col = "green") + geom_point(x = 2020, y = 1465, col = "turquoise2") + geom_point(x = 2020, y = 58951.83, col = "blue") + geom_point(x = 2020, y = 12558, col = "pink") + scale_y_continuous(limits = c(0, 60000))
+
+#females 04 plot
+females_04 <- select(perc_world, c(g_whoregion, year, newrel_f04)) 
+gg_females04 <- ggplot(females_04, aes(x = year, y = newrel_f04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 23790, col = "red") + geom_point(x = 2020, y = 1776, col = "brown") + geom_point(x = 2020, y = 13286.17, col = "green") + geom_point(x = 2020, y = 1269, col = "turquoise2") + geom_point(x = 2020, y = 43694, col = "blue") + geom_point(x = 2020, y = 10140, col = "pink") + scale_y_continuous(limits = c(0, 50000))
+
+#males 514 plot 
+males_514 <- select(perc_world, c(g_whoregion, year, newrel_m514)) 
+gg_males514 <- ggplot(males_514, aes(x = year, y = newrel_m514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32352, col = "red") + geom_point(x = 2020, y = 2826, col = "brown") + geom_point(x = 2020, y = 18620, col = "green") + geom_point(x = 2020, y = 3057, col = "turquoise2") + geom_point(x = 2020, y = 82535, col = "blue") + geom_point(x = 2020, y = 19606, col = "pink") + scale_y_continuous(limits = c(0, 90000))
+
+#females514
+females_514 <- select(perc_world, c(g_whoregion, year, newrel_f514)) 
+gg_females514 <- ggplot(females_514, aes(x = year, y = newrel_f514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32411, col = "red") + geom_point(x = 2020, y = 2897, col = "brown") + geom_point(x = 2020, y = 21632, col = "green") + geom_point(x = 2020, y = 2953, col = "turquoise2") + geom_point(x = 2020, y = 87086, col = "blue") + geom_point(x = 2020, y = 17500, col = "pink") + scale_y_continuous(limits = c(0, 100000))
+
+#males 15 plus plot 
+males_15plus <- select(perc_world, c(g_whoregion, year, newrel_m15plus)) 
+gg_males15plus <- ggplot(males_15plus, aes(x = year, y = newrel_m15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 661953, col = "red") + geom_point(x = 2020, y = 154305.3, col = "brown") + geom_point(x = 2020, y = 226294, col = "green") + geom_point(x = 2020, y = 129819.7, col = "turquoise2") + geom_point(x = 2020, y = 1931341, col = "blue") + geom_point(x = 2020, y = 891849, col = "pink") + scale_y_continuous(limits = c(0, 2000000))
+
+#females 15 plus plot 
+females_15plus <- select(perc_world, c(g_whoregion, year, newrel_f15plus)) 
+gg_females15plus <- ggplot(females_15plus, aes(x = year, y = newrel_f15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 426790, col = "red") + geom_point(x = 2020, y = 77417, col = "brown") + geom_point(x = 2020, y = 201386, col = "green") + geom_point(x = 2020, y = 66222.5, col = "turquoise2") + geom_point(x = 2020, y = 1182645, col = "blue") + geom_point(x = 2020, y = 435651, col = "pink") + scale_y_continuous(limits = c(0, 1200000))
+
+```
+
