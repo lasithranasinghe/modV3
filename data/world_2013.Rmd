@@ -522,7 +522,7 @@ est_wpr_2020$notif_2020 <- as.numeric(est_wpr_2020$notif_2020)
 
 dif_wpr <- mutate(est_wpr_2020, "Difference" = notif_2020 - est_2020, "wpr_perc" = 100*(Difference/est_2020))
 
-#WPR difference calculations 
+#EUR difference calculations 
 eur_2020 <- tot_world %>% filter(year == 2020) %>% filter(g_whoregion == "EUR") %>% t() 
 eur_2020 <- as.data.frame(eur_2020[c(3:10), ])
 
@@ -592,7 +592,7 @@ arima_copy
 
 arima_three <- ggplot(piv_three, aes(x = g_whoregion, y = value, fill = sex)) + facet_wrap(~piv_three$age_group) + geom_bar(stat = "identity", position = "dodge")
 arima_three
-    
+
 ``` 
 
 
@@ -793,8 +793,112 @@ world_15plus <- ggplot(all_copy15plus, aes(x = year, y = cases, fill = sex)) + g
 
 world_all <- ggplot(all_copyall, aes(x = year, y = cases, fill = sex)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Number of Reported Cases Amongst All Ages from 2013 to 2020")
 
+```
+
+Repeating the continental difference between actual and predicted and including column for overall 
+
+```{r}
+#extracting data for whole world 
+summed_m04 <- tot_world %>% group_by(year) %>% na.omit()
+summed_m04 <- summarise(summed_m04, total = sum(newrel_m04))
+colnames(summed_m04) <- c("year", "m04")
+
+summed_f04 <- tot_world %>% group_by(year) %>% na.omit()
+summed_f04 <- summarise(summed_f04, total = sum(newrel_f04))
+colnames(summed_f04) <- c("year", "f04")
+
+summed_m514 <- tot_world %>% group_by(year) %>% na.omit()
+summed_m514 <- summarise(summed_m514, total = sum(newrel_m514))
+colnames(summed_m514) <- c("year", "m514")
+
+summed_f514 <- tot_world %>% group_by(year) %>% na.omit()
+summed_f514 <- summarise(summed_f514, total = sum(newrel_f514))
+colnames(summed_f514) <- c("year", "f514")
+
+summed_m15plus <- tot_world %>% group_by(year) %>% na.omit()
+summed_m15plus <- summarise(summed_m15plus, total = sum(newrel_m15plus))
+colnames(summed_m15plus) <- c("year", "m15plus")
+
+summed_f15plus <- tot_world %>% group_by(year) %>% na.omit()
+summed_f15plus <- summarise(summed_f15plus, total = sum(newrel_f15plus))
+colnames(summed_f15plus) <- c("year", "f15plus")
+
+all_summed <- cbind(summed_m04, summed_f04$f04, summed_m514$m514, summed_f514$f514, summed_m15plus$m15plus, summed_f15plus$f15plus)
+colnames(all_summed) <- c("year", "m04", "f04", "m514", "f514", "m15plus", "f15plus")
+
+##Attempt at creating forecast 
+arima_allm04 <- all_summed[-8, 2]
+ts_arimam04 <- ts(arima_allm04, start = 2013, frequency = 1)
+ts_arimam04 %<>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+forecast_m04 <- forecast(ts_arimam04, h = 1)
+autoplot(forecast_m04)
+sum_m04 <- print(summary(forecast_m04))
+
+arima_allf04 <- all_summed[-8, 3]
+ts_arimaf04 <- ts(arima_allf04, start = 2013, frequency = 1)
+ts_arimaf04 %<>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+forecast_f04 <- forecast(ts_arimaf04, h = 1)
+autoplot(forecast_f04)
+sum_f04 <- print(summary(forecast_f04))
+
+arima_allm514 <- all_summed[-8, 4]
+ts_arimam514 <- ts(arima_allm514, start = 2013, frequency = 1)
+ts_arimam514 %<>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+forecast_m514 <- forecast(ts_arimam514, h = 1)
+autoplot(forecast_m514)
+sum_m514 <- print(summary(forecast_m514))
+
+arima_allf514 <- all_summed[-8, 5]
+ts_arimaf514 <- ts(arima_allf514, start = 2013, frequency = 1)
+ts_arimaf514 %<>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+forecast_f514 <- forecast(ts_arimaf514, h = 1)
+autoplot(forecast_f514)
+sum_f514 <- print(summary(forecast_f514))
+
+arima_allm15plus <- all_summed[-8, 6]
+ts_arimam15plus <- ts(arima_allm15plus, start = 2013, frequency = 1)
+ts_arimam15plus %<>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+forecast_m15plus <- forecast(ts_arimam15plus, h = 1)
+autoplot(forecast_m15plus)
+sum_m15plus <- print(summary(forecast_m15plus))
+
+arima_allf15plus <- all_summed[-8, 7]
+ts_arimaf15plus <- ts(arima_allf15plus, start = 2013, frequency = 1)
+ts_arimaf15plus %<>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+forecast_f15plus <- forecast(ts_arimaf15plus, h = 1)
+autoplot(forecast_f15plus)
+sum_f15plus <- print(summary(forecast_f15plus))
+
+##Creating single data frame with best estimates for each group 
+best_estimates <- cbind(sum_m04$`Point Forecast`, sum_f04$`Point Forecast`, sum_m514$`Point Forecast`, sum_f514$`Point Forecast`, sum_m15plus$`Point Forecast`, sum_f15plus$`Point Forecast`)
+colnames(best_estimates) <- c("m04", "f04", "m514", "f514", "m15plus", "f15plus")
+
+all_compared <- rbind(all_summed[8,-1], best_estimates)
+rownames(all_compared) <- c("Actual", "Predicted")
+
+all_differences <- t(all_compared)
+all_differences %<>% as.data.frame()
+all_differences <- mutate(all_differences, Percentage = 100*((Actual-Predicted)/Predicted))
 
 
+sex <- c("m", "f")
+add_col1 <- cbind(all_differences, sex)
+age_group <- c("04", "04", "514", "514", "15plus", "15plus")
+add_col2 <- cbind(add_col1, age_group)
+g_whoregion <- "ALL"
+add_col3 <- cbind(add_col2, g_whoregion)
+
+#Ready to merge 
+ready_all <- add_col3[, c(5,4,6,3)]
+colnames(ready_all)[colnames(ready_all) == "Percentage"] <- "value"
+
+piv_four <- rbind(piv_three, ready_all)
+piv_four <- piv_four %>% arrange(age_group) %>% group_by(age_group) %>% arrange(sex)
+piv_four$g_whoregion <- factor(piv_four$g_whoregion, levels = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR", "ALL"))
+
+arima_four <- ggplot(piv_four, aes(x = g_whoregion, y = value, fill = sex)) + facet_wrap(~piv_four$age_group) + geom_bar(stat = "identity", position = "dodge") + theme(axis.text.x = element_text(angle = 90)) + theme(legend.title = element_blank()) + xlab("Region") + ylab("Percentage Difference Between Actual and Predicted Cases in 2020") + labs(title = "Difference Between Actual and Predicted Notifications in 2020")
+
+arima_four 
 ```
 
 
