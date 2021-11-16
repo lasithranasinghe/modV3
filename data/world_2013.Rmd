@@ -729,4 +729,72 @@ females_15plus <- select(perc_world, c(g_whoregion, year, newrel_f15plus))
 gg_females15plus <- ggplot(females_15plus, aes(x = year, y = newrel_f15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 426790, col = "red") + geom_point(x = 2020, y = 77417, col = "brown") + geom_point(x = 2020, y = 201386, col = "green") + geom_point(x = 2020, y = 66222.5, col = "turquoise2") + geom_point(x = 2020, y = 1182645, col = "blue") + geom_point(x = 2020, y = 435651, col = "pink") + scale_y_continuous(limits = c(0, 1200000)) + labs(title = "Notifications Time Series for Females 15plus yrs")
 
 ```
+Creating notification graphs for entire world 
+
+```{r}
+#Putting together notification data for years 2013 to 2020
+world_data <- world_2013[,-c(1:3)] %>% group_by(year) %>% na.omit()
+tot_m04 <- summarise(world_data, total = sum(newrel_m04))
+tot_m04 %<>% as.data.frame()
+colnames(tot_m04) <- c("year", "m04")
+
+tot_f04 <- summarise(world_data, total = sum(newrel_f04))
+tot_f04 %<>% as.data.frame()
+colnames(tot_f04) <- c("year", "f04")
+
+tot_m514 <- summarise(world_data, total = sum(newrel_m514))
+tot_m514 %<>% as.data.frame()
+colnames(tot_m514) <- c("year", "m514")
+
+tot_f514 <- summarise(world_data, total = sum(newrel_f514))
+tot_f514 %<>% as.data.frame()
+colnames(tot_f514) <- c("year", "f514")
+
+tot_m15plus <- summarise(world_data, total = sum(newrel_m15plus))
+tot_m15plus %<>% as.data.frame()
+colnames(tot_m15plus) <- c("year", "m15plus")
+
+tot_f15plus <- summarise(world_data, total = sum(newrel_f15plus))
+tot_f15plus %<>% as.data.frame()
+colnames(tot_f15plus) <- c("year", "f15plus")
+
+all_tots <- cbind(tot_m04, tot_f04$f04, tot_m514$m514, tot_f514$f514, tot_m15plus$m15plus, tot_f15plus$f15plus)
+colnames(all_tots) <- c("year", "case_m04", "case_f04", "case_m514", "case_f514", "case_m15plus", "case_f15plus")
+
+all_tots <- mutate(all_tots, "all04" = case_m04 + case_f04, "all514" = case_m514 + case_f514, "all15plus" = case_m15plus + case_f15plus, "all_male" = case_m04 + case_m514 + case_m15plus, "all_female" = case_f04 + case_f514 + case_f15plus, "all_cases" = all_male + all_female)
+
+all_copy <- all_tots
+all_copy04 <- all_copy[, c(1:3)] 
+colnames(all_copy04) <- c("year", "male", "female")
+all_copy04 <- pivot_longer(all_copy04, cols = c(male, female), names_to = "sex", values_to = "cases")
+
+all_copy514 <- all_copy[, c(1,4,5)] 
+colnames(all_copy514) <- c("year", "male", "female")
+all_copy514 <- pivot_longer(all_copy514, cols = c(male, female), names_to = "sex", values_to = "cases")
+
+all_copy15plus <- all_copy[, c(1,6,7)] 
+colnames(all_copy15plus) <- c("year", "male", "female")
+all_copy15plus <- pivot_longer(all_copy15plus, cols = c(male, female), names_to = "sex", values_to = "cases")
+
+all_copy15plus <- all_copy[, c(1,6,7)] 
+colnames(all_copy15plus) <- c("year", "male", "female")
+all_copy15plus <- pivot_longer(all_copy15plus, cols = c(male, female), names_to = "sex", values_to = "cases")
+
+all_copyall <- all_copy[, c(1,11,12)] 
+colnames(all_copyall) <- c("year", "male", "female")
+all_copyall <- pivot_longer(all_copyall, cols = c(male, female), names_to = "sex", values_to = "cases")
+
+###Drawing the plots 
+world_04 <- ggplot(all_copy04, aes(x = year, y = cases, fill = sex)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Number of Reported Cases Amongst 0-4 yrs from 2013 to 2020")
+
+world_514 <- ggplot(all_copy514, aes(x = year, y = cases, fill = sex)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Number of Reported Cases Amongst 5-14 yrs from 2013 to 2020")
+
+world_15plus <- ggplot(all_copy15plus, aes(x = year, y = cases, fill = sex)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Number of Reported Cases Amongst 15plus yrs from 2013 to 2020")
+
+world_all <- ggplot(all_copyall, aes(x = year, y = cases, fill = sex)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Number of Reported Cases Amongst All Ages from 2013 to 2020")
+
+
+
+```
+
 

@@ -1,0 +1,109 @@
+---
+title: "Regression analysis of 2020 data"
+output: html_notebook
+---
+
+Perform a few regression anlayses of the data from 2020 - focusing on factors that may influence the rate of reporting of TB cases in the high burden countries
+
+```{r}
+#the data frames are taken from 'Comparison 2019 2020'
+
+library(dplyr)
+library(tidyverse)
+library(magrittr)
+
+gap_04 <- dif_tot_04
+gap_514 <- dif_tot_514
+gap_014 <- dif_tot_014
+gap_15plus <- dif_tot_15plus
+gap_total <- FINAL_tot
+
+percent_04 <- mutate(gap_04, "perc_rep" = 100 * (TOT_cases/TOT_est))
+percent_514 <- mutate(gap_514, "perc_rep" = 100 * (TOT_cases/TOT_est))
+percent_014 <- mutate(gap_014, "perc_rep" = 100 * (TOT_cases/TOT_est))
+percent_15plus <- mutate(gap_15plus, "perc_rep" = 100 * (TOT_cases/TOT_est))
+percent_total <- mutate(gap_total, "perc_rep" = 100 * (TOT_cases/TOT_est))
+
+#Isolating the 30 high burden countries
+highperc_04 <- percent_04[percent_04$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"),  ]
+        
+highperc_514 <- percent_514[percent_514$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"),  ]
+
+highperc_014 <- percent_014[percent_04$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"),  ]
+
+highperc_15plus <- percent_15plus[percent_15plus$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"),  ]
+
+highperc_total <- percent_total[percent_total$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"),  ]
+
+
+
+
+```
+
+Pulling in data for variables of interest (rural population percentage, percentage of adolescents, )
+
+```{r}
+setwd("~/Desktop/AFP/modV3/world_data2020")
+world_bank <- read_csv("world_bank2020.csv")
+colnames(world_bank) <- c("series_name", "series_code", "country", "iso3", "result")
+
+world_pivot <- pivot_wider(world_bank, names_from = c(series_name, series_code), values_from = result)
+world_pivot <- world_pivot[-31, -c(36:38)]
+
+colnames(world_pivot)[colnames(world_pivot) == "Rural population (% of total population)_SP.RUR.TOTL.ZS"] <- "rural_pop"
+
+merge_first <- world_pivot %>% merge(highperc_total, by = "iso3", all.y = TRUE)
+merge_first <- merge_first[, c(36:44, 1:35)]
+merge_first <- merge_first[, -11]
+merge_first <- merge_first[, c(1, 10, 2:9, 11:43)]
+
+merge_first$rural_pop <- as.numeric(merge_first$rural_pop)
+merge_first[merge_first == ".."] <- NA
+merge_first$`GDP per capita (current US$)_NY.GDP.PCAP.CD` <- as.numeric(merge_first$`GDP per capita (current US$)_NY.GDP.PCAP.CD`)
+merge_first$`Incidence of HIV, all (per 1,000 uninfected population)_SH.HIV.INCD.TL.P3` <- as.numeric(merge_first$`Incidence of HIV, all (per 1,000 uninfected population)_SH.HIV.INCD.TL.P3`)
+merge_first$`Population ages 0-14 (% of total population)_SP.POP.0014.TO.ZS` <- as.numeric(merge_first$`Population ages 0-14 (% of total population)_SP.POP.0014.TO.ZS`)
+merge_first$`School enrollment, primary, female (% gross)_SE.PRM.ENRR.FE` <- as.numeric(merge_first$`School enrollment, primary, female (% gross)_SE.PRM.ENRR.FE`)
+```
+
+
+Modelling 
+
+```{r}
+#Rural
+mod_rural <- lm(merge_first$perc_rep ~ merge_first$rural_pop)
+summary(mod_rural)
+plot(x = merge_first$rural_pop, y = merge_first$perc_rep, xlab = "% Rural Population", ylab = "Percentage Reported Cases")
+abline(mod_rural, col = "red", lwd = 2)
+
+#GDP per capita 
+
+mod_gdp <- lm(merge_first$perc_rep ~ merge_first$`GDP per capita (current US$)_NY.GDP.PCAP.CD`)
+summary(mod_gdp)
+
+plot(x = merge_first$`GDP per capita (current US$)_NY.GDP.PCAP.CD`, y = merge_first$perc_rep, xlab = "GDP Per Capita", ylab = "Percentage Reported Cases") 
+abline(mod_gdp, col = "red", lwd = 2)
+
+#HIV
+
+mod_hiv <- lm(merge_first$perc_rep ~ merge_first$`Incidence of HIV, all (per 1,000 uninfected population)_SH.HIV.INCD.TL.P3`)
+summary(mod_hiv)
+
+plot(x = merge_first$`Incidence of HIV, all (per 1,000 uninfected population)_SH.HIV.INCD.TL.P3`, y = merge_first$perc_rep, xlab = "HIV Incidence", ylab = "Percentage Reported Cases")
+abline(mod_hiv, col = "red", lwd =2)
+
+#Population 0-14 years 
+
+mod_pop <- lm(merge_first$perc_rep ~ merge_first$`Population ages 0-14 (% of total population)_SP.POP.0014.TO.ZS`)
+summary(mod_pop)
+
+plot(x = merge_first$`Population ages 0-14 (% of total population)_SP.POP.0014.TO.ZS`, y = merge_first$perc_rep, xlab = "Popn 0-14 Yrs as % of Total Pop", ylab = "Percentage Reported Cases")
+abline(mod_pop, col = "red", lwd = 2) 
+
+#female primary education
+mod_female <- lm(merge_first$perc_rep ~ merge_first$`School enrollment, primary, female (% gross)_SE.PRM.ENRR.FE`)
+summary(mod_female)
+
+plot(x = merge_first$`School enrollment, primary, female (% gross)_SE.PRM.ENRR.FE`, y = merge_first$perc_rep, xlab = "Female Primary School Enrollment", ylab = "Percentage Reported Cases")
+abline(mod_female, col = "red", lwd =2)
+```
+
