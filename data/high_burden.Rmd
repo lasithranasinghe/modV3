@@ -589,4 +589,3 @@ eur_sex_15plus <- incid_new %>% filter(region == "EUR") %>% select(newrel_m15plu
 
 legend("topright", legend = c("male", "female"), fill = c("skyblue", "seagreen1"))
 ```
-

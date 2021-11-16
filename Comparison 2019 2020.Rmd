@@ -204,4 +204,155 @@ compare_014 <- barplot(comp_perc_014$perc_diff ~ comp_perc_014$country, col = c(
 
 compare_15plus <- barplot(comp_perc_15plus$perc_diff ~ comp_perc_15plus$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 20), main = "Change in Perc Notification for 15plus Years")
 ```
+```{r}
+#Redoing the change in percentage notification for all countries 
+all04_2019 <- mutate(dif_04, "perc_tot" = 100 * (TOT_cases/TOT_est))
+all04_2020 <- mutate(dif_tot_04, "perc_tot" = 100 * (TOT_cases/TOT_est))
+
+all514_2019 <- mutate(dif_514, "perc_tot" = 100 * (TOT_cases/TOT_est))
+all514_2020 <- mutate(dif_tot_514, "perc_tot" = 100 * (TOT_cases/TOT_est))
+
+all15plus_2019 <- mutate(dif_15plus, "perc_tot" = 100 * (TOT_cases/TOT_est))
+all15plus_2020 <- mutate(dif_tot_15plus, "perc_tot" = 100 * (TOT_cases/TOT_est))
+
+all_2019 <- mutate(FINAL_2019, "perc_tot" = 100 * (TOT_cases/TOT_est))
+all_2020 <- mutate(FINAL_2020, "perc_tot" = 100 * (TOT_cases/TOT_est))
+
+
+#merging data frame for all countries
+allcomp_04 <- merge(all04_2019, all04_2020, by = c("country", "iso3"))
+allcomp_514 <- merge(all514_2019, all514_2020, by = c("country", "iso3"))
+allcomp_15plus <- merge(all15plus_2019, all15plus_2020, by = c("country", "iso3"))
+allcomp <- merge(all_2019, all_2020, by = c("country", "iso3"))
+
+#Adding column for change in percentage reporting between 2019 and 2020 
+allperc04 <- mutate(allcomp_04, "perc_diff" = perc_tot.y - perc_tot.x)
+allperc514 <- mutate(allcomp_514, "perc_diff" = perc_tot.y - perc_tot.x)
+allperc15plus <- mutate(allcomp_15plus, "perc_diff" = perc_tot.y - perc_tot.x)
+allperc <- mutate(allcomp, "perc_diff" = perc_tot.y - perc_tot.x)
+
+
+###PLOTTING FOR ALL COUNTRIES###
+allcomp04_plot <- barplot(allperc04$perc_diff ~ allperc04$country, col = c("skyblue"), axisnames = FALSE, xlab = "Country", ylab = "Change in Percentage Notification", ylim = c(-250, 100), main = "Change in Perc Notification for 0-4 Years")
+
+allcomp514_plot <- barplot(allperc514$perc_diff ~ allperc514$country, col = c("skyblue"), axisnames = FALSE, xlab = "Country", ylab = "Change in Percentage Notification", ylim = c(-150, 100), main = "Change in Perc Notification for 5-14 Years")
+
+allcomp15plus_plot <- barplot(allperc15plus$perc_diff ~ allperc15plus$country, col = c("skyblue"), axisnames = FALSE, xlab = "Country", ylab = "Change in Percentage Notification", ylim = c(-100, 150), main = "Change in Perc Notification for 15plus Years")
+
+allcomp_plot <- barplot(allperc$perc_diff ~ allperc$country, col = c("skyblue"), axisnames = FALSE, xlab = "Country", ylab = "Change in Percentage Notification", ylim = c(-100, 150), main = "Change in Perc Notification for All Ages")
+
+
+```
+Adding the combined 30 country columns to the data frame 
+
+```{r}
+total_hbc <- comp_perc_ALL[, c(3:19)] %>% na.omit() %>% sapply(FUN = sum) %>% as.data.frame() %>% t()
+
+total_hbc <- cbind(total_hbc, country = "All_HBCs", iso3 = "HBCs")
+
+total_hbc <- total_hbc[, c(18,19, 1:17)]
+total_hbc %<>% as.data.frame()
+total_hbc %<>% t()
+total_hbc %<>% as.data.frame()
+total_hbc[, c(3:19)] %<>% as.numeric()
+
+
+total_hbc$perc_tot.x <- 100 * (total_hbc$TOT_cases.x/total_hbc$TOT_est.x)
+total_hbc$perc_tot.y <- 100 * (total_hbc$TOT_cases.y/total_hbc$TOT_est.y)
+total_hbc$perc_diff <- total_hbc$perc_tot.y - total_hbc$perc_tot.x
+
+###Combining the total HBC data with the main data frame before producing a new graph 
+add_hbc_all <- rbind(comp_perc_ALL, total_hbc)
+
+final_comp_plot <- barplot(add_hbc_all$perc_diff ~ add_hbc_all$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 10))
+
+countries <- as.vector(unique(add_hbc_all$country))
+countries_new <- countries[! countries %in% "All_HBCs"]
+
+add_hbc_all$iso3 <- factor(add_hbc_all$iso3, levels = c(unique(add_hbc_all$iso3)))
+
+gg_comp_plot <- ggplot(add_hbc_all, aes(x = iso3, y = perc_diff, fill = iso3)) + 
+  geom_bar(stat = "identity") + scale_fill_manual(values = c( "HBCs" = "red")) + theme(axis.text.x = element_text(angle = 90)) + theme(legend.title = element_blank()) + xlab("Country") + ylab("Change in Percentage Notifications") + labs(title = "Change in Percentage Notifications for All Ages")
+
+
+###Graphs including total for 0-4 years 
+total_04 <- comp_perc_04[, c(3:19)] %>% na.omit() %>% sapply(FUN = sum) %>% as.data.frame() %>% t()
+
+total_04 <- cbind(total_04, country = "All_HBCs", iso3 = "HBCs")
+
+total_04 <- total_04[, c(18,19, 1:17)]
+total_04 %<>% as.data.frame()
+total_04 %<>% t()
+total_04 %<>% as.data.frame()
+total_04[, c(3:19)] %<>% as.numeric()
+
+
+total_04$perc_tot.x <- 100 * (total_04$TOT_cases.x/total_04$TOT_est.x)
+total_04$perc_tot.y <- 100 * (total_04$TOT_cases.y/total_04$TOT_est.y)
+total_04$perc_diff <- total_04$perc_tot.y - total_04$perc_tot.x
+
+add_hbc_04 <- rbind(comp_perc_04, total_04)
+
+final_comp_04 <- barplot(add_hbc_04$perc_diff ~ add_hbc_04$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 10))
+
+add_hbc_04$iso3 <- factor(add_hbc_04$iso3, levels = c(unique(add_hbc_04$iso3)))
+
+gg_comp_04 <- ggplot(add_hbc_04, aes(x = iso3, y = perc_diff, fill = iso3)) + 
+  geom_bar(stat = "identity") + scale_fill_manual(values = c( "HBCs" = "red")) + theme(axis.text.x = element_text(angle = 90)) + theme(legend.title = element_blank()) + xlab("Country") + ylab("Change in Percentage Notifications") + labs(title = "Change in Percentage Notifications for 0-4 years")
+
+###Graphs including total for 5-14 years 
+total_514 <- comp_perc_514[, c(3:19)] %>% na.omit() %>% sapply(FUN = sum) %>% as.data.frame() %>% t()
+
+total_514 <- cbind(total_514, country = "All_HBCs", iso3 = "HBCs")
+
+total_514 <- total_514[, c(18,19, 1:17)]
+total_514 %<>% as.data.frame()
+total_514 %<>% t()
+total_514 %<>% as.data.frame()
+total_514[, c(3:19)] %<>% as.numeric()
+
+
+total_514$perc_tot.x <- 100 * (total_514$TOT_cases.x/total_514$TOT_est.x)
+total_514$perc_tot.y <- 100 * (total_514$TOT_cases.y/total_514$TOT_est.y)
+total_514$perc_diff <- total_514$perc_tot.y - total_514$perc_tot.x
+
+add_hbc_514 <- rbind(comp_perc_514, total_514)
+
+final_comp_514 <- barplot(add_hbc_514$perc_diff ~ add_hbc_514$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 10))
+
+add_hbc_514$iso3 <- factor(add_hbc_514$iso3, levels = c(unique(add_hbc_514$iso3)))
+
+gg_comp_514 <- ggplot(add_hbc_514, aes(x = iso3, y = perc_diff, fill = iso3)) + 
+  geom_bar(stat = "identity") + scale_fill_manual(values = c( "HBCs" = "red")) + theme(axis.text.x = element_text(angle = 90)) + theme(legend.title = element_blank()) + xlab("Country") + ylab("Change in Percentage Notifications") + labs(title = "Change in Percentage Notifications for 5-14 years")
+
+###Graphs including total for 15 plus years
+total_15plus <- comp_perc_15plus[, c(3:19)] %>% na.omit() %>% sapply(FUN = sum) %>% as.data.frame() %>% t()
+
+total_15plus <- cbind(total_15plus, country = "All_HBCs", iso3 = "HBCs")
+
+total_15plus <- total_15plus[, c(18,19, 1:17)]
+total_15plus %<>% as.data.frame()
+total_15plus %<>% t()
+total_15plus %<>% as.data.frame()
+total_15plus[, c(3:19)] %<>% as.numeric()
+
+
+total_15plus$perc_tot.x <- 100 * (total_15plus$TOT_cases.x/total_15plus$TOT_est.x)
+total_15plus$perc_tot.y <- 100 * (total_15plus$TOT_cases.y/total_15plus$TOT_est.y)
+total_15plus$perc_diff <- total_15plus$perc_tot.y - total_15plus$perc_tot.x
+
+add_hbc_15plus <- rbind(comp_perc_15plus, total_15plus)
+
+final_comp_15plus <- barplot(add_hbc_15plus$perc_diff ~ add_hbc_15plus$country, col = c("skyblue"), las = 2, cex.names = 1, xlab = NA, ylab = "Change in Percentage Notification", ylim = c(-60, 10))
+
+add_hbc_15plus$iso3 <- factor(add_hbc_15plus$iso3, levels = c(unique(add_hbc_15plus$iso3)))
+
+gg_comp_15plus <- ggplot(add_hbc_15plus, aes(x = iso3, y = perc_diff, fill = iso3)) + 
+  geom_bar(stat = "identity") + scale_fill_manual(values = c( "HBCs" = "red")) + theme(axis.text.x = element_text(angle = 90)) + theme(legend.title = element_blank()) + xlab("Country") + ylab("Change in Percentage Notifications") + labs(title = "Change in Percentage Notifications for 15 plus years")
+
+
+```
+
+
+
 

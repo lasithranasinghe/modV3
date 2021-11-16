@@ -157,4 +157,3 @@ legend("topleft",
        legend = c("2019", "2020"),
        fill = c("skyblue", "seagreen1"))
 ```
-

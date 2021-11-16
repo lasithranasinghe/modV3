@@ -706,27 +706,27 @@ Attempt 2 at creating the time series analyses
 ```{r}
 #males04 plot
 males_04 <- select(perc_world, c(g_whoregion, year, newrel_m04)) 
-gg_males04 <- ggplot(males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 27043, col = "red") + geom_point(x = 2020, y = 2062, col = "brown") + geom_point(x = 2020, y = 17243.17, col = "green") + geom_point(x = 2020, y = 1465, col = "turquoise2") + geom_point(x = 2020, y = 58951.83, col = "blue") + geom_point(x = 2020, y = 12558, col = "pink") + scale_y_continuous(limits = c(0, 60000))
+gg_males04 <- ggplot(males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 27043, col = "red") + geom_point(x = 2020, y = 2062, col = "brown") + geom_point(x = 2020, y = 17243.17, col = "green") + geom_point(x = 2020, y = 1465, col = "turquoise2") + geom_point(x = 2020, y = 58951.83, col = "blue") + geom_point(x = 2020, y = 12558, col = "pink") + scale_y_continuous(limits = c(0, 60000)) + labs(title = "Notifications Time Series for Males 0-4 yrs")
 
 #females 04 plot
 females_04 <- select(perc_world, c(g_whoregion, year, newrel_f04)) 
-gg_females04 <- ggplot(females_04, aes(x = year, y = newrel_f04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 23790, col = "red") + geom_point(x = 2020, y = 1776, col = "brown") + geom_point(x = 2020, y = 13286.17, col = "green") + geom_point(x = 2020, y = 1269, col = "turquoise2") + geom_point(x = 2020, y = 43694, col = "blue") + geom_point(x = 2020, y = 10140, col = "pink") + scale_y_continuous(limits = c(0, 50000))
+gg_females04 <- ggplot(females_04, aes(x = year, y = newrel_f04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 23790, col = "red") + geom_point(x = 2020, y = 1776, col = "brown") + geom_point(x = 2020, y = 13286.17, col = "green") + geom_point(x = 2020, y = 1269, col = "turquoise2") + geom_point(x = 2020, y = 43694, col = "blue") + geom_point(x = 2020, y = 10140, col = "pink") + scale_y_continuous(limits = c(0, 50000)) + labs(title = "Notifications Time Series for Females 0-4 yrs")
 
 #males 514 plot 
 males_514 <- select(perc_world, c(g_whoregion, year, newrel_m514)) 
-gg_males514 <- ggplot(males_514, aes(x = year, y = newrel_m514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32352, col = "red") + geom_point(x = 2020, y = 2826, col = "brown") + geom_point(x = 2020, y = 18620, col = "green") + geom_point(x = 2020, y = 3057, col = "turquoise2") + geom_point(x = 2020, y = 82535, col = "blue") + geom_point(x = 2020, y = 19606, col = "pink") + scale_y_continuous(limits = c(0, 90000))
+gg_males514 <- ggplot(males_514, aes(x = year, y = newrel_m514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32352, col = "red") + geom_point(x = 2020, y = 2826, col = "brown") + geom_point(x = 2020, y = 18620, col = "green") + geom_point(x = 2020, y = 3057, col = "turquoise2") + geom_point(x = 2020, y = 82535, col = "blue") + geom_point(x = 2020, y = 19606, col = "pink") + scale_y_continuous(limits = c(0, 90000)) + labs(title = "Notifications Time Series for Males 5-14 yrs")
 
 #females514
 females_514 <- select(perc_world, c(g_whoregion, year, newrel_f514)) 
-gg_females514 <- ggplot(females_514, aes(x = year, y = newrel_f514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32411, col = "red") + geom_point(x = 2020, y = 2897, col = "brown") + geom_point(x = 2020, y = 21632, col = "green") + geom_point(x = 2020, y = 2953, col = "turquoise2") + geom_point(x = 2020, y = 87086, col = "blue") + geom_point(x = 2020, y = 17500, col = "pink") + scale_y_continuous(limits = c(0, 100000))
+gg_females514 <- ggplot(females_514, aes(x = year, y = newrel_f514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32411, col = "red") + geom_point(x = 2020, y = 2897, col = "brown") + geom_point(x = 2020, y = 21632, col = "green") + geom_point(x = 2020, y = 2953, col = "turquoise2") + geom_point(x = 2020, y = 87086, col = "blue") + geom_point(x = 2020, y = 17500, col = "pink") + scale_y_continuous(limits = c(0, 100000)) + labs(title = "Notifications Time Series for Females 5-14 yrs")
 
 #males 15 plus plot 
 males_15plus <- select(perc_world, c(g_whoregion, year, newrel_m15plus)) 
-gg_males15plus <- ggplot(males_15plus, aes(x = year, y = newrel_m15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 661953, col = "red") + geom_point(x = 2020, y = 154305.3, col = "brown") + geom_point(x = 2020, y = 226294, col = "green") + geom_point(x = 2020, y = 129819.7, col = "turquoise2") + geom_point(x = 2020, y = 1931341, col = "blue") + geom_point(x = 2020, y = 891849, col = "pink") + scale_y_continuous(limits = c(0, 2000000))
+gg_males15plus <- ggplot(males_15plus, aes(x = year, y = newrel_m15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 661953, col = "red") + geom_point(x = 2020, y = 154305.3, col = "brown") + geom_point(x = 2020, y = 226294, col = "green") + geom_point(x = 2020, y = 129819.7, col = "turquoise2") + geom_point(x = 2020, y = 1931341, col = "blue") + geom_point(x = 2020, y = 891849, col = "pink") + scale_y_continuous(limits = c(0, 2000000)) + labs(title = "Notifications Time Series for Males 15plus yrs")
 
 #females 15 plus plot 
 females_15plus <- select(perc_world, c(g_whoregion, year, newrel_f15plus)) 
-gg_females15plus <- ggplot(females_15plus, aes(x = year, y = newrel_f15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 426790, col = "red") + geom_point(x = 2020, y = 77417, col = "brown") + geom_point(x = 2020, y = 201386, col = "green") + geom_point(x = 2020, y = 66222.5, col = "turquoise2") + geom_point(x = 2020, y = 1182645, col = "blue") + geom_point(x = 2020, y = 435651, col = "pink") + scale_y_continuous(limits = c(0, 1200000))
+gg_females15plus <- ggplot(females_15plus, aes(x = year, y = newrel_f15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 426790, col = "red") + geom_point(x = 2020, y = 77417, col = "brown") + geom_point(x = 2020, y = 201386, col = "green") + geom_point(x = 2020, y = 66222.5, col = "turquoise2") + geom_point(x = 2020, y = 1182645, col = "blue") + geom_point(x = 2020, y = 435651, col = "pink") + scale_y_continuous(limits = c(0, 1200000)) + labs(title = "Notifications Time Series for Females 15plus yrs")
 
 ```
 
