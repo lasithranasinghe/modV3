@@ -80,7 +80,7 @@ top_014 <- dif_tot_014[dif_tot_04$country %in% c("Angola", "Bangladesh", "Brazil
 
 top_15plus <- dif_tot_15plus[dif_tot_04$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
 
-top_tot <- FINAL_tot[FINAL_tot$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
+top_tot <- FINAL_2020[FINAL_2020$country %in% c("Angola", "Bangladesh", "Brazil", "China", "Democratic People's Republic of Korea", "Democratic Republic of the Congo", "Ethiopia", "India", "Indonesia", "Kenya", "Mozambique", "Myanmar", "Nigeria", "Pakistan", "Philippines", "Russian Federation", "South Africa", "Thailand", "United Republic of Tanzania", "Viet Nam", "Cambodia", "Central African Republic", "Congo", "Lesotho", "Liberia", "Namibia", "Papua New Guinea", "Sierra Leone", "Zambia", "Zimbabwe"), ]
 
 ##Adding percentage reported as a column
 topp_04 <- mutate(top_04, "perc_tot" = 100 * (TOT_cases/TOT_est))

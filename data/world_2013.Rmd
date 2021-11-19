@@ -222,6 +222,43 @@ wpr_15plus <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m15p
 colnames(wpr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
 wpr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in WPR")
 ```
+
+```{r}
+#Creating barplot data for whole world 
+whole_world <- perc_world %>% filter(year == "2013") %>% select(-c("g_whoregion", "year")) %>% lapply(., FUN = sum) %>% as.data.frame()
+
+all_func <- function(df = perc_world, yr){
+        C <- df %>% filter(year == yr) %>% select(-c("g_whoregion", "year", "perc_014", "perc_youngkids")) %>% lapply(., FUN = sum) %>% as.data.frame()
+        return(C) }
+
+years <- c(2013:2020)
+whole_world_data  <- NULL
+for(i in years){
+        output <- all_func(perc_world, i)
+        whole_world_data <- rbind(whole_world_data, output) }
+
+whole_world_data <- cbind(whole_world_data, years)
+whole_world_data <- whole_world_data[, c(13, 1:12)]
+
+male_world <- whole_world_data %>% select(contains("m")) %>% as.data.frame() %>% mutate(m_total = newrel_m014 + newrel_m15plus)
+        
+female_world <- whole_world_data %>% select(contains("f")) %>% as.data.frame() %>% mutate(f_total = newrel_f014 + newrel_f15plus)
+
+mf_years <- cbind(male_world$m_total, female_world$f_total)
+colnames(mf_years) <- c("m_total", "f_total")
+mf_years <- t(mf_years)
+colnames(mf_years) <- c(2013:2020)
+
+mf_plot <- mf_years %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages globally")
+
+
+
+
+
+```
+
+
+
 Plotting total notifications over time 
 
 ```{r}
@@ -270,7 +307,7 @@ print(summary(arima_afr04))
 checkresiduals(arima_afr04)
 
 fcst_afrm04 <- forecast(arima_afr04, h = 1)
-autoplot(fcst)
+autoplot(fcst_afr04)
 sum_afrm04 <- print(summary(fcst))
 
 ####Attempt at creating function to produce predictions 
