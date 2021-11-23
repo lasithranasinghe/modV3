@@ -94,31 +94,37 @@ Creating graphs for male vs female for 0-4 by g_whoregion
 afr_04 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m04, newrel_f04) %>% 
   t()
 colnames(afr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_04 <- afr_04[, -8]
 afr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AFR")
 
 amr_04 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m04, newrel_f04) %>% 
   t()
 colnames(amr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_04 <- amr_04[, -8]
 amr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in AMR")
 
 emr_04 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m04, newrel_f04) %>% 
   t()
 colnames(emr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_04 <- emr_04[, -8]
 emr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EMR")
 
 eur_04 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m04, newrel_f04) %>% 
   t()
 colnames(eur_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_04 <- eur_04[, -8]
 eur_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,3000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in EUR")
 
 sea_04 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m04, newrel_f04) %>% 
   t() 
 colnames(sea_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_04 <- sea_04[, -8]
 sea_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,60000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in SEA")
 
 wpr_04 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m04, newrel_f04) %>% 
   t()
 colnames(wpr_04) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_04 <- wpr_04[, -8]
 wpr_04 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,20000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-4 years in WPR")
 
 
@@ -129,31 +135,37 @@ Creating graphs for notifications in 5-14 years by g_whoregion
 afr_514 <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m514, newrel_f514) %>% 
   t() 
 colnames(afr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_514 <- afr_514[, -8]
 afr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,40000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 0-514 years in AFR")
 
 amr_514 <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m514, newrel_f514) %>% 
   t() 
-colnames(afr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+colnames(amr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_514 <- amr_514[, -8]
 amr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,4000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in AMR")
 
 emr_514 <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m514, newrel_f514) %>% 
   t() 
 colnames(emr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_514 <- emr_514[, -8]
 emr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EMR")
 
 eur_514 <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m514, newrel_f514) %>% 
   t()
 colnames(eur_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_514 <- eur_514[, -8]
 eur_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in EUR")
 
 sea_514 <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m514, newrel_f514) %>% 
   t() 
 colnames(sea_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_514 <- sea_514[, -8]
 sea_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,100000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in SEA")
 
 wpr_514 <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m514, newrel_f514) %>% 
   t()
 colnames(wpr_514) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_514 <- wpr_514[, -8]
 wpr_514 %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,30000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 5-14 years in WPR")
 ```
 Creating plot for 0-14 
@@ -195,31 +207,37 @@ Creating plot for 15 plus
 afr_15plus <- perc_world %>% filter(g_whoregion == "AFR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
   t() 
 colnames(afr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+afr_15plus <- afr_15plus[, -8]
 afr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in AFR")
 
 amr_15plus <- perc_world %>% filter(g_whoregion == "AMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
   t()
 colnames(amr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+amr_15plus <- amr_15plus[, -8]
 amr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,300000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15 plus years in AMR")
 
 emr_15plus <- perc_world %>% filter(g_whoregion == "EMR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
   t() 
 colnames(emr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+emr_15plus <- emr_15plus[, -8]
 emr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,500000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EMR")
 
 eur_15plus <- perc_world %>% filter(g_whoregion == "EUR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
   t() 
 colnames(eur_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+eur_15plus <- eur_15plus[, -8]
 eur_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,200000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in EUR")
 
 sea_15plus <- perc_world %>% filter(g_whoregion == "SEA") %>% select(newrel_m15plus, newrel_f15plus) %>% 
   t() 
 colnames(sea_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+sea_15plus <- sea_15plus[, -8]
 sea_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,2000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in SEA")
 
 wpr_15plus <- perc_world %>% filter(g_whoregion == "WPR") %>% select(newrel_m15plus, newrel_f15plus) %>% 
   t() 
 colnames(wpr_15plus) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
+wpr_15plus <- wpr_15plus[, -8]
 wpr_15plus %<>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,1000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for ages 15plus years in WPR")
 ```
 
@@ -248,11 +266,9 @@ mf_years <- cbind(male_world$m_total, female_world$f_total)
 colnames(mf_years) <- c("m_total", "f_total")
 mf_years <- t(mf_years)
 colnames(mf_years) <- c(2013:2020)
+mf_years <- mf_years[, c(1:7)]
 
 mf_plot <- mf_years %>% barplot(col = c("skyblue", "seagreen1"), beside = TRUE, ylim = c(0,5000000), xlab = "year", ylab = "notifications") + title("Sex disaggregated notifications for all ages globally")
-
-
-
 
 
 ```
@@ -307,7 +323,7 @@ print(summary(arima_afr04))
 checkresiduals(arima_afr04)
 
 fcst_afrm04 <- forecast(arima_afr04, h = 1)
-autoplot(fcst_afr04)
+autoplot(fcst_afrm04)
 sum_afrm04 <- print(summary(fcst))
 
 ####Attempt at creating function to produce predictions 
@@ -743,27 +759,200 @@ Attempt 2 at creating the time series analyses
 ```{r}
 #males04 plot
 males_04 <- select(perc_world, c(g_whoregion, year, newrel_m04)) 
+males_04 <- mutate(males_04, newrel_m04 = ifelse(year == "2020", NA, newrel_m04))
 gg_males04 <- ggplot(males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 27043, col = "red") + geom_point(x = 2020, y = 2062, col = "brown") + geom_point(x = 2020, y = 17243.17, col = "green") + geom_point(x = 2020, y = 1465, col = "turquoise2") + geom_point(x = 2020, y = 58951.83, col = "blue") + geom_point(x = 2020, y = 12558, col = "pink") + scale_y_continuous(limits = c(0, 60000)) + labs(title = "Notifications Time Series for Males 0-4 yrs")
+
+
+###Trial at new plot 
+only_2019 <- perc_world %>% filter(year == 2019) %>% select(g_whoregion, year, newrel_m04)
+colnames(only_2019) <- c("g_whoregion", "year", "value")
+only_pred <- pivot_longer(bound_fore, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"))
+only_pred <- only_pred[,c(2,1,3)]
+only_pred$Year <- as.numeric(only_pred$Year)
+colnames(only_pred) <- c("g_whoregion", "year", "value")
+pred_2019 <- rbind(only_2019, only_pred)
+
+#filter continent  
+pull_region <- function(region){
+  x <- pred_2019 %>% filter(g_whoregion == region)
+  return(x)
+}
+
+###frame for real data from 2019 to 2020 for second line segment 
+incl_2020 <- perc_world %>% filter(year == c(2019, 2020)) %>% select(g_whoregion, year, newrel_m04)
+colnames(incl_2020) <- c("g_whoregion", "year", "value")
+
+pull_real <- function(region){
+  x <- incl_2020 %>% filter(g_whoregion == region)
+  return(x)}
+
+####New plot 
+test_males04 <- ggplot() + geom_line(data = males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line(data = pull_region("AFR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pull_region("AMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pull_region("EMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pull_region("EUR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pull_region("SEA"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pull_region("WPR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pull_real("AFR"), aes(x = year, y = value)) + geom_line(data = pull_real("AMR"), aes(x = year, y = value)) + geom_line(data = pull_real("EMR"), aes(x = year, y = value)) + geom_line(data = pull_real("EUR"), aes(x = year, y = value)) + geom_line(data = pull_real("SEA"), aes(x = year, y = value)) + geom_line(data = pull_real("WPR"), aes(x = year, y = value))
 
 #females 04 plot
 females_04 <- select(perc_world, c(g_whoregion, year, newrel_f04)) 
+females_04 <- mutate(females_04, newrel_f04 = ifelse(year == "2020", NA, newrel_f04))
 gg_females04 <- ggplot(females_04, aes(x = year, y = newrel_f04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 23790, col = "red") + geom_point(x = 2020, y = 1776, col = "brown") + geom_point(x = 2020, y = 13286.17, col = "green") + geom_point(x = 2020, y = 1269, col = "turquoise2") + geom_point(x = 2020, y = 43694, col = "blue") + geom_point(x = 2020, y = 10140, col = "pink") + scale_y_continuous(limits = c(0, 50000)) + labs(title = "Notifications Time Series for Females 0-4 yrs")
+
+###Trial at new plot 
+only19_f04 <- perc_world %>% filter(year == 2019) %>% select(g_whoregion, year, newrel_f04)
+colnames(only19_f04) <- c("g_whoregion", "year", "value")
+onlypr_f04 <- pivot_longer(bound_f04, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"))
+onlypr_f04 <- onlypr_f04[,c(2,1,3)]
+onlypr_f04$Year <- as.numeric(onlypr_f04$Year)
+colnames(onlypr_f04) <- c("g_whoregion", "year", "value")
+pred19_f04 <- rbind(only19_f04, onlypr_f04)
+
+#filter continent  
+pullreg_f04 <- function(region){
+  x <- pred19_f04 %>% filter(g_whoregion == region)
+  return(x)
+}
+
+###frame for real data from 2019 to 2020 for second line segment 
+incl20_f04 <- perc_world %>% filter(year == c(2019, 2020)) %>% select(g_whoregion, year, newrel_f04)
+colnames(incl20_f04) <- c("g_whoregion", "year", "value")
+
+pullreal_f04 <- function(region){
+  x <- incl20_f04 %>% filter(g_whoregion == region)
+  return(x)}
+
+####New plot 
+test_females04 <- ggplot() + geom_line(data = females_04, aes(x = year, y = newrel_f04, col = g_whoregion)) + geom_line(data = pullreg_f04("AFR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f04("AMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f04("EMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f04("EUR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f04("SEA"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f04("WPR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreal_f04("AFR"), aes(x = year, y = value)) + geom_line(data = pullreal_f04("AMR"), aes(x = year, y = value)) + geom_line(data = pullreal_f04("EMR"), aes(x = year, y = value)) + geom_line(data = pullreal_f04("EUR"), aes(x = year, y = value)) + geom_line(data = pullreal_f04("SEA"), aes(x = year, y = value)) + geom_line(data = pullreal_f04("WPR"), aes(x = year, y = value))
 
 #males 514 plot 
 males_514 <- select(perc_world, c(g_whoregion, year, newrel_m514)) 
+males_514 <- mutate(males_514, newrel_m514 = ifelse(year == "2020", NA, newrel_m514))
 gg_males514 <- ggplot(males_514, aes(x = year, y = newrel_m514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32352, col = "red") + geom_point(x = 2020, y = 2826, col = "brown") + geom_point(x = 2020, y = 18620, col = "green") + geom_point(x = 2020, y = 3057, col = "turquoise2") + geom_point(x = 2020, y = 82535, col = "blue") + geom_point(x = 2020, y = 19606, col = "pink") + scale_y_continuous(limits = c(0, 90000)) + labs(title = "Notifications Time Series for Males 5-14 yrs")
+
+###Trial at new plot 
+only19_m514 <- perc_world %>% filter(year == 2019) %>% select(g_whoregion, year, newrel_m514)
+colnames(only19_m514) <- c("g_whoregion", "year", "value")
+onlypr_m514 <- pivot_longer(bound_m514, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"))
+onlypr_m514 <- onlypr_m514[,c(2,1,3)]
+onlypr_m514$Year <- as.numeric(onlypr_m514$Year)
+colnames(onlypr_m514) <- c("g_whoregion", "year", "value")
+pred19_m514 <- rbind(only19_m514, onlypr_m514)
+
+#filter continent  
+pullreg_m514 <- function(region){
+  x <- pred19_m514 %>% filter(g_whoregion == region)
+  return(x)
+}
+
+###frame for real data from 2019 to 2020 for second line segment 
+incl20_m514 <- perc_world %>% filter(year == c(2019, 2020)) %>% select(g_whoregion, year, newrel_m514)
+colnames(incl20_m514) <- c("g_whoregion", "year", "value")
+
+pullreal_m514 <- function(region){
+  x <- incl20_m514 %>% filter(g_whoregion == region)
+  return(x)}
+
+####New plot 
+test_males514 <- ggplot() + geom_line(data = males_514, aes(x = year, y = newrel_m514, col = g_whoregion)) + geom_line(data = pullreg_m514("AFR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m514("AMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m514("EMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m514("EUR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m514("SEA"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m514("WPR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreal_m514("AFR"), aes(x = year, y = value)) + geom_line(data = pullreal_m514("AMR"), aes(x = year, y = value)) + geom_line(data = pullreal_m514("EMR"), aes(x = year, y = value)) + geom_line(data = pullreal_m514("EUR"), aes(x = year, y = value)) + geom_line(data = pullreal_m514("SEA"), aes(x = year, y = value)) + geom_line(data = pullreal_m514("WPR"), aes(x = year, y = value))
 
 #females514
 females_514 <- select(perc_world, c(g_whoregion, year, newrel_f514)) 
+females_514 <- mutate(females_514, newrel_f514 = ifelse(year == "2020", NA, newrel_f514))
 gg_females514 <- ggplot(females_514, aes(x = year, y = newrel_f514, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 32411, col = "red") + geom_point(x = 2020, y = 2897, col = "brown") + geom_point(x = 2020, y = 21632, col = "green") + geom_point(x = 2020, y = 2953, col = "turquoise2") + geom_point(x = 2020, y = 87086, col = "blue") + geom_point(x = 2020, y = 17500, col = "pink") + scale_y_continuous(limits = c(0, 100000)) + labs(title = "Notifications Time Series for Females 5-14 yrs")
+
+###Trial at new plot 
+only19_f514 <- perc_world %>% filter(year == 2019) %>% select(g_whoregion, year, newrel_f514)
+colnames(only19_f514) <- c("g_whoregion", "year", "value")
+onlypr_f514 <- pivot_longer(bound_f514, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"))
+onlypr_f514 <- onlypr_f514[,c(2,1,3)]
+onlypr_f514$Year <- as.numeric(onlypr_f514$Year)
+colnames(onlypr_f514) <- c("g_whoregion", "year", "value")
+pred19_f514 <- rbind(only19_f514, onlypr_f514)
+
+#filter continent  
+pullreg_f514 <- function(region){
+  x <- pred19_f514 %>% filter(g_whoregion == region)
+  return(x)
+}
+
+###frame for real data from 2019 to 2020 for second line segment 
+incl20_f514 <- perc_world %>% filter(year == c(2019, 2020)) %>% select(g_whoregion, year, newrel_f514)
+colnames(incl20_f514) <- c("g_whoregion", "year", "value")
+
+pullreal_f514 <- function(region){
+  x <- incl20_f514 %>% filter(g_whoregion == region)
+  return(x)}
+
+####New plot 
+test_females514 <- ggplot() + geom_line(data = females_514, aes(x = year, y = newrel_f514, col = g_whoregion)) + geom_line(data = pullreg_f514("AFR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f514("AMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f514("EMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f514("EUR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f514("SEA"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f514("WPR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreal_f514("AFR"), aes(x = year, y = value)) + geom_line(data = pullreal_f514("AMR"), aes(x = year, y = value)) + geom_line(data = pullreal_f514("EMR"), aes(x = year, y = value)) + geom_line(data = pullreal_f514("EUR"), aes(x = year, y = value)) + geom_line(data = pullreal_f514("SEA"), aes(x = year, y = value)) + geom_line(data = pullreal_f514("WPR"), aes(x = year, y = value))
 
 #males 15 plus plot 
 males_15plus <- select(perc_world, c(g_whoregion, year, newrel_m15plus)) 
+males_15plus <- mutate(males_15plus, newrel_m15plus = ifelse(year == "2020", NA, newrel_m15plus))
 gg_males15plus <- ggplot(males_15plus, aes(x = year, y = newrel_m15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 661953, col = "red") + geom_point(x = 2020, y = 154305.3, col = "brown") + geom_point(x = 2020, y = 226294, col = "green") + geom_point(x = 2020, y = 129819.7, col = "turquoise2") + geom_point(x = 2020, y = 1931341, col = "blue") + geom_point(x = 2020, y = 891849, col = "pink") + scale_y_continuous(limits = c(0, 2000000)) + labs(title = "Notifications Time Series for Males 15plus yrs")
+
+###Trial at new plot 
+only19_m15plus <- perc_world %>% filter(year == 2019) %>% select(g_whoregion, year, newrel_m15plus)
+colnames(only19_m15plus) <- c("g_whoregion", "year", "value")
+onlypr_m15plus <- pivot_longer(bound_m15plus, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"))
+onlypr_m15plus <- onlypr_m15plus[,c(2,1,3)]
+onlypr_m15plus$Year <- as.numeric(onlypr_m15plus$Year)
+colnames(onlypr_m15plus) <- c("g_whoregion", "year", "value")
+pred19_m15plus <- rbind(only19_m15plus, onlypr_m15plus)
+
+#filter continent  
+pullreg_m15plus <- function(region){
+  x <- pred19_m15plus %>% filter(g_whoregion == region)
+  return(x)
+}
+
+###frame for real data from 2019 to 2020 for second line segment 
+incl20_m15plus <- perc_world %>% filter(year == c(2019, 2020)) %>% select(g_whoregion, year, newrel_m15plus)
+colnames(incl20_m15plus) <- c("g_whoregion", "year", "value")
+
+pullreal_m15plus <- function(region){
+  x <- incl20_m15plus %>% filter(g_whoregion == region)
+  return(x)}
+
+####New plot 
+test_males15plus <- ggplot() + geom_line(data = males_15plus, aes(x = year, y = newrel_m15plus, col = g_whoregion)) + geom_line(data = pullreg_m15plus("AFR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m15plus("AMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m15plus("EMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m15plus("EUR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m15plus("SEA"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_m15plus("WPR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreal_m15plus("AFR"), aes(x = year, y = value)) + geom_line(data = pullreal_m15plus("AMR"), aes(x = year, y = value)) + geom_line(data = pullreal_m15plus("EMR"), aes(x = year, y = value)) + geom_line(data = pullreal_m15plus("EUR"), aes(x = year, y = value)) + geom_line(data = pullreal_m15plus("SEA"), aes(x = year, y = value)) + geom_line(data = pullreal_m15plus("WPR"), aes(x = year, y = value))
+
 
 #females 15 plus plot 
 females_15plus <- select(perc_world, c(g_whoregion, year, newrel_f15plus)) 
+females_15plus <- mutate(females_15plus, newrel_f15plus = ifelse(year == "2020", NA, newrel_f15plus))
 gg_females15plus <- ggplot(females_15plus, aes(x = year, y = newrel_f15plus, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 426790, col = "red") + geom_point(x = 2020, y = 77417, col = "brown") + geom_point(x = 2020, y = 201386, col = "green") + geom_point(x = 2020, y = 66222.5, col = "turquoise2") + geom_point(x = 2020, y = 1182645, col = "blue") + geom_point(x = 2020, y = 435651, col = "pink") + scale_y_continuous(limits = c(0, 1200000)) + labs(title = "Notifications Time Series for Females 15plus yrs")
+
+###Trial at new plot 
+only19_f15plus <- perc_world %>% filter(year == 2019) %>% select(g_whoregion, year, newrel_f15plus)
+colnames(only19_f15plus) <- c("g_whoregion", "year", "value")
+onlypr_f15plus <- pivot_longer(bound_f15plus, cols = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR"))
+onlypr_f15plus <- onlypr_f15plus[,c(2,1,3)]
+onlypr_f15plus$Year <- as.numeric(onlypr_f15plus$Year)
+colnames(onlypr_f15plus) <- c("g_whoregion", "year", "value")
+pred19_f15plus <- rbind(only19_f15plus, onlypr_f15plus)
+
+#filter continent  
+pullreg_f15plus <- function(region){
+  x <- pred19_f15plus %>% filter(g_whoregion == region)
+  return(x)
+}
+
+###frame for real data from 2019 to 2020 for second line segment 
+incl20_f15plus <- perc_world %>% filter(year == c(2019, 2020)) %>% select(g_whoregion, year, newrel_f15plus)
+colnames(incl20_f15plus) <- c("g_whoregion", "year", "value")
+
+pullreal_f15plus <- function(region){
+  x <- incl20_f15plus %>% filter(g_whoregion == region)
+  return(x)}
+
+####New plot 
+test_females15plus <- ggplot() + geom_line(data = females_15plus, aes(x = year, y = newrel_f15plus, col = g_whoregion)) + geom_line(data = pullreg_f15plus("AFR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f15plus("AMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f15plus("EMR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f15plus("EUR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f15plus("SEA"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreg_f15plus("WPR"), aes(x = year, y = value), linetype = "dotted") + geom_line(data = pullreal_f15plus("AFR"), aes(x = year, y = value)) + geom_line(data = pullreal_f15plus("AMR"), aes(x = year, y = value)) + geom_line(data = pullreal_f15plus("EMR"), aes(x = year, y = value)) + geom_line(data = pullreal_f15plus("EUR"), aes(x = year, y = value)) + geom_line(data = pullreal_f15plus("SEA"), aes(x = year, y = value)) + geom_line(data = pullreal_f15plus("WPR"), aes(x = year, y = value))
+
+#create all tables 
+test_males04
+test_females04
+test_males514
+test_females514
+test_males15plus
+test_females15plus
+
 
 ```
 Creating notification graphs for entire world 
@@ -937,5 +1126,3 @@ arima_four <- ggplot(piv_four, aes(x = g_whoregion, y = value, fill = sex)) + fa
 
 arima_four 
 ```
-
-
