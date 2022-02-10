@@ -534,6 +534,79 @@ rownames(amr_f15plus) <- "amr_f15plus"
 
 amr_estimates <- rbind(amr_m04, amr_f04, amr_m514, amr_f514, amr_m014, amr_f014, amr_m15plus, amr_f15plus)
 
+
+####Isolating time series estimates to populate Seddon tables
+#AFR
+afr_sed <- cbind(rownames(afr_estimates), afr_estimates)
+rownames(afr_sed) <- NULL
+colnames(afr_sed) <- c("age_group", "prediction")
+afr_sed <- afr_sed[, c(1,2)]
+afr_sed <-  pivot_wider(afr_sed, names_from = age_group, values_from = prediction)
+afr_sed <- mutate(afr_sed, "all_04" = afr_m04 + afr_f04, "all_514" = afr_m514 + afr_f514, "all_15plus" = afr_m15plus + afr_f15plus)
+afr_sed %<>% as.data.frame()
+colnames(afr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
+
+#AMR
+amr_sed <- cbind(rownames(amr_estimates), amr_estimates)
+rownames(amr_sed) <- NULL
+colnames(amr_sed) <- c("age_group", "prediction")
+amr_sed <- amr_sed[, c(1,2)]
+amr_sed <-  pivot_wider(amr_sed, names_from = age_group, values_from = prediction)
+amr_sed <- mutate(amr_sed, "all_04" = amr_m04 + amr_f04, "all_514" = amr_m514 + amr_f514, "all_15plus" = amr_m15plus + amr_f15plus)
+amr_sed %<>% as.data.frame()
+colnames(amr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
+
+#EMR
+emr_sed <- cbind(rownames(emr_estimates), emr_estimates)
+rownames(emr_sed) <- NULL
+colnames(emr_sed) <- c("age_group", "prediction")
+emr_sed <- emr_sed[, c(1,2)]
+emr_sed <-  pivot_wider(emr_sed, names_from = age_group, values_from = prediction)
+emr_sed <- mutate(emr_sed, "all_04" = emr_m04 + emr_f04, "all_514" = emr_m514 + emr_f514, "all_15plus" = emr_m15plus + emr_f15plus)
+emr_sed %<>% as.data.frame()
+colnames(emr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
+
+#EUR
+eur_sed <- cbind(rownames(eur_estimates), eur_estimates)
+rownames(eur_sed) <- NULL
+colnames(eur_sed) <- c("age_group", "prediction")
+eur_sed <- eur_sed[, c(1,2)]
+eur_sed <-  pivot_wider(eur_sed, names_from = age_group, values_from = prediction)
+eur_sed <- mutate(eur_sed, "all_04" = eur_m04 + eur_f04, "all_514" = eur_m514 + eur_f514, "all_15plus" = eur_m15plus + eur_f15plus)
+eur_sed %<>% as.data.frame()
+colnames(eur_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
+
+#SEA
+sea_sed <- cbind(rownames(sea_estimates), sea_estimates)
+rownames(sea_sed) <- NULL
+colnames(sea_sed) <- c("age_group", "prediction")
+sea_sed <- sea_sed[, c(1,2)]
+sea_sed <-  pivot_wider(sea_sed, names_from = age_group, values_from = prediction)
+sea_sed <- mutate(sea_sed, "all_04" = sea_m04 + sea_f04, "all_514" = sea_m514 + sea_f514, "all_15plus" = sea_m15plus + sea_f15plus)
+sea_sed %<>% as.data.frame()
+colnames(sea_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
+
+#WPR
+wpr_sed <- cbind(rownames(wpr_estimates), wpr_estimates)
+rownames(wpr_sed) <- NULL
+colnames(wpr_sed) <- c("age_group", "prediction")
+wpr_sed <- wpr_sed[, c(1,2)]
+wpr_sed <-  pivot_wider(wpr_sed, names_from = age_group, values_from = prediction)
+wpr_sed <- mutate(wpr_sed, "all_04" = wpr_m04 + wpr_f04, "all_514" = wpr_m514 + wpr_f514, "all_15plus" = wpr_m15plus + wpr_f15plus)
+wpr_sed %<>% as.data.frame()
+colnames(wpr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
+
+#Merging all
+bind_sed <- rbind(afr_sed, amr_sed, emr_sed, eur_sed, sea_sed, wpr_sed)
+regions <- c("afr", "amr", "emr", "eur", "sea", "wpr")
+bind_sed <- cbind(bind_sed, regions)
+bind_sed <- bind_sed[,c(12, 1:11)]
+
+###Finding notification data for Seddon tables
+sed_2020 <- grouped_2020[, -10]
+sed_2020 <- mutate(sed_2020, "all_04" = newrel_m04 + newrel_f04, "all_514" = newrel_m514 + newrel_f514, "all_15plus" = newrel_m15plus + newrel_f15plus)
+
+
 ```
 Combining the data for 2020 with the model estimates 
 
@@ -1126,7 +1199,12 @@ colnames(ready_all)[colnames(ready_all) == "Percentage"] <- "value"
 piv_four <- rbind(piv_three, ready_all)
 piv_four <- piv_four %>% arrange(age_group) %>% group_by(age_group) %>% arrange(sex)
 piv_four$g_whoregion <- factor(piv_four$g_whoregion, levels = c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR", "ALL"))
+piv_four$age_group[piv_four$age_group == "04"] <- "0-4"
+piv_four$age_group[piv_four$age_group == "514"] <- "5-14"
+piv_four$age_group[piv_four$age_group == "15plus"] <- "15+"
 
+
+piv_four$age_group <- factor(piv_four$age_group, levels = c("0-4", "5-14", "15+"))
 arima_four <- ggplot(piv_four, aes(x = g_whoregion, y = value, fill = sex)) + facet_wrap(~piv_four$age_group) + geom_bar(stat = "identity", position = "dodge") + theme(axis.text.x = element_text(angle = 90)) + xlab("Region") + ylab("Percentage Difference") + labs(title = "Percentage Difference Between Actual Notifications and Time Series Prediction by Region") + theme(plot.title = element_text(size = 9)) + scale_fill_manual(name = "Sex", labels = c("Female", "Male"), values = c("seagreen1", "skyblue")) + theme(axis.text.x = element_text(size = 7)) + theme(plot.title = element_text(hjust = 0.5))
 
 

@@ -240,6 +240,21 @@ comboF20_514 <- merge(female20_514, notif_2020[, c(3, 118)], by = "iso3")
 comboF20_014 <- merge(female20_014, notif_2020[, c(3, 119)], by = "iso3")
 comboF20_15plus <- merge(female20_15plus, notif_2020[, c(3, 128)], by = "iso3")
 
+###Extracting data for Seddon table 
+sum(na.omit(comboM20_04$newrel_m04))
+sum(na.omit(comboM20_04$best))
+sum(na.omit(comboF20_04$newrel_f04))
+sum(na.omit(comboF20_04$best))
+sum(na.omit(comboM20_514$newrel_m514))
+sum(na.omit(comboM20_514$best))
+sum(na.omit(comboF20_514$newrel_f514))
+sum(na.omit(comboF20_514$best))
+sum(na.omit(comboM20_15plus$newrel_m15plus))
+sum(na.omit(comboM20_15plus$best))
+sum(na.omit(comboF20_15plus$newrel_f15plus))
+sum(na.omit(comboF20_15plus$best))
+
+
 ```
 Isolating the data for high burden countries excluding India and Indonesia
 ```{r}
@@ -541,6 +556,39 @@ points(x = merge19_f15plus$cases,
        col = "red",
        pch = 16)
 
+####Extracting data to populate seddon tables
+piv19_m04 <- unique(pivtot_m04[, c(1:2)])
+piv19_f04 <- unique(pivtot_f04,[, c(1:2)])
+comb1904 <- cbind(piv19_m04, piv19_f04$cases)
+comb1904 %<>% mutate("tot" = cases + piv19_f04$cases)
+
+piv19_m514 <- unique(pivtot_m514[, c(1:2)])
+piv19_f514 <- unique(pivtot_f514[, c(1:2)])
+comb19514 <- cbind(piv19_m514, piv19_f514$cases)
+comb19514 %<>% mutate("tot" = cases + piv19_f514$cases)
+
+piv19_m15plus <- unique(pivtot_m15plus[, c(1:2)])
+piv19_f15plus <- unique(pivtot_f15plus[, c(1:2)])
+comb1915plus <- cbind(piv19_m15plus, piv19_f15plus$cases)
+comb1915plus %<>% mutate("tot" = cases + piv19_f15plus$cases)
+
+
+####Extracting 2019 total estimates for seddon tables 
+pivot_m04 <- filter(pivtot_m04, est == "best")
+pivot_f04 <- filter(pivtot_f04, est == "best")
+pivot_04 <- merge(pivot_m04, pivot_f04, by = "g_whoregion")
+pivot_04 %<>% mutate("tot" = value.x + value.y)
+
+pivot_m514 <- filter(pivtot_m514, est == "best")
+pivot_f514 <- filter(pivtot_f514, est == "best")
+pivot_514 <- merge(pivot_m514, pivot_f514, by = "g_whoregion")
+pivot_514 %<>% mutate("tot" = value.x + value.y)
+
+pivot_m15plus <- filter(pivtot_m15plus, est == "best")
+pivot_f15plus <- filter(pivtot_f15plus, est == "best")
+pivot_15plus <- merge(pivot_m15plus, pivot_f15plus, by = "g_whoregion")
+pivot_15plus %<>% mutate("tot" = value.x + value.y)
+
 ```
 Performing continental analysis with 2020 data 
 
@@ -623,6 +671,17 @@ sum20_cases_f15plus <- regionF20_15plus %>% group_by(g_whoregion) %>% summarise(
 merge20_f15plus <- cbind(sum20_best_f15plus, sum20_lo_f15plus$total, sum20_hi_f15plus$total, sum20_cases_f15plus$total)
 colnames(merge20_f15plus) <- c("g_whoregion", "best", "lo", "hi", "cases")
 
+###Extracting data for seddon tables
+merged_04 <- merge(merge20_m04, merge20_f04, by = "g_whoregion")
+merged_04 %<>% mutate("est_tot" = best.x + best.y, "tot" = cases.x + cases.y)
+
+merged_514 <- merge(merge20_m514, merge20_f514, by = "g_whoregion")
+merged_514 %<>% mutate("est_tot" = best.x + best.y, "tot" = cases.x + cases.y)
+merged_514 %<>% mutate("dif" = tot - est_tot)
+
+merged_15plus <- merge(merge20_m15plus, merge20_f15plus, by = "g_whoregion")
+merged_15plus %<>% mutate("est_tot" = best.x + best.y, "tot" = cases.x + cases.y)
+merged_15plus %<>% mutate("dif" = tot - est_tot)
 
 #Drawing box plots for 2020
 
@@ -681,6 +740,26 @@ points(x = merge20_f15plus$cases,
        y = 1:6,
        col = "red",
        pch = 16)
+
+
+####Extra bit of code to fill out Seddon tables
+
+newpiv_m04 <- piv20_m04[, c(1:2)] %>% unique()
+newpiv_f04 <- piv20_f04[,c(1:2)] %>% unique()
+newpiv_m514 <- piv20_m514[, c(1:2)] %>% unique()
+newpiv_f514 <- piv20_f514[, c(1:2)] %>% unique()
+newpiv_m15plus <- piv20_m15plus[, c(1:2)] %>% unique()
+newpiv_f15plus <- piv20_f15plus[, c(1:2)] %>% unique()
+
+comb04 <- cbind(newpiv_m04, newpiv_f04$cases)
+comb04 %<>% mutate("tot" = cases + newpiv_f04$cases)
+
+comb514 <- cbind(newpiv_m514, newpiv_f514$cases)
+comb514 %<>% mutate("tot" = cases + newpiv_f514$cases)
+
+comb15plus <- cbind(newpiv_m15plus, newpiv_f15plus$cases)
+comb15plus %<>% mutate("tot" = cases + newpiv_f15plus$cases)
+
 
 ```
 
