@@ -17,11 +17,17 @@ library(magrittr)
 library(ggplot2)
 library(here)
 
+# TODO lots of parsing errors - have these been checked?
 world <- read_csv(here::here("data", "TB_notifications.csv"))
 # TODO use variable names here rather than numbers if possible
 # higher risk of changing data structure and silent miscalculation
 tidyworld <- world[, c(1,3,5,6,100,103,104,113,115,118,119,128)]
 world_2013 <- tidyworld %>% filter(year > 2012)
+```
+
+```{r}
+# define constant variables
+who_regions <- c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR")
 ```
 
 Organising the data by g_whoregion
@@ -117,6 +123,7 @@ render_plot_by_who_region <- function(df = perc_world,
 
         colnames(wide) <- c("2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020")
 
+        # TODO why is the final column removed here?
         wide <- wide[c(2,1), -8]
 
         create_barplot(
@@ -125,8 +132,6 @@ render_plot_by_who_region <- function(df = perc_world,
 
 }
 
-
-who_regions <- c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR")
 age_identifiers <- c("04", "514", "014", "15plus")
 upper_ylims <- list(30000, 3000, 20000, 3000, 60000, 20000)
 titles <- c(
@@ -248,9 +253,9 @@ mf_years <- t(mf_years)
 colnames(mf_years) <- c(2013:2020)
 mf_years <- mf_years[c(2,1), c(1:7)]
 
-mf_plot <- mf_years %>% barplot(col = c("seagreen1", "skyblue"), beside = TRUE, ylim = c(0,5000000), xlab = "Year", ylab = "Notifications") + title("Sex Disaggregated Notifications for All Ages Globally")
-
-
+mf_plot <- create_barplot(mf_years,
+                          ylim = c(0, 5000000),
+                          title = "Sex Disaggregated Notifications for All Ages Globally")
 ```
 
 Plotting total notifications over time
@@ -304,220 +309,60 @@ checkresiduals(arima_afr04)
 
 fcst_afrm04 <- forecast(arima_afr04, h = 1)
 autoplot(fcst_afrm04)
-sum_afrm04 <- print(summary(fcst))
-
-####Attempt at creating function to produce predictions
-
-out_2020 <- function(df = tot_world, region){
-        df %>% filter(year != 2020) %>% filter(g_whoregion == region) %>% return() }
-
-arima_TB <- function(df = tot_world, group) {
-        data1 <- df %>% select(group) %>% ts(start = 2013, frequency = 1) %>% auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
-        print(summary(data1))
-        FCST <- forecast(data1, h = 1)
-        autoplot(FCST)
-        print(summary(FCST))}
-
-##AFRICA ESTIMATES
-
-afr_m04 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m04")
-rownames(afr_m04) <- "afr_m04"
-
-afr_f04 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f04")
-rownames(afr_f04) <- "afr_f04"
-
-afr_m514 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m514")
-rownames(afr_m514) <- "afr_m514"
-
-afr_f514 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f514")
-rownames(afr_f514) <- "afr_f514"
-
-afr_m014 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m014")
-rownames(afr_m014) <- "afr_m014"
-
-afr_f014 <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f014")
-rownames(afr_f014) <- "afr_f014"
-
-afr_m15plus <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_m15plus")
-rownames(afr_m15plus) <- "afr_m15plus"
-
-afr_f15plus <- out_2020(tot_world, "AFR") %>% arima_TB("newrel_f15plus")
-rownames(afr_f15plus) <- "afr_f15plus"
-
-afr_estimates <- rbind(afr_m04, afr_f04, afr_m514, afr_f514, afr_m014, afr_f014, afr_m15plus, afr_f15plus)
-
-
-#SEA predictions
-sea_m04 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m04")
-rownames(sea_m04) <- "sea_m04"
-
-sea_f04 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f04")
-rownames(sea_f04) <- "sea_f04"
-
-sea_m514 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m514")
-rownames(sea_m514) <- "sea_m514"
-
-sea_f514 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f514")
-rownames(sea_f514) <- "sea_f514"
-
-sea_m014 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m014")
-rownames(sea_m014) <- "sea_m014"
-
-sea_f014 <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f014")
-rownames(sea_f014) <- "sea_f014"
-
-sea_m15plus <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_m15plus")
-rownames(sea_m15plus) <- "sea_m15plus"
-
-sea_f15plus <- out_2020(tot_world, "SEA") %>% arima_TB("newrel_f15plus")
-rownames(sea_f15plus) <- "sea_f15plus"
-
-sea_estimates <- rbind(sea_m04, sea_f04, sea_m514, sea_f514, sea_m014, sea_f014, sea_m15plus, sea_f15plus)
-
-#WPR estimates
-
-wpr_m04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m04")
-rownames(wpr_m04) <- "wpr_m04"
-
-wpr_f04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f04")
-rownames(wpr_f04) <- "wpr_f04"
-
-wpr_m514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m514")
-rownames(wpr_m514) <- "wpr_m514"
-
-wpr_f514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f514")
-rownames(wpr_f514) <- "wpr_f514"
-
-wpr_m014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m014")
-rownames(wpr_m014) <- "wpr_m014"
-
-wpr_f014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f014")
-rownames(wpr_f014) <- "wpr_f014"
-
-wpr_m15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m15plus")
-rownames(wpr_m15plus) <- "wpr_m15plus"
-
-wpr_f15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f15plus")
-rownames(wpr_f15plus) <- "wpr_f15plus"
-
-wpr_estimates <- rbind(wpr_m04, wpr_f04, wpr_m514, wpr_f514, wpr_m014, wpr_f014, wpr_m15plus, wpr_f15plus)
-
-#EUR Estimates
-
-eur_m04 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m04")
-rownames(eur_m04) <- "eur_m04"
-
-eur_f04 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f04")
-rownames(eur_f04) <- "eur_f04"
-
-eur_m514 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m514")
-rownames(eur_m514) <- "eur_m514"
-
-eur_f514 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f514")
-rownames(eur_f514) <- "eur_f514"
-
-eur_m014 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m014")
-rownames(eur_m014) <- "eur_m014"
-
-eur_f014 <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f014")
-rownames(eur_f014) <- "eur_f014"
-
-eur_m15plus <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_m15plus")
-rownames(eur_m15plus) <- "eur_m15plus"
-
-eur_f15plus <- out_2020(tot_world, "EUR") %>% arima_TB("newrel_f15plus")
-rownames(eur_f15plus) <- "eur_f15plus"
-
-eur_estimates <- rbind(eur_m04, eur_f04, eur_m514, eur_f514, eur_m014, eur_f014, eur_m15plus, eur_f15plus)
-
-#AMR Estimates
-
-emr_m04 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m04")
-rownames(emr_m04) <- "emr_m04"
-
-emr_f04 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f04")
-rownames(emr_f04) <- "emr_f04"
-
-emr_m514 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m514")
-rownames(emr_m514) <- "emr_m514"
-
-emr_f514 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f514")
-rownames(emr_f514) <- "emr_f514"
-
-emr_m014 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m014")
-rownames(emr_m014) <- "emr_m014"
-
-emr_f014 <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f014")
-rownames(emr_f014) <- "emr_f014"
-
-emr_m15plus <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_m15plus")
-rownames(emr_m15plus) <- "emr_m15plus"
-
-emr_f15plus <- out_2020(tot_world, "EMR") %>% arima_TB("newrel_f15plus")
-rownames(emr_f15plus) <- "emr_f15plus"
-
-emr_estimates <- rbind(emr_m04, emr_f04, emr_m514, emr_f514, emr_m014, emr_f014, emr_m15plus, emr_f15plus)
-
-#WPR Estimates
-
-wpr_m04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m04")
-rownames(wpr_m04) <- "wpr_m04"
-
-wpr_f04 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f04")
-rownames(wpr_f04) <- "wpr_f04"
-
-wpr_m514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m514")
-rownames(wpr_m514) <- "wpr_m514"
-
-wpr_f514 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f514")
-rownames(wpr_f514) <- "wpr_f514"
-
-wpr_m014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m014")
-rownames(wpr_m014) <- "wpr_m014"
-
-wpr_f014 <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f014")
-rownames(wpr_f014) <- "wpr_f014"
-
-wpr_m15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_m15plus")
-rownames(wpr_m15plus) <- "wpr_m15plus"
-
-wpr_f15plus <- out_2020(tot_world, "WPR") %>% arima_TB("newrel_f15plus")
-rownames(wpr_f15plus) <- "wpr_f15plus"
-
-wpr_estimates <- rbind(wpr_m04, wpr_f04, wpr_m514, wpr_f514, wpr_m014, wpr_f014, wpr_m15plus, wpr_f15plus)
-
-#AMR Estimates
-
-amr_m04 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m04")
-rownames(amr_m04) <- "amr_m04"
-
-amr_f04 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f04")
-rownames(amr_f04) <- "amr_f04"
-
-amr_m514 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m514")
-rownames(amr_m514) <- "amr_m514"
-
-amr_f514 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f514")
-rownames(amr_f514) <- "amr_f514"
-
-amr_m014 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m014")
-rownames(amr_m014) <- "amr_m014"
-
-amr_f014 <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f014")
-rownames(amr_f014) <- "amr_f014"
-
-amr_m15plus <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_m15plus")
-rownames(amr_m15plus) <- "amr_m15plus"
-
-amr_f15plus <- out_2020(tot_world, "AMR") %>% arima_TB("newrel_f15plus")
-rownames(amr_f15plus) <- "amr_f15plus"
-
-amr_estimates <- rbind(amr_m04, amr_f04, amr_m514, amr_f514, amr_m014, amr_f014, amr_m15plus, amr_f15plus)
-
+sum_afrm04 <- print(summary(fcst_afrm04))
+
+
+# find all relevent variables
+var_name_matches <- str_extract(names(tot_world),
+                       pattern = "[mf]{1}[0-9]+.*")
+
+var_groups <- var_name_matches[!is.na(var_name_matches)]
+
+# function to prepare data for arima modelling
+prepare_data <- function(df, region, exclude_year = 2020, select_regex) {
+        keep_rows <- which(df$year != exclude_year & df$g_whoregion == region)
+        filtered <- df[keep_rows,]
+        select(filtered, contains(select_regex))
+}
+
+# arima model
+arima_predict <- function(df) {
+
+        model <- df %>%
+                ts(start = 2013, frequency = 1) %>%
+                auto.arima(d=1, D=1, stepwise = FALSE, approximation = FALSE, trace = TRUE)
+        FCST <- forecast(model, h = 1)
+        print(summary(FCST))
+}
+
+# list of data frames - estimates for 2020 data by region, age and gender
+estimates <- purrr::map(
+  who_regions,
+  .f = function(region) {
+    purrr::map(
+      var_groups,
+      .f = function(regex) {
+        df <- prepare_data(
+          df = tot_world,
+          region = region,
+          select_regex = regex,
+          exclude_year = 2020
+        )
+
+        predict <- arima_predict(df)
+        # TODO generally not a good idea to use row names
+        # use additional variables instead
+        rownames(predict) <-
+          paste0(tolower(region), "_", regex)
+        predict
+      }
+    ) %>% reduce(rbind)
+  }
+) %>% purrr::set_names(tolower(who_regions))
 
 ####Isolating time series estimates to populate Seddon tables
 #AFR
-afr_sed <- cbind(rownames(afr_estimates), afr_estimates)
+afr_sed <- cbind(rownames(estimates$afr), estimates$afr)
 rownames(afr_sed) <- NULL
 colnames(afr_sed) <- c("age_group", "prediction")
 afr_sed <- afr_sed[, c(1,2)]
@@ -527,7 +372,7 @@ afr_sed %<>% as.data.frame()
 colnames(afr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
 
 #AMR
-amr_sed <- cbind(rownames(amr_estimates), amr_estimates)
+amr_sed <- cbind(rownames(estimates$amr), estimates$amr)
 rownames(amr_sed) <- NULL
 colnames(amr_sed) <- c("age_group", "prediction")
 amr_sed <- amr_sed[, c(1,2)]
@@ -537,7 +382,7 @@ amr_sed %<>% as.data.frame()
 colnames(amr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
 
 #EMR
-emr_sed <- cbind(rownames(emr_estimates), emr_estimates)
+emr_sed <- cbind(rownames(estimates$emr), estimates$emr)
 rownames(emr_sed) <- NULL
 colnames(emr_sed) <- c("age_group", "prediction")
 emr_sed <- emr_sed[, c(1,2)]
@@ -547,7 +392,7 @@ emr_sed %<>% as.data.frame()
 colnames(emr_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
 
 #EUR
-eur_sed <- cbind(rownames(eur_estimates), eur_estimates)
+eur_sed <- cbind(rownames(estimates$eur), estimates$eur)
 rownames(eur_sed) <- NULL
 colnames(eur_sed) <- c("age_group", "prediction")
 eur_sed <- eur_sed[, c(1,2)]
@@ -557,7 +402,7 @@ eur_sed %<>% as.data.frame()
 colnames(eur_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
 
 #SEA
-sea_sed <- cbind(rownames(sea_estimates), sea_estimates)
+sea_sed <- cbind(rownames(estimates$sea), estimates$sea)
 rownames(sea_sed) <- NULL
 colnames(sea_sed) <- c("age_group", "prediction")
 sea_sed <- sea_sed[, c(1,2)]
@@ -567,7 +412,7 @@ sea_sed %<>% as.data.frame()
 colnames(sea_sed) <- c("m04", "f04", "m514", "f514", "m014", "f014", "m15plus", "f15plus", "all_04", "all_514", "all_15plus")
 
 #WPR
-wpr_sed <- cbind(rownames(wpr_estimates), wpr_estimates)
+wpr_sed <- cbind(rownames(estimates$wpr), estimates$wpr)
 rownames(wpr_sed) <- NULL
 colnames(wpr_sed) <- c("age_group", "prediction")
 wpr_sed <- wpr_sed[, c(1,2)]
@@ -583,6 +428,7 @@ bind_sed <- cbind(bind_sed, regions)
 bind_sed <- bind_sed[,c(12, 1:11)]
 
 ###Finding notification data for Seddon tables
+# TODO cannot find grouped_2020 data frame
 sed_2020 <- grouped_2020[, -10]
 sed_2020 <- mutate(sed_2020, "all_04" = newrel_m04 + newrel_f04, "all_514" = newrel_m514 + newrel_f514, "all_15plus" = newrel_m15plus + newrel_f15plus)
 
@@ -599,7 +445,7 @@ afr_2020 <- as.data.frame(afr_2020[c(3:10), ])
 rownames(afr_2020) <- c("afr_m04", "afr_f04", "afr_m514", "afr_f514", "afr_m014", "afr_f014", "afr_m15plus", "afr_f15plus")
 colnames(afr_2020) <- "notif_2020"
 
-est_afr_2020 <- cbind(afr_2020, afr_estimates)
+est_afr_2020 <- cbind(afr_2020, estimates$afr)
 colnames(est_afr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_afr_2020$notif_2020 <- as.numeric(est_afr_2020$notif_2020)
 
@@ -611,7 +457,7 @@ sea_2020 <- as.data.frame(sea_2020[c(3:10), ])
 
 rownames(sea_2020) <- c("sea_m04", "sea_f04", "sea_m514", "sea_f514", "sea_m014", "sea_f014", "sea_m15plus", "sea_f15plus")
 colnames(sea_2020) <- "notif_2020"
-est_sea_2020 <- cbind(sea_2020, sea_estimates)
+est_sea_2020 <- cbind(sea_2020, estimates$sea)
 colnames(est_sea_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_sea_2020$notif_2020 <- as.numeric(est_sea_2020$notif_2020)
 
@@ -623,7 +469,7 @@ wpr_2020 <- as.data.frame(wpr_2020[c(3:10), ])
 
 rownames(wpr_2020) <- c("wpr_m04", "wpr_f04", "wpr_m514", "wpr_f514", "wpr_m014", "wpr_f014", "wpr_m15plus", "wpr_f15plus")
 colnames(wpr_2020) <- "wpr_2020"
-est_wpr_2020 <- cbind(wpr_2020, wpr_estimates)
+est_wpr_2020 <- cbind(wpr_2020, estimates$wpr)
 colnames(est_wpr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_wpr_2020$notif_2020 <- as.numeric(est_wpr_2020$notif_2020)
 
@@ -635,7 +481,7 @@ eur_2020 <- as.data.frame(eur_2020[c(3:10), ])
 
 rownames(eur_2020) <- c("eur_m04", "eur_f04", "eur_m514", "eur_f514", "eur_m014", "eur_f014", "eur_m15plus", "eur_f15plus")
 colnames(eur_2020) <- "eur_2020"
-est_eur_2020 <- cbind(eur_2020, eur_estimates)
+est_eur_2020 <- cbind(eur_2020, estimates$eur)
 colnames(est_eur_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_eur_2020$notif_2020 <- as.numeric(est_eur_2020$notif_2020)
 
@@ -647,7 +493,7 @@ amr_2020 <- as.data.frame(amr_2020[c(3:10), ])
 
 rownames(amr_2020) <- c("amr_m04", "amr_f04", "amr_m514", "amr_f514", "amr_m014", "amr_f014", "amr_m15plus", "amr_f15plus")
 colnames(eur_2020) <- "amr_2020"
-est_amr_2020 <- cbind(amr_2020, amr_estimates)
+est_amr_2020 <- cbind(amr_2020, estimates$amr)
 colnames(est_amr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_amr_2020$notif_2020 <- as.numeric(est_amr_2020$notif_2020)
 
@@ -659,7 +505,7 @@ emr_2020 <- as.data.frame(emr_2020[c(3:10), ])
 
 rownames(emr_2020) <- c("emr_m04", "emr_f04", "emr_m514", "emr_f514", "emr_m014", "emr_f014", "emr_m15plus", "emr_f15plus")
 colnames(emr_2020) <- "emr_2020"
-est_emr_2020 <- cbind(emr_2020, emr_estimates)
+est_emr_2020 <- cbind(emr_2020, estimates$emr)
 colnames(est_emr_2020) <- c("notif_2020", "est_2020", "Lo_80", "Hi_80", "Lo_95", "Hi_95")
 est_emr_2020$notif_2020 <- as.numeric(est_emr_2020$notif_2020)
 
@@ -809,8 +655,10 @@ Attempt 2 at creating the time series analyses
 ```{r}
 #males04 plot
 males_04 <- select(perc_world, c(g_whoregion, year, newrel_m04))
-males_04 <- mutate(males_04, newrel_m04 = ifelse(year == "2020", NA, newrel_m04))
-gg_males04 <- ggplot(males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 27043, col = "red") + geom_point(x = 2020, y = 2062, col = "brown") + geom_point(x = 2020, y = 17243.17, col = "green") + geom_point(x = 2020, y = 1465, col = "turquoise2") + geom_point(x = 2020, y = 58951.83, col = "blue") + geom_point(x = 2020, y = 12558, col = "pink") + scale_y_continuous(limits = c(0, 60000)) + labs(title = "Notifications Time Series for Males 0-4 yrs")
+males_04 <-
+  mutate(males_04, newrel_m04 = ifelse(year == "2020", NA, newrel_m04))
+gg_males04 <-
+  ggplot(males_04, aes(x = year, y = newrel_m04, col = g_whoregion)) + geom_line() + geom_point(x = 2020, y = 27043, col = "red") + geom_point(x = 2020, y = 2062, col = "brown") + geom_point(x = 2020, y = 17243.17, col = "green") + geom_point(x = 2020, y = 1465, col = "turquoise2") + geom_point(x = 2020, y = 58951.83, col = "blue") + geom_point(x = 2020, y = 12558, col = "pink") + scale_y_continuous(limits = c(0, 60000)) + labs(title = "Notifications Time Series for Males 0-4 yrs")
 
 
 ###Trial at new plot
