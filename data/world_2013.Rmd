@@ -33,35 +33,10 @@ who_regions <- c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR")
 Organising the data by g_whoregion
 
 ```{r}
-# function to return data frame of sums by WHO region for a given year
-group_by_who_region <- function(year) {
-  stopifnot(
-    is.numeric(year)
-  )
-        q_year <- enquo(year)
-        group_by(world_2013, g_whoregion) %>%
-                filter(.data$year == !!q_year) %>%
-                summarise(
-                        newrel_m04 = sum(na.omit(.data$newrel_m04)),
-                        newrel_f04 = sum(na.omit(.data$newrel_f04)),
-                        newrel_m514 = sum(na.omit(.data$newrel_m514)),
-                        newrel_f514 = sum(na.omit(.data$newrel_f514)),
-                        newrel_m014 = sum(na.omit(.data$newrel_m014)),
-                        newrel_f014 = sum(na.omit(.data$newrel_f014)),
-                        newrel_m15plus = sum(na.omit(.data$newrel_m15plus)),
-                        newrel_f15plus = sum(na.omit(.data$newrel_f15plus))
-                ) %>%
-                as.data.frame() %>%
-                mutate(year = !!q_year) %>%
-          select(g_whoregion, year, everything())
-}
-
-years <- 2013:2020
-
-bind_world <- purrr::map(years,
-           group_by_who_region) %>%
-  purrr::reduce(bind_rows) %>%
-  arrange(g_whoregion)
+bind_world <- 
+  select(world_2013, -country, -iso3) %>% 
+  group_by(g_whoregion, year) %>% 
+        summarise(across(starts_with("newrel_"), ~ sum(.x, na.rm = TRUE)))
 
 
 ##Including columns for total values

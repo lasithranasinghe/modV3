@@ -1,0 +1,242 @@
+---
+title: "Mulltiple TS plots"
+author: "Jay Achar"
+date: "2/22/2022"
+output: 
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message = FALSE)
+suppressMessages(library(tidyverse))
+library(here)
+library(forecast)
+library(ggdist)
+```
+
+# Important
+
+I've noticed these parsing errors when reading in the data. I haven't looked through
+them, but this would be important to check before finalizing things. 
+
+```{r read-in-data}
+raw <- read_csv(here("data", "TB_notifications.csv"))
+```
+
+## Define constants
+
+It's often helpful to define standard variables that shouldn't change
+at the top of your script. It's then easy to change later if you want to
+re-run an analysis and also to see quickly what has been applied. 
+
+```{r define-constants}
+who_regions <- c("AFR", "AMR", "EMR", "EUR", "SEA", "WPR")
+
+raw_vars_keep <-
+        c(
+                "country",
+                "iso3",
+                "g_whoregion",
+                "year",
+                "newrel_m04",
+                "newrel_m514",
+                "newrel_m014",
+                "newrel_m15plus",
+                "newrel_f04",
+                "newrel_f514",
+                "newrel_f014",
+                "newrel_f15plus"
+        )
+
+age_groups <- c("014", "04", "15plus", "514")
+```
+
+
+## Data preparation
+
+I tend to do all of my data preparation at the beginning. This might require
+that you move later data cleaning tasks to this area, but having everything
+mixed up is hard to work through for others looking at your code. 
+
+Here, I've created two lists of data frames - **wide** and **long**. 
+Their names tells me about their structure and the data frame names
+(**country** and **region**) also help others to know what is contained. 
+
+```{r generate-data-structures}
+wide <- list(
+        country = raw[raw$year > 2012, raw_vars_keep]
+)
+wide$region <- wide$country %>% 
+        select(-country, -iso3) %>% 
+        group_by(g_whoregion, year) %>% 
+        summarise(across(starts_with("newrel_"), ~ sum(.x, na.rm = TRUE)),
+                  .groups = "drop")
+
+
+# pivot longer
+long <- list(
+        country = pivot_longer(
+                data = wide$country,
+                cols = starts_with("newrel_"),
+                values_to = "cases",
+                names_to = "group"
+        ) %>%
+                mutate(group = str_remove(group,
+                                          "^newrel_")) %>%
+                separate(
+                        col = "group",
+                        into = c("sex", "age_group"),
+                        sep = 1
+                )
+)
+
+long$region <- long$country %>% 
+        select(-country, -iso3) %>% 
+        group_by(g_whoregion, year, sex, age_group) %>% 
+        summarise(
+                cases = sum(cases, na.rm = TRUE),
+                .groups = "drop"
+        )
+```
+
+## Arima modelling
+
+I'll use nested list columns here to retain my origina data structure. Working with
+long data is far easier than wide data so I'll start with that. 
+
+Note how I've nested the data before training models. This creates list columns
+which contain our models and forecasts against columns that identify what they are. 
+
+Using iteration tools - e.g. the `purrr` package, simplifies all of this and reduces
+the amount of code. This makes it easier to follow and reduces the potential for typos
+to occur. 
+
+```{r arima-modelling}
+# sorry for the confusing code here - the purpose is to remove the
+# output created by the auto.arima function since it clutters the
+# HTML output of the report.
+
+arima_models <- (function() {
+        sink("/dev/null")
+arima_models <- long$region %>% 
+        # remove 2020
+        filter(year < 2020) %>% 
+        # nest data for each group of interest
+        group_by(g_whoregion, sex, age_group) %>% 
+        nest() %>% 
+        # convert to time series = list-column
+        mutate(ts = map(data, function(series) {
+                series %>% 
+                        # remove year variable prior to converting to TS
+                        select(-year) %>% 
+         ts(start = 2013, frequency = 1)       
+        })) %>% 
+        # fit arima.auto model to each groups data
+        mutate(arima_model = map(ts, ~forecast::auto.arima(.x, d = 1, D = 1, 
+                                        stepwise = FALSE, 
+                                        approximation = FALSE, 
+                                        trace = TRUE))) %>% 
+        # run forecast for 2020 on each group
+        mutate(forecast = map(arima_model, 
+                              ~ forecast(.x, h = 1)))
+sink()
+return(arima_models)
+})()
+```
+
+## Plotting
+
+This is a little complex...I'll try and give a thorough description of what has
+been done. 
+
+Essentially there are two data frames being used by `ggplot` to create
+each graphic. 
+
+The first data frame includes all of the years and cases from the original data: 
+
+```{r list-ts-data}
+# create ts_df list
+ts_list <- long$region %>% 
+        filter(year < 2020) %>% 
+        group_split(age_group, sex)
+```
+
+
+```{r}
+head(ts_list[[1]])
+```
+You can see that the data frame is specific to a sex/age group. There should
+therefore be 8 data frames in this `ts_list` represting each unique combination
+of sex and age group. 
+
+```{r list-forecast-data}
+forecast_list <- arima_models %>% 
+        group_by(age_group, sex) %>% 
+        group_split() %>% 
+        map(
+                function(group) {
+                        data.frame(
+                            region = group$g_whoregion,
+                year = 2020,
+                point = as.numeric(map(group$forecast, ~ .x$mean)),
+                lower95 = as.numeric(map(group$forecast, ~ .x$lower[2])),
+                upper95 = as.numeric(map(group$forecast, ~ .x$upper[2]))    
+                        )
+                }
+        )
+```
+
+The second data frame includes the 2020 prediction information. This is grouped
+in the same was as the previous data frame:
+
+```{r}
+head(forecast_list[[1]])
+```
+
+Finally, these two lists of data frames are iterated over using `purrr::map2()`
+to create a list of ggplot objects. An alternative would be to add
+a call to `ggsave` within each iteration and use `purrr::walk2` instead
+of `purrr::map2`. This save the ggplots automatically to disk. 
+
+
+```{r}
+map2(ts_list, 
+     forecast_list,
+     function(ts, forecast) {
+             ggplot(ts,
+                    aes(x = year,
+                        y = cases,
+                        color = g_whoregion)) +
+                     geom_line() +
+                     geom_pointinterval(
+                             data = forecast,
+                             aes(
+                                     x = year,
+                                     y = point,
+                                     ymin = lower95,
+                                     ymax = upper95,
+                                     color = region
+                             ),
+                             orientation = "vertical",
+                             position = position_dodgejust(width = 0.3)
+                     )
+     })
+
+```
+
+
+
+## Next steps
+
+The plots are raw - they will need titles, better colors and more formatting.
+I wonder whether you might be able to do some of this using this same code structure.
+
+Regarding the plots themselves, we should think carefully about the y-axes. Right
+now they are defined by ggplot based on the data in each plot. This results in the lines
+being in acceptable places on the canvas, but would make comparison of different
+plots more challenging and potentially might lead the casual observer to the wrong conclusion.
+
+
+
