@@ -2,7 +2,9 @@
 title: "Alternative plots"
 author: "Jay Achar"
 date: "2/24/2022"
-output: html_document
+output: 
+  html_document:
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE}
@@ -82,7 +84,7 @@ ggplot(diff_data,
         
 ```
 
-```{r}
+```{r eval = FALSE}
 dd$long$region %>% 
         group_by(g_whoregion, year, age_group) %>% 
         pivot_wider(names_from = sex, 
@@ -93,8 +95,28 @@ dd$long$region %>%
                     y = age_group)
         ) + 
         geom_point() + 
-        facet_grid(g_whoregion ~ .)
-        
+        facet_grid(. ~ g_whoregion)
+
+dd$long$region %>% 
+        group_by(g_whoregion, age_group, sex) %>% 
+        summarise(cases = sum(cases)) %>% 
+                pivot_wider(names_from = sex, 
+                    values_from = cases) %>% 
+        mutate(ratio = m / f) %>%
+        filter(age_group != "014") %>% 
+        mutate(age_group_cat = factor(age_group, 
+                                      ordered = TRUE,
+                                  levels = c("04", "514", "15plus")),
+               cases = m + f) %>% 
+        ggplot(
+                aes(x = ratio,
+                    y = age_group,
+                    size = cases)
+        ) + 
+        geom_point() + 
+        geom_vline(xintercept = 1, color = "black", alpha = 0.7) +
+        coord_flip(xlim = c(0.5, 2.3)) +
+        facet_grid(. ~ g_whoregion)
 ```
 
 # Notes
@@ -102,6 +124,62 @@ dd$long$region %>%
 * Can we show which countries having missing data over the course of the study?
 * Fable package for flame?
 * Be clear on how we're aggregating across age categories?
-* Send PD a data frame with ISO3 codes and percentage change between 2019 and 2020
 
-* Lasith - point to the country specific change plot in the code?
+
+## High burden country plot
+
+Out of the 30 high burden countries, DRC is the only one with missing values.
+It seems that 2019 data is unavailable in all age groups.
+
+```{r}
+cases_age_yr <- dd$long$country %>% 
+        filter(iso3 %in% const$high_burden, 
+               year %in% 2019:2020) %>% 
+        group_by(country, iso3, age_group, year) %>% 
+        summarise(cases = sum(cases))
+
+cases_age_yr %>% 
+        group_by(country, iso3) %>% 
+        summarise(missing = sum(is.na(cases))) %>% 
+        filter(missing > 0)
+
+cases_age_yr %>% 
+        filter(iso3 == "COD")
+```
+
+```{r}
+country_diff_pd <- cases_age_yr %>% 
+        filter(iso3 != "COD") %>% 
+        mutate(country = case_when(country == "Democratic People's Republic of Korea" ~ "DPRK",
+                                   country == "United Republic of Tanzania" ~ "Tanzania",
+                                   country == "Central African Republic" ~ "CAR",
+                                   country == "Papua New Guinea"  ~ "PNG",
+                                 TRUE ~ country)) %>% 
+        group_by(country, iso3, age_group) %>% 
+        summarise(case_diff = cases - lag(cases, 1L),
+               percent_diff = cases / lag(cases, 1L) - 1) %>% 
+        filter(!is.na(case_diff))
+head(country_diff_pd)
+```
+
+```{r country-diff-plot}
+
+country_order <- country_diff_pd %>% 
+        filter(age_group == "014") %>% 
+        arrange(percent_diff) %>% 
+        pull(country)
+
+final_country_diff_pd <- country_diff_pd %>% 
+        mutate(country = factor(country,
+                                ordered = TRUE,
+                                levels = country_order))
+
+final_country_diff_pd %>% 
+        ggplot(aes(x = country,
+                   y = percent_diff * 100)) +
+        geom_col() +
+        facet_grid(. ~ age_group) +
+        coord_flip()
+
+```
+
