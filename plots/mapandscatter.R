@@ -4,6 +4,7 @@ library(ggplot2)
 library(whomap) #devtools::install_github('glaziou/whomap')
 library(lubridate)
 library(ggrepel)
+library(ggpubr)
 
 ## --- quick map
 load(here('plots/mpd.Rdata')) #mpd was saved out as the last object in Jay's maps.Rmd file
@@ -35,3 +36,29 @@ ggplot(CF,aes(cedpc,percent_change,label=iso3)) +
   geom_abline(yintercept=0,slope=0,col=2)
 
 ggsave(here('plots/COVIDvTB.pdf'),w=15,h=10)
+
+
+## --- restric to HBC30
+load(here('plots/HBC.Rdata'))
+
+CF <- CF[iso3 %in% HBC[g.hbc==TRUE,iso3]] #restrict to HBC30
+
+ggscatter(CF,x='cedpc',y='percent_change',add='reg.line',conf.int = TRUE,
+          xscale='sqrt',xlab='Estimated cumulative COVID deaths per 100K prior to 2021 (square root scale)',
+          ylab='Percent change in TB notifications') + geom_text_repel(aes(label=iso3))+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),label.x = 5,size=10) +  grids()
+
+ggsave(here('plots/COVIDvTB2.pdf'),w=15,h=10)
+
+
+CFy <- merge(CF[,.(iso3,cedpc)],mpd[age_group=='04',.(iso3,percent_change)],by='iso3')
+
+CFy <- CFy[iso3 %in% HBC[g.hbc==TRUE,iso3]] #restrict to HBC30
+
+ggscatter(CFy,x='cedpc',y='percent_change',add='reg.line',conf.int = TRUE,
+          xscale='sqrt',xlab='Estimated cumulative COVID deaths per 100K prior to 2021 (square root scale)',
+          ylab='Percent change in TB notifications') + geom_text_repel(aes(label=iso3))+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),label.x = 5,size=10) +  grids()
+
+ggsave(here('plots/COVIDvTB2y.pdf'),w=15,h=10)
+
