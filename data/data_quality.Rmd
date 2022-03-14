@@ -1,0 +1,285 @@
+---
+title: "Data quality"
+author: "Jay Achar"
+date: "3/14/2022"
+output:
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+suppressMessages(library(tidyverse))
+library(here)
+library(naniar)
+library(patchwork)
+```
+
+```{r source-functions}
+files <- list.files(here("R"))
+walk(files,
+     ~source(here("R", .x)))
+
+# returns a list of constants
+const <- constants()
+```
+
+```{r read-in-data, warning=FALSE}
+raw <- read_data("notifications")
+# creates a list of country and region specific data frames in
+# wide and long format
+dd <- prepare_data(raw)
+
+nested <- dd$wide$country %>% 
+  nest(data = c(everything(), -year))
+```
+
+## Missing values {.tabset}
+
+The tables below show the number and proportion of missing values
+in each notification variable by year. Notice how the number of missing
+values is almost the same in any given age-band. This is
+explored further in the next section.
+
+### Univariable missingness
+
+> Summary: 0-4y and 5-14y variables have more missing values - upto 20%; no difference by sex. HBC have improved dramatically in recent years.
+
+```{r missing-var-plot, warning=FALSE}
+# select data variables
+data_vars <- str_detect(names(dd$wide$country),
+                        paste(c(const$age_groups, "year"), collapse = "|"))
+gg_miss_var(dd$wide$country[, data_vars], 
+            facet = year, show_pct = TRUE)
+
+```
+
+### HBC univariable missingness
+
+```{r hbc-missing-var-plot, warning=FALSE}
+dd$wide$country %>% 
+  filter(iso3 %in% const$high_burden) %>% 
+  gg_miss_var(facet = year, show_pct = TRUE)
+
+```
+
+
+### Missingness interactions by year
+
+> Countries tend ot report missing values either across all variables or 0-4y & 5-14y
+
+```{r missing-interactions}
+nested %>% 
+  mutate(interactions = map(data, 
+                            ~ gg_miss_upset(.x, nsets = 8)) %>% 
+           set_names(year)) %>% 
+  pull(interactions)
+```
+
+
+
+### Tables
+
+> Included for completeness more than anything - includes absolute and relative missingness
+
+```{r country-missing}
+nested %>%
+  mutate(country_missing = map(
+    data,
+    function(yr) {
+      df <- data.frame(
+        variable = names(yr),
+        missing_n = map_dbl(yr, naniar::n_miss),
+        missing_prop = round(map_dbl(yr, naniar::prop_miss), 3)
+      )
+      row.names(df) <- NULL
+      return(df)      
+    }) %>% 
+      set_names(year)) %>% 
+  pull(country_missing)
+
+```
+
+## Age-band missingness
+
+Below are plots summarising missingness within
+each age-band. The first, larger plot shows the
+association between sex (green points) and the distribution of
+missing values (red points). This is an alternative way of visualising
+the plots above.
+
+The small plots below show countries where one sex
+has missing data. Notice that there are few countries where
+this is the case, and that the number of notifications in the
+avaialble sex is low suggesting that the missingness is unlikely
+to have altered analysis results.
+
+These plots are not organised by year since there's relatively few
+missing points to show. 
+
+> It's rare for missing values to only be reported in one sex
+
+```{r country-missing-distribution}
+all_missing_plot <- function(df,
+                         age_group, 
+                         title) {
+  
+  
+  male <- paste0("newrel_m", age_group)
+  female <- paste0("newrel_f", age_group)
+  
+  ggplot(df,
+         aes(x = .data[[male]],
+             y = .data[[female]])) +
+    geom_miss_point() +
+    labs(title = title)
+  
+}
+
+sex_missing_plot <- function(df,
+                             age_group,
+                             title) {
+  
+  male <- paste0("newrel_m", age_group)
+  female <- paste0("newrel_f", age_group)
+  
+  f <- df %>% 
+    filter(is.na(.data[[male]]),
+           ! is.na(.data[[female]])) %>% 
+    ggplot(aes(x = .data[["iso3"]],
+             y = .data[[female]])) +
+  geom_point() + coord_flip() 
+  
+  m <- df %>% 
+    filter(is.na(.data[[female]]),
+           ! is.na(.data[[male]])) %>% 
+    ggplot(aes(x = .data[["iso3"]],
+             y = .data[[male]])) +
+  geom_point() + coord_flip() 
+  
+  list(f, m)
+                             }
+
+
+all_missing_plots <- function(age_group) {
+  mp <- all_missing_plot(
+    dd$wide$country, 
+    age_group, 
+    title = age_group
+  )
+  
+  sp <- sex_missing_plot(
+    dd$wide$country, 
+    age_group = age_group,
+    title = age_group
+  )
+  
+  mp / (sp[[1]] | sp[[2]])
+}
+
+map(const$age_groups,
+    all_missing_plots)  
+
+
+```
+
+
+## Comparing notifications {.tabset}
+
+In this section, I've displayed the aggregated 0-14y 
+notifications by sex where either the 0-4y or 5-14y values
+are missing. 
+
+The first table shows all countries sorted by the value of 
+the aggregate variable (0-14y).
+
+The second table is restricted to the 30 high-burden countries. 
+
+> There are very small discrepancies between 0-14y notifications and 0-4y + 5-14y notifications across years and sexes. When restricted to the HBC, the discrepancy is minimal
+
+### Female
+
+#### All countries
+
+```{r aggregate-notifications-female}
+
+aggregated_female <- nested %>% 
+  mutate(tables = map(data, function(x) {
+    total <- sum(x$newrel_f014, na.rm = TRUE)
+    df <- x[, c("iso3", "newrel_f014", "newrel_f04", "newrel_f514")]
+    df$sum <- df$newrel_f04 + df$newrel_f514
+    df$diff <- df$newrel_f014 - df$sum
+    df <- df[which(is.na(df$diff)), ]
+    df <- df[which(!is.na(df$newrel_f014)), ]
+    df$all_total_prop <- round(df$newrel_f014 / total, 2)
+    df %>% arrange(desc(newrel_f014)) %>% 
+      select(iso3, newrel_f014, all_total_prop)
+    
+  }) %>% set_names(year)
+  )
+  
+aggregated_female %>% pull(tables)
+```
+
+#### 30 High burden countries
+
+```{r notificaiton-difference-hb-female}
+aggregated_female %>% 
+  mutate(hb = map(tables, ~ filter(.x, iso3 %in% const$high_burden))) %>% 
+  pull(hb)
+  
+```
+
+
+
+```{r}
+# aggregate_female %>% 
+#   slice_head(n = 15) %>% 
+#   ggplot(aes(x = iso3,
+#              y = newrel_f014)) +
+#   geom_col() + coord_flip()
+```
+
+
+### Male
+
+#### All countries
+
+```{r aggregate-notifications-male}
+
+aggregated_male <- nested %>% 
+  mutate(tables = map(data, function(x) {
+    total <- sum(x$newrel_m014, na.rm = TRUE)
+    df <- x[, c("iso3", "newrel_m014", "newrel_m04", "newrel_m514")]
+    df$sum <- df$newrel_m04 + df$newrel_m514
+    df$diff <- df$newrel_m014 - df$sum
+    df <- df[which(is.na(df$diff)), ]
+    df <- df[which(!is.na(df$newrel_m014)), ]
+    df$all_total_prop <- round(df$newrel_m014 / total, 2)
+    df %>% arrange(desc(newrel_m014)) %>% 
+      select(iso3, newrel_m014, all_total_prop)
+  }) %>% set_names(year)
+  )
+  
+aggregated_male %>% pull(tables)
+```
+
+#### 30 High burden countries
+
+```{r notificaiton-difference-hb-male }
+aggregated_male %>% 
+  mutate(hb = map(tables, ~ filter(.x, iso3 %in% const$high_burden))) %>% 
+  pull(hb)
+```
+
+```{r}
+# aggregate_male %>% 
+#   slice_head(n = 15) %>% 
+#   ggplot(aes(x = iso3,
+#              y = newrel_m014)) +
+#   geom_col() + coord_flip()
+```
+
+
+
+
