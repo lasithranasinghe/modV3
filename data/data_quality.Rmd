@@ -1,7 +1,7 @@
 ---
-title: "Data quality"
-author: "Jay Achar"
-date: "3/14/2022"
+title: 'Data quality'
+author: 'Jay Achar'
+date: '3/14/2022'
 output:
   html_document:
     code_folding: hide
@@ -30,9 +30,66 @@ raw <- read_data("notifications")
 # wide and long format
 dd <- prepare_data(raw)
 
-nested <- dd$wide$country %>% 
+nested <- dd$wide$country %>%
   nest(data = c(everything(), -year))
 ```
+
+## HBC reporting
+
+Review how many years each high burden country has reported data for each
+age group:
+
+```{r hbc-data-availability}
+hbc <- dd$long$country %>%
+  filter(iso3 %in% constants()$high_burden,
+         age_group %in% c("04", "514", "15plus")) %>%
+  mutate(age_group = factor(age_group,
+                            levels = c("04", "514", "15plus"),
+                            ordered = TRUE)) %>%
+  group_by(iso3, year, age_group) %>%
+  summarise(all_cases = sum(cases))
+
+hbc %>%
+  ggplot(aes(x = year,
+             y = iso3,
+             fill = is.na(all_cases))) +
+  geom_tile(color = "white",
+            lwd = 0.5,
+            linetype = 1) +
+  scale_fill_discrete(type = c("#0a9396", "#ae2012"),
+                      labels = c("True", "False")) +
+  labs(y = NULL,
+       x = NULL,
+       fill = "Annual data reported?",
+       title = "HBC data reporting by age-group") +
+  facet_grid(~ age_group) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+```{r hbc-reporting}
+
+hbc %>%
+  ggplot(
+    aes(x = year,
+        y = iso3,
+        fill = log(all_cases))
+  ) +
+  geom_tile() +
+  facet_grid(cols = vars(age_group),
+             scales = "free_y") +
+  labs(x = NULL,
+      y = NULL,
+      fill = "Log case notifications",
+      title = "HBC log annual case notifications by age-group") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
+
+Red tiles correspond to a year when a given country did not report both male and female
+notifications for the age-group. If either male or female data is missing,
+the tile is coloured red.
 
 ## Missing values {.tabset}
 
@@ -49,7 +106,7 @@ explored further in the next section.
 # select data variables
 data_vars <- str_detect(names(dd$wide$country),
                         paste(c(const$age_groups, "year"), collapse = "|"))
-gg_miss_var(dd$wide$country[, data_vars], 
+gg_miss_var(dd$wide$country[, data_vars],
             facet = year, show_pct = TRUE)
 
 ```
@@ -57,26 +114,23 @@ gg_miss_var(dd$wide$country[, data_vars],
 ### HBC univariable missingness
 
 ```{r hbc-missing-var-plot, warning=FALSE}
-dd$wide$country %>% 
-  filter(iso3 %in% const$high_burden) %>% 
+dd$wide$country %>%
+  filter(iso3 %in% const$high_burden) %>%
   gg_miss_var(facet = year, show_pct = TRUE)
 
 ```
-
 
 ### Missingness interactions by year
 
 > Countries tend ot report missing values either across all variables or 0-4y & 5-14y
 
 ```{r missing-interactions}
-nested %>% 
-  mutate(interactions = map(data, 
-                            ~ gg_miss_upset(.x, nsets = 8)) %>% 
-           set_names(year)) %>% 
+nested %>%
+  mutate(interactions = map(data,
+                            ~ gg_miss_upset(.x, nsets = 8)) %>%
+           set_names(year)) %>%
   pull(interactions)
 ```
-
-
 
 ### Tables
 
@@ -93,9 +147,9 @@ nested %>%
         missing_prop = round(map_dbl(yr, naniar::prop_miss), 3)
       )
       row.names(df) <- NULL
-      return(df)      
-    }) %>% 
-      set_names(year)) %>% 
+      return(df)
+    }) %>%
+      set_names(year)) %>%
   pull(country_missing)
 
 ```
@@ -115,85 +169,84 @@ avaialble sex is low suggesting that the missingness is unlikely
 to have altered analysis results.
 
 These plots are not organised by year since there's relatively few
-missing points to show. 
+missing points to show.
 
 > It's rare for missing values to only be reported in one sex
 
 ```{r country-missing-distribution}
 all_missing_plot <- function(df,
-                         age_group, 
+                         age_group,
                          title) {
-  
-  
+
+
   male <- paste0("newrel_m", age_group)
   female <- paste0("newrel_f", age_group)
-  
+
   ggplot(df,
          aes(x = .data[[male]],
              y = .data[[female]])) +
     geom_miss_point() +
     labs(title = title)
-  
+
 }
 
 sex_missing_plot <- function(df,
                              age_group,
                              title) {
-  
+
   male <- paste0("newrel_m", age_group)
   female <- paste0("newrel_f", age_group)
-  
-  f <- df %>% 
+
+  f <- df %>%
     filter(is.na(.data[[male]]),
-           ! is.na(.data[[female]])) %>% 
+           ! is.na(.data[[female]])) %>%
     ggplot(aes(x = .data[["iso3"]],
              y = .data[[female]])) +
-  geom_point() + coord_flip() 
-  
-  m <- df %>% 
+  geom_point() + coord_flip()
+
+  m <- df %>%
     filter(is.na(.data[[female]]),
-           ! is.na(.data[[male]])) %>% 
+           ! is.na(.data[[male]])) %>%
     ggplot(aes(x = .data[["iso3"]],
              y = .data[[male]])) +
-  geom_point() + coord_flip() 
-  
+  geom_point() + coord_flip()
+
   list(f, m)
                              }
 
 
 all_missing_plots <- function(age_group) {
   mp <- all_missing_plot(
-    dd$wide$country, 
-    age_group, 
+    dd$wide$country,
+    age_group,
     title = age_group
   )
-  
+
   sp <- sex_missing_plot(
-    dd$wide$country, 
+    dd$wide$country,
     age_group = age_group,
     title = age_group
   )
-  
+
   mp / (sp[[1]] | sp[[2]])
 }
 
 map(const$age_groups,
-    all_missing_plots)  
+    all_missing_plots)
 
 
 ```
 
-
 ## Comparing notifications {.tabset}
 
-In this section, I've displayed the aggregated 0-14y 
+In this section, I've displayed the aggregated 0-14y
 notifications by sex where either the 0-4y or 5-14y values
-are missing. 
+are missing.
 
-The first table shows all countries sorted by the value of 
+The first table shows all countries sorted by the value of
 the aggregate variable (0-14y).
 
-The second table is restricted to the 30 high-burden countries. 
+The second table is restricted to the 30 high-burden countries.
 
 > There are very small discrepancies between 0-14y notifications and 0-4y + 5-14y notifications across years and sexes. When restricted to the HBC, the discrepancy is minimal
 
@@ -203,7 +256,7 @@ The second table is restricted to the 30 high-burden countries.
 
 ```{r aggregate-notifications-female}
 
-aggregated_female <- nested %>% 
+aggregated_female <- nested %>%
   mutate(tables = map(data, function(x) {
     total <- sum(x$newrel_f014, na.rm = TRUE)
     df <- x[, c("iso3", "newrel_f014", "newrel_f04", "newrel_f514")]
@@ -212,34 +265,31 @@ aggregated_female <- nested %>%
     df <- df[which(is.na(df$diff)), ]
     df <- df[which(!is.na(df$newrel_f014)), ]
     df$all_total_prop <- round(df$newrel_f014 / total, 2)
-    df %>% arrange(desc(newrel_f014)) %>% 
+    df %>% arrange(desc(newrel_f014)) %>%
       select(iso3, newrel_f014, all_total_prop)
-    
+
   }) %>% set_names(year)
   )
-  
+
 aggregated_female %>% pull(tables)
 ```
 
 #### 30 High burden countries
 
 ```{r notificaiton-difference-hb-female}
-aggregated_female %>% 
-  mutate(hb = map(tables, ~ filter(.x, iso3 %in% const$high_burden))) %>% 
+aggregated_female %>%
+  mutate(hb = map(tables, ~ filter(.x, iso3 %in% const$high_burden))) %>%
   pull(hb)
-  
+
 ```
 
-
-
 ```{r}
-# aggregate_female %>% 
-#   slice_head(n = 15) %>% 
+# aggregate_female %>%
+#   slice_head(n = 15) %>%
 #   ggplot(aes(x = iso3,
 #              y = newrel_f014)) +
 #   geom_col() + coord_flip()
 ```
-
 
 ### Male
 
@@ -247,7 +297,7 @@ aggregated_female %>%
 
 ```{r aggregate-notifications-male}
 
-aggregated_male <- nested %>% 
+aggregated_male <- nested %>%
   mutate(tables = map(data, function(x) {
     total <- sum(x$newrel_m014, na.rm = TRUE)
     df <- x[, c("iso3", "newrel_m014", "newrel_m04", "newrel_m514")]
@@ -256,30 +306,26 @@ aggregated_male <- nested %>%
     df <- df[which(is.na(df$diff)), ]
     df <- df[which(!is.na(df$newrel_m014)), ]
     df$all_total_prop <- round(df$newrel_m014 / total, 2)
-    df %>% arrange(desc(newrel_m014)) %>% 
+    df %>% arrange(desc(newrel_m014)) %>%
       select(iso3, newrel_m014, all_total_prop)
   }) %>% set_names(year)
   )
-  
+
 aggregated_male %>% pull(tables)
 ```
 
 #### 30 High burden countries
 
 ```{r notificaiton-difference-hb-male }
-aggregated_male %>% 
-  mutate(hb = map(tables, ~ filter(.x, iso3 %in% const$high_burden))) %>% 
+aggregated_male %>%
+  mutate(hb = map(tables, ~ filter(.x, iso3 %in% const$high_burden))) %>%
   pull(hb)
 ```
 
 ```{r}
-# aggregate_male %>% 
-#   slice_head(n = 15) %>% 
+# aggregate_male %>%
+#   slice_head(n = 15) %>%
 #   ggplot(aes(x = iso3,
 #              y = newrel_m014)) +
 #   geom_col() + coord_flip()
 ```
-
-
-
-
