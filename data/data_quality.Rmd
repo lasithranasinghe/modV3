@@ -34,7 +34,9 @@ nested <- dd$wide$country %>%
   nest(data = c(everything(), -year))
 ```
 
-## HBC reporting
+## HBC reporting { .tabset}
+
+### Missing data
 
 Review how many years each high burden country has reported data for each
 age group:
@@ -67,29 +69,61 @@ hbc %>%
   theme(legend.position = "bottom")
 ```
 
+Red tiles correspond to a year when a given country did not report both male and female
+notifications for the age-group. If either male or female data is missing,
+the tile is coloured red.
+
+### Relative change by year
+
 ```{r hbc-reporting}
 
 hbc %>%
+  group_by(iso3, age_group) %>% 
+  mutate(rel_change = ifelse(all_cases > 1000, 
+                             all_cases / lag(all_cases, 1),
+                             1)) %>% 
   ggplot(
     aes(x = year,
         y = iso3,
-        fill = log(all_cases))
+        fill = log(rel_change))
   ) +
   geom_tile() +
-  facet_grid(cols = vars(age_group),
-             scales = "free_y") +
+  facet_grid(cols = vars(age_group)) +
   labs(x = NULL,
       y = NULL,
-      fill = "Log case notifications",
-      title = "HBC log annual case notifications by age-group") +
+      fill = "Log percent change from previous year",
+      title = "HBC relative change in annual case notifications by age-group") +
   theme_minimal() +
   theme(legend.position = "bottom")
 
 ```
 
-Red tiles correspond to a year when a given country did not report both male and female
-notifications for the age-group. If either male or female data is missing,
-the tile is coloured red.
+The log percent change from one year to the next is plotted by country and age group. High
+positive numbers (representing large increases in notifications) and numbers less than zero
+(decreases in notifications) are worth looking more carefully at. 
+
+### All cases
+
+```{r hbc-quality}
+
+hbc_plots <- hbc %>%
+  group_by(iso3) %>% 
+  nest() %>% 
+  mutate(plots = map2(data, iso3, function(df, country) {
+    ggplot(df, aes(x = year, y = all_cases, group = age_group)) +
+      geom_line() +
+      facet_wrap(facets = vars(age_group),
+                 ncol = 3,
+                 scales = "free_y") +
+      theme_minimal() +
+      labs(title = country) +
+      scale_y_continuous(limits = c(0, max(df$all_cases) * 1.1))
+    
+  }))
+
+hbc_plots$plots
+```
+
 
 ## Missing values {.tabset}
 

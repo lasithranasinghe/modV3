@@ -1,5 +1,5 @@
 ---
-title: 'Mulltiple TS plots'
+title: 'Multiple TS plots'
 author: 'Jay Achar'
 date: '2/22/2022'
 output:
@@ -155,27 +155,62 @@ to create a list of ggplot objects. An alternative would be to add
 a call to `ggsave` within each iteration and use `purrr::walk2` instead
 of `purrr::map2`. This save the ggplots automatically to disk.
 
-```{r}
-map2(ts_list,
+```{r prepare-ribbon-df, echo = FALSE}
+# create ribbon data frame
+ribbon_df <- map2(ts_list,
      forecast_list,
      function(ts, forecast) {
-             ggplot(ts,
-                    aes(x = year,
-                        y = cases,
-                        color = g_whoregion)) +
-                     geom_line() +
-                     geom_pointinterval(
-                             data = forecast,
-                             aes(
-                                     x = year,
-                                     y = point,
-                                     ymin = lower95,
-                                     ymax = upper95,
-                                     color = region
-                             ),
-                             orientation = "vertical",
-                             position = position_dodgejust(width = 0.3)
-                     )
+       ts %>% 
+        filter(year == 2019) %>% 
+        mutate(lower95 = cases,
+               upper95 = cases) %>% 
+        select(region = g_whoregion, 
+               year,
+               point = cases, 
+               everything(), -sex, -age_group) %>% 
+        bind_rows(forecast)
+     })
+```
+
+
+```{r ts-plots }
+pmap(list(ts_list,
+     forecast_list,
+     ribbon_df),
+     function(ts, forecast, ribbon) {
+       ggplot(ts,
+              aes(x = year)) +
+         geom_line(aes(y = cases,
+                       color = g_whoregion)) +
+         geom_pointinterval(
+           data = forecast,
+           aes(
+             x = year,
+             y = point,
+             ymin = lower95,
+             ymax = upper95,
+             color = region
+           ),
+           orientation = "vertical"
+           # position = position_dodgejust(width = 0.3)
+         ) +
+         geom_ribbon(
+           data = ribbon,
+           mapping = aes(
+             ymin = lower95,
+             ymax = upper95,
+             group = region,
+             fill = region
+           ),
+           alpha = 0.3
+         ) +
+         scale_color_discrete(guide = "none") +
+         labs(x = "Year",
+              y = "Cases",
+              fill = "WHO Region",
+              title = paste0(unique(ts$sex), unique(ts$age_group))) +
+         theme_minimal()
+       
      })
 
 ```

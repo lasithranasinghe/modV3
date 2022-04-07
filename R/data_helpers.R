@@ -8,7 +8,7 @@ read_data <- function(file = c("notifications")) {
         readr::read_csv(here::here("data", name))
 }
 
-prepare_data <- function(raw, cons = constants()) {
+prepare_data <- function(raw, const = constants()) {
         wide <- list(
                 country = raw[raw$year > 2012, const$raw_vars_keep]
         )
