@@ -1,7 +1,7 @@
 ---
 title: 'Multiple TS plots'
 author: 'Jay Achar'
-date: '2/22/2022'
+date: "`r Sys.time()`"
 output:
   html_document:
     code_folding: hide
@@ -14,6 +14,7 @@ suppressMessages(library(tidyverse))
 library(here)
 library(forecast)
 library(ggdist)
+library(patchwork)
 ```
 
 ```{r source-functions}
@@ -56,6 +57,13 @@ Their names tells me about their structure and the data frame names
 dd <- prepare_data(raw, const = const)
 ```
 
+```{r aggregate}
+region_df <- dd$long$region %>% 
+  group_by(g_whoregion, age_group, year) %>% 
+  summarise(cases = sum(cases, na.rm = TRUE))
+```
+
+
 ## Arima modelling
 
 I'll use nested list columns here to retain my origina data structure. Working with
@@ -75,11 +83,11 @@ to occur.
 
 arima_models <- (function() {
         sink("/dev/null")
-arima_models <- dd$long$region %>%
+arima_models <- region_df %>%
         # remove 2020
         filter(year < 2020) %>%
         # nest data for each group of interest
-        group_by(g_whoregion, sex, age_group) %>%
+        group_by(g_whoregion, age_group) %>% 
         nest() %>%
         # convert to time series = list-column
         mutate(ts = map(data, function(series) {
@@ -113,9 +121,11 @@ The first data frame includes all of the years and cases from the original data:
 
 ```{r list-ts-data}
 # create ts_df list
-ts_list <- dd$long$region %>%
-        filter(year < 2020) %>%
-        group_split(age_group, sex)
+ts_list <- region_df %>%
+  filter(year < 2020,
+         age_group != "014") %>%
+  group_by(age_group) %>%
+  group_split()
 ```
 
 ```{r}
@@ -128,7 +138,8 @@ of sex and age group.
 
 ```{r list-forecast-data}
 forecast_list <- arima_models %>%
-        group_by(age_group, sex) %>%
+  filter(age_group != "014") %>% 
+        group_by(age_group) %>%
         group_split() %>%
         map(
                 function(group) {
@@ -167,14 +178,14 @@ ribbon_df <- map2(ts_list,
         select(region = g_whoregion, 
                year,
                point = cases, 
-               everything(), -sex, -age_group) %>% 
+               everything(), -age_group) %>% 
         bind_rows(forecast)
      })
 ```
 
 
 ```{r ts-plots }
-pmap(list(ts_list,
+arima_plots <- pmap(list(ts_list,
      forecast_list,
      ribbon_df),
      function(ts, forecast, ribbon) {
@@ -211,7 +222,15 @@ pmap(list(ts_list,
               title = paste0(unique(ts$sex), unique(ts$age_group))) +
          theme_minimal()
        
-     })
+     }) %>% 
+  wrap_plots(nrow = 3)
+
+
+
+ggsave(here::here("figures/main_arima_plots.png"),
+       arima_plots)
+
+arima_plots
 
 ```
 

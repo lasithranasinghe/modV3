@@ -1,7 +1,7 @@
 ---
 title: "Alternative plots"
 author: "Jay Achar"
-date: "2/24/2022"
+date: "`r Sys.time()`"
 output: 
   html_document:
     code_folding: hide
@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE)
 suppressMessages(library(tidyverse))
 library(here)
 library(ggdist)
+library(patchwork)
 ```
 
 ```{r source-functions}
@@ -181,5 +182,52 @@ final_country_diff_pd %>%
         facet_grid(. ~ age_group) +
         coord_flip()
 
+```
+
+## Supplement Figure 1
+
+> Sex disaggregated notifications by age group and WHO region
+
+```{r age-region-plot, fig.height = 15, fig.width= 10}
+age_region_plots <- dd$long$region %>% 
+  filter(!age_group %in% "014",
+         year >= 2014) %>% 
+  mutate(age_group_cat = factor(age_group, 
+                                      ordered = TRUE,
+                                  levels = c("04", "514", "15plus"))) %>% 
+  group_by(g_whoregion) %>% 
+  nest() %>% 
+  mutate(plots = map2(data, g_whoregion, function(region, name) {
+    ggplot(data = region,
+           aes(
+             x = year,
+             y = cases,
+             group = sex,
+             color = sex
+           )) +
+      geom_line() +
+      scale_color_discrete(guide = "none") +
+      facet_wrap(. ~ age_group_cat, scales = "free_y") +
+      theme_minimal() +
+      labs(x = "",
+           title = name) +
+      theme(strip.background = element_blank(),
+            strip.text = element_text())
+
+  }))
+
+
+aggregate_plot <- wrap_plots(age_region_plots$plots, nrow = 6) +
+  plot_annotation(title = "Notifications between 2013 and 2020 by age group and WHO Region",
+                  caption = "Source: WHO Global TB Programme") +
+  scale_color_discrete() + 
+  theme(legend.position = "bottom")
+
+ggsave(here::here("figures/supplement/age_region_sex.png"), 
+       plot = aggregate_plot,
+       width = 10,
+       height = 15)
+
+aggregate_plot
 ```
 
