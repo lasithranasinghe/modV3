@@ -5,6 +5,8 @@ library(whomap) #devtools::install_github('glaziou/whomap')
 library(lubridate)
 library(ggrepel)
 library(ggpubr)
+library(wbmapdata) #devtools::install_github('petedodd/wbmapdata')
+library(sf)
 
 load(here('plots/HBC.Rdata')) #30 HBC data
 
@@ -20,6 +22,30 @@ whomap(mpd[age_group=='014',.(iso3,var=chcat)],
        legend.title = '% change in 014 notifications')
 
 ggsave(here('plots/NoteChange014.pdf'),w=7,h=5)
+
+
+## --- better map (diverging continuous color scale)
+mpdw <- dcast(mpd,iso3~age_group,value.var = 'percent_change')
+mpdw <- mpdw[,.(iso3,u5=`04`,o5=`514`,u15=`014`,adults=`15plus`)]
+MPD <- sp::merge(world,mpdw,by='iso3',all.x=TRUE) #merge against map
+
+## convert & add mid-coords
+MP <- st_as_sf(MPD)
+MP$squ5 <- sign(MP$u5) * sqrt(abs(MP$u5)) #sqrt
+
+##  version
+p <- ggplot(data=MP) +
+  geom_sf(aes(fill=squ5)) +
+  scale_fill_gradient2(name='notification change\n(square root of %)',
+                       na.value = 'grey')+
+  theme_minimal() +
+  theme(legend.position = c(.1,.45),
+        legend.title.align = 0.5,
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank())
+p
+
+ggsave(p,file=here('plots/Map_04.pdf'),w=18,h=12)
 
 
 ## --- barplots for 30 HBC
@@ -40,8 +66,6 @@ mpdh30 <- rbind(mpdh30[,.(country,age,cases,cases.new,percent_change)],
 ## colors and labels
 mpdh30[,cl:='black']
 mpdh30[country=='HBC30',cl:='red']
-## mpdh30[country!='HBC30',totdf:=sum(cases.new-cases),by=age]
-## mpdh30[,pctxt:=1e2*(cases.new-cases)/totdf]
 mpdh30[country!='HBC30',totdf:=sum(cases),by=age] #total cases
 mpdh30[,pctxt:=1e2*cases/totdf]
 mpdh30[,pctxt:=paste0(sprintf(pctxt, fmt = '%#.1f'),'%')]
@@ -66,7 +90,9 @@ ggsave(here('plots/HBC30_barplot.pdf'),h=6,w=16)
 ## --- compare with COVID
 
 CVD <- fread(here('plots/export_country_per_100k_cumulative.csv')) #Economist estimates on github
-CF <- CVD[date<ymd('2021-01-01'),.(cedpc=max(cumulative_daily_covid_deaths_per_100k)),by=.(iso3=iso3c)] #max per cap deaths <2021
+CF <- CVD[date<ymd('2021-01-01'),
+          .(cedpc=max(cumulative_daily_covid_deaths_per_100k)),
+          by=.(iso3=iso3c)] #max per cap deaths <2021
 save(CF,file=here('plots/CF.Rdata')) #save for others
 
 CF <- merge(CF,mpd[age_group=='014',.(iso3,percent_change)],by='iso3')
@@ -96,8 +122,10 @@ CF <- CF[iso3 %in% HBC[g.hbc==TRUE,iso3]] #restrict to HBC30
 
 ggscatter(CF,x='cedpc',y='percent_change',add='reg.line',conf.int = TRUE,
           xscale='sqrt',xlab='Estimated cumulative COVID deaths per 100K prior to 2021 (square root scale)',
-          ylab='Percent change in TB notifications') + geom_text_repel(aes(label=iso3))+
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),label.x = 5,size=10) +  grids()
+          ylab='Percent change in TB notifications') +
+  geom_text_repel(aes(label=iso3))+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+           label.x = 5,size=10) +  grids()
 
 ggsave(here('plots/COVIDvTB2.pdf'),w=15,h=10)
 
@@ -119,9 +147,12 @@ CFy <- merge(CF[,.(iso3,cedpc,index)],
 CFy <- CFy[iso3 %in% HBC[g.hbc==TRUE,iso3]] #restrict to HBC30
 
 ggscatter(CFy,x='cedpc',y='percent_change',add='reg.line',conf.int = TRUE,
-          xscale='sqrt',xlab='Estimated cumulative COVID deaths per 100K prior to 2021 (square root scale)',
-          ylab='Percent change in TB notifications') + geom_text_repel(aes(label=iso3))+
-  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),label.x = 5,size=10) +  grids()
+          xscale='sqrt',
+          xlab='Estimated cumulative COVID deaths per 100K prior to 2021 (square root scale)',
+          ylab='Percent change in TB notifications') +
+  geom_text_repel(aes(label=iso3))+
+  stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+           label.x = 5,size=10) +  grids()
 
 ggsave(here('plots/COVIDvTB2y.pdf'),w=15,h=10)
 
