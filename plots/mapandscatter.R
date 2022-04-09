@@ -6,6 +6,8 @@ library(lubridate)
 library(ggrepel)
 library(ggpubr)
 
+load(here('plots/HBC.Rdata')) #30 HBC data
+
 ## --- quick map
 load(here('plots/mpd.Rdata')) #mpd was saved out as the last object in Jay's maps.Rmd file
 mpd <- as.data.table(mpd)
@@ -19,6 +21,47 @@ whomap(mpd[age_group=='014',.(iso3,var=chcat)],
 
 ggsave(here('plots/NoteChange014.pdf'),w=7,h=5)
 
+
+## --- barplots for 30 HBC
+mpdh30 <- mpd[iso3 %in% HBC[g.hbc==TRUE,iso3]]
+mpdh30[,age:=gsub('0','0-',age_group)]
+mpdh30[,age:=gsub('51','5-1',age)]
+mpdh30[,age:=gsub('plus','+',age)]
+mpdh30 <- mpdh30[age!='0-14'] #didn't want this one
+mpdh30[,cases.new:=(1+percent_change/1e2)*cases] #TODO check interpretation
+tot30 <- mpdh30[,.(cases=sum(cases),cases.new=sum(cases.new)),by=age]
+tot30[,c('country','percent_change'):=.('HBC30',(cases.new/cases-1)*1e2)]
+
+cnz <- mpdh30[age!='15+',.(dfr=sum(cases-cases.new)),by=country][order(dfr),country] #countries in increasing order of 014 drop
+
+mpdh30 <- rbind(mpdh30[,.(country,age,cases,cases.new,percent_change)],
+                tot30) #add in total
+
+## colors and labels
+mpdh30[,cl:='black']
+mpdh30[country=='HBC30',cl:='red']
+## mpdh30[country!='HBC30',totdf:=sum(cases.new-cases),by=age]
+## mpdh30[,pctxt:=1e2*(cases.new-cases)/totdf]
+mpdh30[country!='HBC30',totdf:=sum(cases),by=age] #total cases
+mpdh30[,pctxt:=1e2*cases/totdf]
+mpdh30[,pctxt:=paste0(sprintf(pctxt, fmt = '%#.1f'),'%')]
+mpdh30[country=='HBC30',pctxt:='100%']
+
+## ordering
+cnzo <- c(cnz,'HBC30')
+mpdh30$country <- factor(mpdh30$country,levels=rev(cnzo),ordered=TRUE)
+mpdh30$age <- factor(mpdh30$age,levels=c('0-4','5-14','15+'),
+                     ordered=TRUE)
+
+## plot
+ggplot(mpdh30,aes(country,percent_change,
+                  fill=I(cl),col=I(cl),label=pctxt))+
+  geom_bar(stat='identity')+
+  geom_text(aes(x=country,y=40))+
+  coord_flip()+
+  facet_wrap(~age)
+
+ggsave(here('plots/HBC30_barplot.pdf'),h=6,w=16)
 
 ## --- compare with COVID
 
@@ -48,7 +91,6 @@ S <- S[,.(index=mean(value)),by=.(iso3=country_code)] #mean for 2020
 CF <- merge(CF,S,by='iso3')
 
 ## --- restrict to HBC30
-load(here('plots/HBC.Rdata'))
 
 CF <- CF[iso3 %in% HBC[g.hbc==TRUE,iso3]] #restrict to HBC30
 
