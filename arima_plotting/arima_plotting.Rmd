@@ -43,6 +43,19 @@ re-run an analysis and also to see quickly what has been applied.
 const <- constants()
 ```
 
+```{r define-functions}
+extract_model_fit <- function(models, param) {
+  map_dbl(models, 
+          ~ .x[[param]]) %>% sum()
+}
+
+extract_model_params <- function(models) {
+  map(models, 
+      ~ c(length(.x$model$phi), length(.x$model$Delta), length(.x$model$theta)))
+}
+```
+
+
 ## Data preparation
 
 I tend to do all of my data preparation at the beginning. This might require
@@ -59,6 +72,10 @@ dd <- prepare_data(raw, const = const)
 
 ```{r aggregate}
 region_df <- dd$long$region %>% 
+  filter(year >= 2014,
+         age_group != "014") %>%  
+  mutate(age_group = factor(age_group, levels = c("04", "514", "15plus"),
+                            ordered = TRUE)) %>% 
   group_by(g_whoregion, age_group, year) %>% 
   summarise(cases = sum(cases, na.rm = TRUE))
 ```
@@ -94,7 +111,7 @@ arima_models <- region_df %>%
                 series %>%
                         # remove year variable prior to converting to TS
                         select(-year) %>%
-         ts(start = 2013, frequency = 1)
+         ts(start = 2014, frequency = 1)
         })) %>%
         # fit arima.auto model to each groups data
         mutate(arima_model = map(ts, ~forecast::auto.arima(.x, d = 1, D = 1,
@@ -122,8 +139,7 @@ The first data frame includes all of the years and cases from the original data:
 ```{r list-ts-data}
 # create ts_df list
 ts_list <- region_df %>%
-  filter(year < 2020,
-         age_group != "014") %>%
+  filter(age_group != "014") %>%
   group_by(age_group) %>%
   group_split()
 ```
@@ -193,6 +209,9 @@ arima_plots <- pmap(list(ts_list,
               aes(x = year)) +
          geom_line(aes(y = cases,
                        color = g_whoregion)) +
+         geom_point(aes(y = cases,
+                        color = g_whoregion),
+                    size = 1) +
          geom_pointinterval(
            data = forecast,
            aes(
@@ -202,6 +221,8 @@ arima_plots <- pmap(list(ts_list,
              ymax = upper95,
              color = region
            ),
+           shape = 4,
+           size = 2,
            orientation = "vertical"
            # position = position_dodgejust(width = 0.3)
          ) +
@@ -215,24 +236,86 @@ arima_plots <- pmap(list(ts_list,
            ),
            alpha = 0.3
          ) +
+         geom_line(
+           data = ribbon,
+           mapping = aes(x = year,
+                         y = point,
+                         group = region,
+                         color = region),
+           linetype = "dashed"
+         ) +
          scale_color_discrete(guide = "none") +
+         scale_fill_discrete(guide = "none") +
+         scale_y_sqrt() +
          labs(x = "Year",
-              y = "Cases",
+              y = "Cases (sqrt transformed)",
               fill = "WHO Region",
-              title = paste0(unique(ts$sex), unique(ts$age_group))) +
+              title = paste0(unique(ts$age_group))) +
          theme_minimal()
        
      }) %>% 
-  wrap_plots(nrow = 3)
+  wrap_plots(ncol = 3) +
+  scale_fill_discrete() 
 
-
-
-ggsave(here::here("figures/main_arima_plots.png"),
-       arima_plots)
+ggsave(here::here("figures/main/main_arima_plots.png"),
+       arima_plots,
+       width = 15,
+       height = 8)
 
 arima_plots
 
 ```
+
+
+## Calculate model fit
+
+```{r}
+extract_model_fit(arima_models$arima_model, "aic")
+
+# arima_models %>% 
+#   mutate(arima_model_type = extract_model_params(arima_model))
+safe_arima <- safely(Arima)
+
+calculate_model_fit <- function(model_order, 
+                                drift = FALSE,
+                                fit_param = "aic") {
+  arima_models %>%
+    mutate(new_model = map(ts,
+                           ~ safe_arima(.x,
+                                   order = model_order,
+                                   include.drift = drift))) %>%
+    pull(new_model) %>%
+    map(
+      .x = z,
+      .f = function(ls) {
+        map(ls, ~ .x$result)
+      }
+    ) %>% 
+    extract_model_fit(fit_param)
+}
+
+
+calculate_model_fit(c(0, 1, 0))
+calculate_model_fit(c(0, 1, 0), drift = TRUE)
+
+params <- list(a = c(0, 1, 2), b = c(0, 1, 2), c = c(0, 1, 2), drift = c(TRUE, FALSE))
+all_params <- do.call(expand_grid, params) %>% 
+  filter(!(b == 2 & drift == TRUE))
+
+z <- purrr::pmap(all_params,
+            ~ calculate_model_fit(c(..1, ..2, ..3),
+                                  drift = ..4)
+            )
+
+extract_model_fit(list(z[[3]][[1]]$result), "aic")
+
+map(z, 
+    ~ .x[[1]]$result)
+
+
+```
+
+
 
 ## Next steps
 
