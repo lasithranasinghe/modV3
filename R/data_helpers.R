@@ -46,6 +46,12 @@ prepare_data <- function(raw, const = constants()) {
                         .groups = "drop"
                 )
 
+        long$global <- long$region %>%
+                group_by(year, sex, age_group) %>%
+                summarise(cases = sum(cases), .groups = "drop") %>%
+                mutate(id = "Global") %>%
+                select(id, everything())
+
         return(list(
                 wide = wide,
                 long = long
