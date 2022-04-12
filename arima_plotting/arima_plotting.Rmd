@@ -98,7 +98,7 @@ to occur.
 # output created by the auto.arima function since it clutters the
 # HTML output of the report.
 
-arima_models <- (function() {
+ts_model_forecast <- function(model_fitting_function) {
         sink("/dev/null")
 arima_models <- region_df %>%
         # remove 2020
@@ -114,16 +114,41 @@ arima_models <- region_df %>%
          ts(start = 2014, frequency = 1)
         })) %>%
         # fit arima.auto model to each groups data
-        mutate(arima_model = map(ts, ~forecast::auto.arima(.x, d = 1, D = 1,
-                                        stepwise = FALSE,
-                                        approximation = FALSE,
-                                        trace = TRUE))) %>%
+        mutate(arima_model = map(ts, model_fitting_function)
+                                 
+                                 
+               ) %>% 
         # run forecast for 2020 on each group
         mutate(forecast = map(arima_model,
                               ~ forecast(.x, h = 1)))
 sink()
 return(arima_models)
-})()
+}
+
+arima_models <- ts_model_forecast(
+  function(x) {
+    forecast::auto.arima(
+    x,
+    d = 1,
+    D = 1,
+    stepwise = FALSE,
+    approximation = FALSE,
+    trace = FALSE
+  )
+  }
+)
+
+# fixed_models <- ts_model_forecast(
+#   function(x) {
+#     Arima(
+#       x,
+#       order = c(3, 0, 1),
+#       include.drift = TRUE
+#     )
+#   }
+# )
+
+
 ```
 
 ## Plotting
@@ -185,7 +210,7 @@ of `purrr::map2`. This save the ggplots automatically to disk.
 ```{r prepare-ribbon-df, echo = FALSE}
 # create ribbon data frame
 ribbon_df <- map2(ts_list,
-     forecast_list,
+
      function(ts, forecast) {
        ts %>% 
         filter(year == 2019) %>% 
@@ -267,13 +292,10 @@ arima_plots
 ```
 
 
+
 ## Calculate model fit
 
 ```{r}
-extract_model_fit(arima_models$arima_model, "aic")
-
-# arima_models %>% 
-#   mutate(arima_model_type = extract_model_params(arima_model))
 safe_arima <- safely(Arima)
 
 calculate_model_fit <- function(model_order, 
@@ -284,36 +306,48 @@ calculate_model_fit <- function(model_order,
                            ~ safe_arima(.x,
                                    order = model_order,
                                    include.drift = drift))) %>%
-    pull(new_model) %>%
-    map(
-      .x = z,
-      .f = function(ls) {
-        map(ls, ~ .x$result)
-      }
-    ) %>% 
-    extract_model_fit(fit_param)
+    pull(new_model) %>% 
+    keep(function(model) is.null(model$error)) %>% 
+    map(~ pluck(.x, "result"))
 }
 
-
-calculate_model_fit(c(0, 1, 0))
-calculate_model_fit(c(0, 1, 0), drift = TRUE)
-
-params <- list(a = c(0, 1, 2), b = c(0, 1, 2), c = c(0, 1, 2), drift = c(TRUE, FALSE))
+params <- list(a = c(0, 1, 2, 3), b = c(0, 1, 2), c = c(0, 1, 2, 3), drift = c(TRUE, FALSE))
 all_params <- do.call(expand_grid, params) %>% 
-  filter(!(b == 2 & drift == TRUE))
+  filter(!(b >= 2 & drift == TRUE))
 
-z <- purrr::pmap(all_params,
-            ~ calculate_model_fit(c(..1, ..2, ..3),
-                                  drift = ..4)
-            )
 
-extract_model_fit(list(z[[3]][[1]]$result), "aic")
-
-map(z, 
-    ~ .x[[1]]$result)
+model_performance_metrics <- c("aic", "aicc", "bic")
+metrics <- map(model_performance_metrics, function(metric) {
+  
+  all_params %>% 
+  mutate(models = pmap(list(a, b, c, drift),
+                       ~ calculate_model_fit(c(..1, ..2, ..3),
+                                             drift = ..4))) %>% 
+  mutate(model_count = map_int(models, length),
+         sum = map_dbl(models, ~ extract_model_fit(.x, param = metric)),
+         mean = sum / model_count) %>% 
+  arrange(mean)
+}) %>% set_names(model_performance_metrics) %>% bind_rows(.id = "metric")
 
 
 ```
+
+## Plot mean model metrics
+
+```{r}
+metrics %>% 
+  mutate(d_lab = ifelse(drift == TRUE, "T", "F")) %>% 
+  mutate(model_spec = factor(str_c(a, b, c, d_lab))) %>%
+  filter(model_count == 18) %>% 
+  filter(mean < 120) %>% 
+  ggplot(aes(x = model_spec,
+         y = mean,
+         color = metric)) + 
+  geom_point() +
+  coord_flip() +
+  theme_minimal()
+```
+
 
 
 
