@@ -31,9 +31,9 @@ forecast_next_year <- function(tbl, order, drift) {
                 }
         })
         
-        tbl$forecast <- map_dbl(tbl$model,
+        tbl$forecast <- map(tbl$model,
                                 function(m) {
-                                        as.numeric(forecast(m, h = 1)$mean)
+                                        forecast(m, h = 1)
                                 })
         
         tbl
@@ -74,6 +74,8 @@ evaluate_predictions <- function(observed_data = observed,
                                  }) {
         predicted <- forecast_next_year(training_ts$combined,
                                         order, drift)
+        
+        predicted$forecast <- map_dbl(predicted$forecast, ~ as.numeric(.x$mean))
         
         compare_observed_predicted(observed_data, predicted,
                                    evaluation_function)

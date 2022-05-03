@@ -365,7 +365,8 @@ Model 2, 0, 0 with drift:
  
  example_df <- example_predicted %>% 
    right_join(observed, by = c("location", "age_group")) %>% 
-   select(location, age_group, observed, predicted = forecast) %>% 
+   select(location, age_group, observed, forecast) %>% 
+   mutate(predicted = map_dbl(forecast, ~ as.numeric(.x$mean))) %>% 
    pivot_longer(cols = c(observed, predicted),
                 names_to = "type", values_to = "notifications")
  
@@ -387,5 +388,155 @@ Model 2, 0, 0 with drift:
      legend.position = "bottom"
    )
  
+```
+
+## Plotting
+
+This is a little complex...I'll try and give a thorough description of what has
+been done.
+
+Essentially there are two data frames being used by `ggplot` to create
+each graphic.
+
+The first data frame includes all of the years and cases from the original data:
+
+```{r list-ts-data }
+# create ts_df list
+ts_list <- region_df %>%
+  filter(age_group != "014") %>%
+  group_by(age_group) %>%
+  group_split()
+
+head(ts_list[[1]])
+```
+
+You can see that the data frame is specific to a sex/age group. There should
+therefore be 8 data frames in this `ts_list` representing each unique
+combination of sex and age group.
+
+The second data frame includes the 2020 prediction information. This is grouped
+in the same was as the previous data frame:
+
+```{r list-forecast-data }
+forecast_list <- region_df %>%
+  filter(age_group != "014",
+         year != 2020) %>%
+  group_by(age_group, location) %>%
+  nest() %>%
+  mutate(ts = map(data, function(series) {
+    select(series, -year) %>%
+      ts(start = 2014, frequency = 1)
+  })) %>%
+  forecast_next_year(order = c(2, 0, 0),
+                     drift = TRUE) %>%
+  group_by(age_group) %>%
+  group_split() %>%
+  map(function(group) {
+    data.frame(
+      region = group$location,
+      year = 2020,
+      point = as.numeric(map(group$forecast, ~ .x$mean)),
+      lower95 = as.numeric(map(group$forecast, ~ .x$lower[2])),
+      upper95 = as.numeric(map(group$forecast, ~ .x$upper[2]))
+    )
+  })
+
+head(forecast_list[[1]])
+```
+
+Finally, these two lists of data frames are iterated over using `purrr::map2()`
+to create a list of ggplot objects. An alternative would be to add
+a call to `ggsave` within each iteration and use `purrr::walk2` instead
+of `purrr::map2`. This save the ggplots automatically to disk.
+
+```{r prepare-ribbon-df }
+# create ribbon data frame
+ribbon_df <- map2(ts_list,
+                  forecast_list,
+
+     function(ts, forecast) {
+       ts %>% 
+        filter(year == 2019) %>% 
+        mutate(lower95 = cases,
+               upper95 = cases) %>% 
+        select(region = location, 
+               year,
+               point = cases, 
+               everything(), -age_group) %>% 
+        bind_rows(forecast)
+     })
+```
+
+
+```{r ts-plots }
+
+age_group_labels <- c("0-4 years",
+                      "5-14 years",
+                      "15+ years")
+
+arima_plots <- pmap(list(ts_list,
+     forecast_list,
+     ribbon_df,
+     age_group_labels),
+     function(ts, forecast, ribbon, age_label) {
+       ggplot(ts,
+              aes(x = year)) +
+         geom_line(aes(y = cases,
+                       color = location)) +
+         geom_point(aes(y = cases,
+                        color = location),
+                    size = 1) +
+         # geom_pointinterval(
+         #   data = forecast,
+         #   aes(
+         #     x = year,
+         #     y = point,
+         #     ymin = lower95,
+         #     ymax = upper95,
+         #     color = region
+         #   ),
+         #   shape = 4,
+         #   size = 2,
+         #   orientation = "vertical"
+         #   # position = position_dodgejust(width = 0.3)
+         # ) +
+         geom_ribbon(
+           data = ribbon,
+           mapping = aes(
+             ymin = lower95,
+             ymax = upper95,
+             group = region,
+             fill = region
+           ),
+           alpha = 0.3
+         ) +
+         # geom_line(
+         #   data = ribbon,
+         #   mapping = aes(x = year,
+         #                 y = point,
+         #                 group = region,
+         #                 color = region),
+         #   linetype = "dashed"
+         # ) +
+         scale_color_discrete(guide = "none") +
+         scale_fill_discrete(guide = "none") +
+         scale_y_sqrt() +
+         labs(x = "Year",
+              y = "Cases (sqrt transformed)",
+              fill = "WHO Region",
+              title = age_label) +
+         theme_minimal() 
+       
+     }) %>% 
+  wrap_plots(ncol = 3) +
+  scale_fill_discrete()
+
+ggsave(here::here("figures/main/main_arima_plots.png"),
+       arima_plots,
+       width = 15,
+       height = 8)
+
+arima_plots
+
 ```
 
