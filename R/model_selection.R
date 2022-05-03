@@ -19,7 +19,7 @@ calculate_model_fit <- function(df,
                 map(~ pluck(.x, "result"))
 }
 
-forecast_next_year <- function(tbl, order, drift) {
+forecast_next_year <- function(tbl, order, drift, lambda = NULL) {
         tbl$model <- map(tbl$ts, function(ts) {
                 model <- safe_arima(ts,
                                     order = order,
@@ -33,7 +33,8 @@ forecast_next_year <- function(tbl, order, drift) {
         
         tbl$forecast <- map(tbl$model,
                                 function(m) {
-                                        forecast(m, h = 1)
+                                        forecast(m, h = 1, 
+                                                 lambda = lambda)
                                 })
         
         tbl
