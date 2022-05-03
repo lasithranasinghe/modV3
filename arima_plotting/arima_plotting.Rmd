@@ -304,7 +304,7 @@ absolute_mean_diff_plot <-  mean_difference %>%
 
 ```
 
-```{r model-accuracy-plot-mean, fig.height=7, fig.width=5}
+```{r model-accuracy-plot-mean, fig.height=7, fig.width=14}
 mean_diff_plot <-  mean_difference %>% 
   ggplot(
     aes(x = model_spec,
@@ -337,20 +337,15 @@ prediction_comparison %>%
   ggplot(aes(x = prediction)) +
   geom_density(alpha = 0.2) +
   facet_grid(model_spec ~ .) +
+  theme_minimal() +
   theme(
     axis.text.y = element_blank(),
     axis.ticks.y = element_blank()
-  )
-
-# 
-#   ggplot(
-#     aes(x = prediction,
-#         y = model_spec)
-#   ) + 
-#   ggdist::stat_halfeye() +
-#   geom_point()
-#   
-
+  ) +
+  labs(title = "Distribution of prediction error",
+       subtitle = "Difference between 2019 predicted and observed notifications across all age groups",
+       x = "Prediction error",
+       y = "Density")
 ```
 
 ## Example
@@ -362,11 +357,11 @@ Notice how the predictions are fairly reasonble across all of the groups.
 
 Notifications are
 
-Model 2, 0, 2 with drift:
+Model 2, 0, 0 with drift:
 
-```{r example-comparison, warning = FALSE}
+```{r example-comparison, warning = FALSE, fig.height=12, fig.width=7}
  example_predicted <- forecast_next_year(training_ts$combined,
-                                  order = c(2, 0, 2), drift = TRUE)
+                                  order = c(2, 0, 0), drift = TRUE)
  
  example_df <- example_predicted %>% 
    right_join(observed, by = c("location", "age_group")) %>% 
@@ -381,11 +376,16 @@ Model 2, 0, 2 with drift:
    geom_point() +
    facet_wrap(age_group ~ ., scales = "free_x") + 
    coord_flip() +
+   theme_minimal() +
    labs(title = "Predicted against observed 2019 notifciations",
         subtitle = "(2, 0, 2) with drift",
         x = "Location",
         y = "Notifications",
         color = "Type",
-        caption = "Beware of the different x-axis scales")
-  ```
+        caption = "Beware of the different x-axis scales") +
+   theme(
+     legend.position = "bottom"
+   )
+ 
+```
 
