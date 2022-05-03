@@ -1,0 +1,131 @@
+---
+title: "Comparing ARIMA models"
+author: 'Jay Achar'
+date: "`r Sys.time()`"
+output:
+  html_document:
+    code_folding: hide
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(tidyverse))
+library(here)
+library(forecast)
+```
+
+```{r source-functions}
+files <- list.files(here("R"))
+walk(files,
+     ~source(here("R", .x)))
+```
+
+```{r read-in-data, warning = FALSE, message = FALSE}
+raw <- read_data("notifications")
+```
+
+```{r generate-data-structures}
+dd <- prepare_data(raw, const = const)
+
+full <- list()
+
+full$region <- dd$long$region %>% 
+  filter(year >= 2014,
+         age_group != "014") %>%  
+  mutate(age_group = factor(age_group, levels = c("04", "514", "15plus"),
+                            ordered = TRUE)) %>% 
+  group_by(g_whoregion, age_group, year) %>% 
+  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
+  select(location = g_whoregion, everything())
+
+full$hbc <- dd$long$country %>%
+  filter(iso3 %in% const$high_burden) %>%
+  filter(year >= 2014,
+         age_group != "014") %>%
+  mutate(age_group = factor(
+    age_group,
+    levels = c("04", "514", "15plus"),
+    ordered = TRUE
+  )) %>%
+  group_by(iso3, age_group, year) %>%
+  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
+  select(location = iso3, everything())
+```
+
+```{r generate-ts-data }
+region_age <- full$region %>%
+  filter(age_group != "014") %>%
+  group_by(age_group) %>%
+  group_split()
+
+
+ts_list <- full$region %>%
+        filter(age_group != "014",
+               year != 2020) %>%
+        group_by(age_group, location) %>%
+        nest() %>%
+        mutate(ts = map(data, function(series) {
+                select(series, -year) %>%
+                        ts(start = 2014, frequency = 1)
+        }))
+```
+
+```{r comparison-data }
+models <- list(c(2, 0, 0),
+               c(2, 0, 2))
+
+predictions_df <- map(models, 
+    function(model) {
+            forecast_next_year(tbl = ts_list,
+                               order = model,
+                               drift = TRUE) %>% 
+                    group_by(age_group) %>% 
+                    group_split() %>% 
+                    map(function(group) {
+    data.frame(
+      region = group$location,
+      model = paste0(as.character(model), collapse = ", "),
+      age_group = unique(group$age_group),
+      year = 2020,
+      point = as.numeric(map(group$forecast, ~ .x$mean)),
+      lower95 = as.numeric(map(group$forecast, ~ .x$lower[2])),
+      upper95 = as.numeric(map(group$forecast, ~ .x$upper[2]))
+    )
+  })
+    }) %>% 
+        reduce(bind_rows)
+        
+```
+
+```{r comparison-plot }
+comparison_plot <- full$region %>% 
+        filter(year == 2020) %>% 
+        mutate(model = "observed") %>% 
+        select(region = location, model, everything(), point = cases) %>% 
+        bind_rows(predictions_df) %>% 
+        select(-lower95, -upper95) %>% 
+        ggplot(aes(
+                x = region,
+                y = point, 
+                color = model
+        )) + 
+        geom_point(alpha = 0.4) +
+        facet_wrap(. ~ age_group, scales = "free_x") +
+        coord_flip() +
+        theme_bw() +
+        labs(title = "Comparing predicted 2020 notifications by age and WHO region",
+             subtitle = "Two ARIMA models against observed notifications",
+             x = "WHO region",
+             y = "Notifications")
+        
+ggsave(here::here("figures/dev/model_comparison.png"),
+       comparison_plot,
+       width = 15,
+       height = 8)
+
+comparison_plot
+```
+
