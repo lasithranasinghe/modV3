@@ -82,6 +82,25 @@ forecasts <- bind_rows(regions = regions,
 
 ```
 
+```{r extract-missing-values}
+# extract all time series with zero values
+missing <- forecasts %>% 
+    select(type, location, age_group, data) %>% 
+    filter(map_lgl(data, function(d) {
+        any(d$cases == 0)
+    })) %>% 
+    unnest(cols = c(data)) %>% 
+    ungroup() %>% 
+    mutate(cases = ifelse(cases == 0,
+                          NA_integer_, 
+                          cases))
+
+saveRDS(missing,
+        file = here::here("artefacts/missing.rds"))
+
+```
+
+
 ```{r extract-predictions}
 
 predictions <- forecasts %>% 
