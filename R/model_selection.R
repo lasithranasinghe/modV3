@@ -1,42 +1,68 @@
 extract_model_fit <- function(models, param) {
-        map_dbl(models, 
-                ~ .x[[param]]) %>% sum()
+        map_dbl(
+                models,
+                ~ .x[[param]]
+        ) %>% sum()
 }
 
 safe_arima <- safely(Arima)
 
-calculate_model_fit <- function(df, 
-                                model_order, 
+calculate_model_fit <- function(df,
+                                model_order,
                                 drift = FALSE,
                                 fit_param = "aic") {
         df %>%
-                mutate(new_model = map(ts,
-                                       ~ safe_arima(.x,
-                                                    order = model_order,
-                                                    include.drift = drift))) %>%
-                pull(new_model) %>% 
-                keep(function(model) is.null(model$error)) %>% 
+                mutate(new_model = map(
+                        ts,
+                        ~ safe_arima(.x,
+                                order = model_order,
+                                include.drift = drift
+                        )
+                )) %>%
+                pull(new_model) %>%
+                keep(function(model) is.null(model$error)) %>%
                 map(~ pluck(.x, "result"))
 }
 
-forecast_next_year <- function(tbl, order, drift, lambda = NULL) {
+forecast_next_year <- function(tbl, order, drift, lambda = NULL, log_transform = FALSE) {
+        if (log_transform) {
+                tbl$ts <- purrr::map(tbl$ts, log1p)
+        }
+
         tbl$model <- map(tbl$ts, function(ts) {
                 model <- safe_arima(ts,
-                                    order = order,
-                                    include.drift = drift)
+                        order = order,
+                        include.drift = drift
+                )
                 if (is.null(model$error)) {
                         return(model$result)
                 } else {
                         return(NULL)
                 }
         })
-        
-        tbl$forecast <- map(tbl$model,
-                                function(m) {
-                                        forecast(m, h = 1, 
-                                                 lambda = lambda)
-                                })
-        
+
+        tbl$forecast <- map(
+                tbl$model,
+                function(m) {
+                        pred <- forecast(m,
+                                h = 1,
+                                lambda = lambda,
+                                level = 95
+                        )
+                        df <- data.frame(
+                                point = pred$mean,
+                                lower95 = as.numeric(pred$lower),
+                                upper95 = as.numeric(pred$upper)
+                        )
+
+                        if (log_transform) {
+                                df <- purrr::map_dfc(df, expm1)
+                        }
+
+                        df
+                }
+        )
+
         tbl
 }
 
@@ -47,23 +73,23 @@ prepare_actual_notifications <- function(original_data, training_data) {
         joined <- left_join(
                 filtered_df,
                 training_data,
-                by = c("location" = "location", "age_group" = "age_group"))
-        
+                by = c("location" = "location", "age_group" = "age_group")
+        )
+
         joined <- joined[, c("location", "age_group", "cases")]
         names(joined) <- c("location", "age_group", "observed")
         joined
-        
 }
 
 compare_observed_predicted <- function(observed, predicted, fn) {
         predicted <- predicted[, c("location", "age_group", "forecast")]
-        
+
         df <- left_join(observed,
-                        predicted,
-                        by = c("location", "age_group"))
-        
+                predicted,
+                by = c("location", "age_group")
+        )
+
         fn(df$observed, df$forecast)
-        
 }
 
 evaluate_predictions <- function(observed_data = observed,
@@ -73,12 +99,15 @@ evaluate_predictions <- function(observed_data = observed,
                                          diff <- predicted - observed
                                          mean(diff, na.rm = TRUE)
                                  }) {
-        predicted <- forecast_next_year(training_ts$combined,
-                                        order, drift)
-        
+        predicted <- forecast_next_year(
+                training_ts,
+                order, drift
+        )
+
         predicted$forecast <- map_dbl(predicted$forecast, ~ as.numeric(.x$mean))
-        
-        compare_observed_predicted(observed_data, predicted,
-                                   evaluation_function)
-        
+
+        compare_observed_predicted(
+                observed_data, predicted,
+                evaluation_function
+        )
 }

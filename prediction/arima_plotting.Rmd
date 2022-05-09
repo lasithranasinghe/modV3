@@ -59,34 +59,43 @@ for WHO regions and high burden countries respectively.
 ```{r generate-data-structures}
 dd <- prepare_data(raw, const = const)
 
-region_df <- dd$long$region %>% 
-  filter(year >= 2014,
-         age_group != "014") %>%  
-  mutate(age_group = factor(age_group, levels = c("04", "514", "15plus"),
-                            ordered = TRUE)) %>% 
-  group_by(g_whoregion, age_group, year) %>% 
-  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
-  select(location = g_whoregion, everything())
+clean <- prepare_long_data(dd)
 
-hbc_df <- dd$long$country %>%
-  filter(iso3 %in% const$high_burden) %>%
-  filter(year >= 2014,
-         age_group != "014") %>%
-  mutate(age_group = factor(
-    age_group,
-    levels = c("04", "514", "15plus"),
-    ordered = TRUE
-  )) %>%
-  group_by(iso3, age_group, year) %>%
-  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
-  select(location = iso3, everything())
+# # handle missing data in HBC data frame
+# 
+# raw_countries <- dd$long$country %>% 
+#   filter(iso3 %in% const$high_burden,
+#          year != 2020,
+#          year >= 2014) %>% 
+#   mutate(age_group = factor(
+#     age_group,
+#     levels = c("04", "514", "15plus"),
+#     ordered = TRUE
+#   )) %>% 
+#   filter(!is.na(age_group))
+# 
+# hbc_df <- raw_countries %>% 
+#   impute_missing_case_counts() %>% 
+#   group_by(iso3, age_group, year) %>%
+#   summarise(cases = sum(cases, na.rm = TRUE),
+#             .groups = "drop") %>%
+#   select(location = iso3, everything())
+# 
+# region_df <- dd$long$region %>% 
+#   filter(year >= 2014,
+#          age_group != "014") %>%  
+#   mutate(age_group = factor(age_group, levels = c("04", "514", "15plus"),
+#                             ordered = TRUE)) %>% 
+#   group_by(g_whoregion, age_group, year) %>% 
+#   summarise(cases = sum(cases, na.rm = TRUE)) %>% 
+#   select(location = g_whoregion, everything())
+# 
+# full <- list(
+#   region = region_df,
+#   hbc = hbc_df
+# )
 
-full <- list(
-  region = region_df,
-  hbc = hbc_df
-)
-
-head(full)
+head(clean$region)
 ```
 
 ## Create training data set
@@ -95,10 +104,17 @@ Next, we create a model training set by removing 2019 and 2020 values from our
 full data. Models will be evaluated on their accuracy to the 2019 data.
 
 ```{r training-set}
-training <- full %>% 
-  map(.f = ~ dplyr::filter(.x, ! year %in% c(2019, 2020)) %>% 
-        group_by(location, age_group) %>% 
-        nest())
+
+training <- bind_rows(clean,
+          .id = "type") %>% 
+  filter(year < 2019) %>% 
+  group_by(type, location, age_group) %>% 
+  nest()
+
+# training <- clean %>% 
+#   map(.f = ~ dplyr::filter(.x, ! year %in% c(2019, 2020)) %>% 
+#         group_by(location, age_group) %>% 
+#         nest())
 
 head(training)
 
@@ -114,13 +130,12 @@ ease of evaluation later.
 ```{r training-ts}
 
 training_ts <- training %>% 
-  map(~ mutate(.x,
-               ts = map(data, function(series) {
+  mutate(ts = map(data, function(series) {
                  select(series, -year) %>% 
                    ts(start = 2014, frequency = 1)
-               })))
+               }))
 
-training_ts$combined <- bind_rows(training_ts, .id = 'dataset')
+# training_ts$combined <- bind_rows(training_ts, .id = 'dataset')
 
 head(training_ts)
 ```
@@ -138,14 +153,13 @@ converge on some data sets. Note that a training set is used here, so 2019
 data points are not included.
 
 ```{r calculate-metrics}
-metrics <- map(
-  training_ts,
-  function(df) {
+
+metrics <- 
     map(const$model_performance_metrics, function(metric) {
     const$model_params %>%
       mutate(models = pmap(
         list(a, b, c, drift),
-        ~ calculate_model_fit(df = df,
+        ~ calculate_model_fit(df = training_ts,
                               c(..1, ..2, ..3),
                               drift = ..4)
       )) %>%
@@ -157,51 +171,19 @@ metrics <- map(
       arrange(mean)
   }) %>% set_names(const$model_performance_metrics) %>% bind_rows(.id = "metric")
   
-  } 
-)
 
-metrics <- map(metrics,
-    .f = function(dataset) {
-      dataset %>% 
+
+metrics <- metrics %>% 
         mutate(d_lab = ifelse(drift == TRUE, "T", "F")) %>% 
         mutate(model_spec = factor(str_c(a, b, c, d_lab))) %>% 
         select(metric, model_spec, everything(), -d_lab)
-    })
   
 ```
 
 ## Plot mean model metrics
 
-```{r metrics-region}
-metrics$region %>% 
-  filter(model_count == 18) %>% 
-  filter(mean < 120) %>% 
-  ggplot(aes(x = model_spec,
-         y = mean,
-         color = metric)) + 
-  geom_point() +
-  coord_flip() +
-  theme_minimal() +
-  labs(title = "WHO regional training data",
-       subtitle = "Only where all 18 models converged")
-```
-
-```{r metrics-hbc}
-metrics$hbc %>% 
-  filter(model_count > 75) %>% 
-  filter(mean < 120) %>% 
-  ggplot(aes(x = model_spec,
-         y = mean,
-         color = metric)) + 
-  geom_point() +
-  coord_flip() +
-  theme_minimal() +
-  labs(title = "HBC training data",
-       subtitle = "Only where >75/90 models converged")
-```
-
 ```{r metrics-combined}
-metrics$combined %>% 
+metrics %>% 
   filter(model_count > 90) %>% 
   filter(mean < 120) %>% 
   ggplot(aes(x = model_spec,
@@ -220,7 +202,7 @@ Let's take the 10 models with the lowest mean cAIC based on the combined WHO
 and HBC training data sets:
 
 ```{r model-selection}
-combined_models <- metrics$combined %>% 
+combined_models <- metrics %>% 
   filter(metric == "aicc") %>% 
   filter(model_count > 90) %>% 
   arrange(mean) %>%
@@ -262,7 +244,7 @@ Observations:
 ```{r model-accuracy, message = FALSE, warning = FALSE}
 
 # prepare observed notifications for 2019
-observed <- prepare_actual_notifications(full, training_ts$combined)
+observed <- prepare_actual_notifications(clean, training_ts)
 
 # uses mean difference as discriminator
 prediction_comparison <- combined_models %>%
@@ -360,7 +342,7 @@ Notifications are
 Model 2, 0, 0 with drift:
 
 ```{r example-comparison, warning = FALSE, fig.height=12, fig.width=7}
- example_predicted <- forecast_next_year(training_ts$combined,
+ example_predicted <- forecast_next_year(training_ts,
                                   order = c(2, 0, 0), drift = TRUE)
  
  example_df <- example_predicted %>% 
@@ -368,12 +350,12 @@ Model 2, 0, 0 with drift:
    select(location, age_group, observed, forecast) %>% 
    mutate(predicted = map_dbl(forecast, ~ as.numeric(.x$mean))) %>% 
    pivot_longer(cols = c(observed, predicted),
-                names_to = "type", values_to = "notifications")
+                names_to = "count_type", values_to = "notifications")
  
  example_df %>% 
    ggplot(aes(x = location,
               y = notifications,
-              color = type)) + 
+              color = count_type)) + 
    geom_point() +
    facet_wrap(age_group ~ ., scales = "free_x") + 
    coord_flip() +
@@ -402,7 +384,7 @@ The first data frame includes all of the years and cases from the original data:
 
 ```{r list-ts-data }
 # create ts_df list
-ts_list <- region_df %>%
+ts_list <- clean$region %>%
   filter(age_group != "014") %>%
   group_by(age_group) %>%
   group_split()
@@ -418,7 +400,7 @@ The second data frame includes the 2020 prediction information. This is grouped
 in the same was as the previous data frame:
 
 ```{r list-forecast-data }
-forecast_list <- region_df %>%
+forecast_list <- clean$region %>%
   filter(age_group != "014",
          year != 2020) %>%
   group_by(age_group, location) %>%

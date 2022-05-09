@@ -21,50 +21,25 @@ library(forecast)
 files <- list.files(here("R"))
 walk(files,
      ~source(here("R", .x)))
+# returns a list of constants
+const <- constants()
 ```
 
 ```{r read-in-data, warning = FALSE, message = FALSE}
 raw <- read_data("notifications")
+
 ```
 
 ```{r generate-data-structures}
 dd <- prepare_data(raw, const = const)
 
-full <- list()
+clean <- prepare_long_data(dd)
 
-full$region <- dd$long$region %>% 
-  filter(year >= 2014,
-         age_group != "014") %>%  
-  mutate(age_group = factor(age_group, levels = c("04", "514", "15plus"),
-                            ordered = TRUE)) %>% 
-  group_by(g_whoregion, age_group, year) %>% 
-  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
-  select(location = g_whoregion, everything())
-
-full$hbc <- dd$long$country %>%
-  filter(iso3 %in% const$high_burden) %>%
-  filter(year >= 2014,
-         age_group != "014") %>%
-  mutate(age_group = factor(
-    age_group,
-    levels = c("04", "514", "15plus"),
-    ordered = TRUE
-  )) %>%
-  group_by(iso3, age_group, year) %>%
-  summarise(cases = sum(cases, na.rm = TRUE)) %>% 
-  select(location = iso3, everything())
 ```
 
 ```{r generate-ts-data }
-region_age <- full$region %>%
-  filter(age_group != "014") %>%
-  group_by(age_group) %>%
-  group_split()
-
-
-ts_list <- full$region %>%
-        filter(age_group != "014",
-               year != 2020) %>%
+ts_list <- bind_rows(clean)  %>%
+        filter(year != 2020) %>%
         group_by(age_group, location) %>%
         nest() %>%
         mutate(ts = map(data, function(series) {
@@ -73,8 +48,9 @@ ts_list <- full$region %>%
         }))
 ```
 
-```{r comparison-data }
+```{r comparison-data, warning = FALSE}
 models <- list(c(2, 0, 0),
+               c(2, 0, 1),
                c(2, 0, 2))
 
 predictions_df <- map(models, 
@@ -101,7 +77,7 @@ predictions_df <- map(models,
 ```
 
 ```{r comparison-plot }
-comparison_plot <- full$region %>% 
+comparison_plot <- bind_rows(clean) %>% 
         filter(year == 2020) %>% 
         mutate(model = "observed") %>% 
         select(region = location, model, everything(), point = cases) %>% 

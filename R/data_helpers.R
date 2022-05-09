@@ -57,3 +57,37 @@ prepare_data <- function(raw, const = constants()) {
                 long = long
         ))
 }
+
+prepare_long_data <- function(lst) {
+        raw_countries <- lst$long$country %>%
+                filter(
+                        iso3 %in% const$high_burden,
+                        year >= 2014,
+                        age_group != "014"
+                ) %>%
+                mutate(age_group = factor(
+                        age_group,
+                        levels = c("04", "514", "15plus"),
+                        ordered = TRUE
+                ))
+
+        hbc_df <- raw_countries %>%
+                impute_missing_case_counts() %>%
+                select(location = iso3, year, sex, age_group, cases)
+
+        region_df <- dd$long$region %>%
+                filter(
+                        year >= 2014,
+                        age_group != "014"
+                ) %>%
+                mutate(age_group = factor(age_group,
+                        levels = c("04", "514", "15plus"),
+                        ordered = TRUE
+                )) %>%
+                select(location = g_whoregion, year, sex, age_group, cases)
+
+        list(
+                region = region_df,
+                hbc = hbc_df
+        )
+}

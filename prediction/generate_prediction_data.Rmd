@@ -18,69 +18,23 @@ library(here)
 library(forecast)
 ```
 
-```{r source-functions}
+```{r load, message=FALSE, warning=FALSE }
 files <- list.files(here("R"))
 walk(files,
      ~source(here("R", .x)))
-```
 
-```{r read-in-data, message=FALSE, warning=FALSE}
+const <- constants()
+
 raw <- read_data("notifications")
 ```
 
-```{r define-constants-functions}
-# returns a list of constants
-const <- constants()
-```
-
-```{r create-predicted-data }
+```{r restructure-data}
 dd <- prepare_data(raw, const = const)
-# create training data
-## remove 2020
-regions <- dd$long$region %>% 
-  filter(year != 2020,
-         year >= 2014,
-         age_group != "014") %>% 
-  mutate(age_group = factor(age_group, levels = c("04", "514", "15plus"),
-                            ordered = TRUE)) %>% 
-  group_by(g_whoregion, age_group, year) %>% 
-  summarise(cases = sum(cases, na.rm = TRUE),
-            .groups = "drop") %>% 
-  select(location = g_whoregion, everything())
-
-countries <- dd$long$country %>%
-  filter(iso3 %in% const$high_burden) %>%
-  filter(year >= 2014,
-         year != 2020,
-         age_group != "014") %>%
-  mutate(age_group = factor(
-    age_group,
-    levels = c("04", "514", "15plus"),
-    ordered = TRUE
-  )) %>%
-  group_by(iso3, age_group, year) %>%
-  summarise(cases = sum(cases, na.rm = TRUE), 
-            .groups = "drop") %>% 
-  select(location = iso3, everything())
-
-forecasts <- bind_rows(regions = regions, 
-          countries = countries, 
-          .id = "type") %>% 
-  group_by(location, age_group, type) %>% 
-## nest data by location & age group
-  nest() %>% 
-## create time-series
-  mutate(ts = map(data,
-                  function(series) {
-                    select(series, -year) %>% 
-                      ts(start = 2014, frequency = 1)
-                  })) %>% 
-  forecast_next_year(order = c(2, 0, 0),
-                     drift = TRUE,
-                     lambda = NULL)
-
-
 ```
+
+## Missing values
+
+Find all timeseries with missing values to all imputation.
 
 ```{r extract-missing-values}
 # extract all time series with zero values
@@ -111,25 +65,57 @@ saveRDS(missing,
 
 ```
 
+```{r handle-missing-data}
+clean <- prepare_long_data(dd)
+```
+
+## Predict 2020 notifications
+
+Predictions should be performed on the most granular data available.
+In this analysis, that is country and regional level data by age group and sex.
+
+```{r create-predicted-data }
+# create training data
+## remove 2020
+forecasts <- bind_rows(clean, 
+          .id = "type") %>% 
+  filter(year != 2020) %>% 
+  group_by(location, age_group, type, sex) %>% 
+## nest data by location & age group
+  nest() %>% 
+## create time-series
+  mutate(ts = map(data,
+                  function(series) {
+                    select(series, -year) %>% 
+                      ts(start = 2014, frequency = 1)
+                  })) %>% 
+  forecast_next_year(order = c(2, 0, 0),
+                     drift = TRUE,
+                     lambda = NULL,
+                     log_transform = TRUE)
+
+```
 
 ```{r extract-predictions}
 
 predictions <- forecasts %>% 
   mutate(prediction = map(forecast, function(series) {
     data.frame(
-      point = series$mean,
-      lower95 = series$lower[2],
-      upper95 = series$upper[2]
+      point = as.integer(series$point),
+      lower95 = as.integer(series$lower95),
+      upper95 = as.integer(series$upper95)
     )
   })) %>% 
-  select(type, location, age_group, prediction) %>% 
+  select(type, location, age_group, sex, prediction) %>% 
   unnest(cols = c(prediction))
 
+# required for supp table 4
 saveRDS(predictions,
         file = here::here("artefacts/predictions.rds"))
+head(predictions)
 ```
 
-# Problem
+## Problem
 
 Some of the predictions are negative: 
 
