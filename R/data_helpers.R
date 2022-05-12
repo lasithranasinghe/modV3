@@ -68,6 +68,7 @@ prepare_long_data <- function(lst) {
                 mutate(age_group = factor(
                         age_group,
                         levels = c("04", "514", "15plus"),
+                        labels = c("0-4y", "5-14y", "Over 15y"),
                         ordered = TRUE
                 ))
 
@@ -82,12 +83,24 @@ prepare_long_data <- function(lst) {
                 ) %>%
                 mutate(age_group = factor(age_group,
                         levels = c("04", "514", "15plus"),
+                        labels = c("0-4y", "5-14y", "Over 15y"),
                         ordered = TRUE
                 )) %>%
                 select(location = g_whoregion, year, sex, age_group, cases)
+        
+        global_df <- dd$long$global %>% 
+                filter(year >= 2014,
+                       age_group != "014") %>% 
+                mutate(age_group = factor(age_group,
+                                          levels = c("04", "514", "15plus"),
+                                          labels = c("0-4y", "5-14y", "Over 15y"),
+                                          ordered = TRUE
+                )) %>%
+                select(location = id, year, sex, age_group, cases)
 
         list(
                 region = region_df,
-                hbc = hbc_df
+                hbc = hbc_df,
+                global = global_df
         )
 }

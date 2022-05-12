@@ -13,6 +13,7 @@ suppressMessages(library(tidyverse))
 library(here)
 library(ggdist)
 library(patchwork)
+library(forecast)
 ```
 
 ```{r source-functions}
@@ -189,7 +190,6 @@ final_country_diff_pd %>%
 > Sex disaggregated notifications by age group and WHO region
 
 ```{r age-region-plot, fig.height = 15, fig.width= 10}
-
 age_region_plots <- dd$long$region %>% 
   rename(id = g_whoregion) %>% 
   bind_rows(dd$long$global) %>% 
