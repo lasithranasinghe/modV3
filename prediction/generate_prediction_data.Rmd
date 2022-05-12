@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 suppressMessages(library(tidyverse))
 library(here)
 library(forecast)
+library(imputeTS)
 ```
 
 ```{r load, message=FALSE, warning=FALSE }
@@ -165,7 +166,25 @@ final_prediction$age_sex <- granular_predictions %>%
   bind_rows(temp_age_sex) %>%
   arrange(age_group, desc(sex))
 
+head(final_prediction$age_sex)
 
+```
+
+### Supplement Table 4
+
+Uses the same predictions as Main figure 1
+
+Add global prediction
+
+```{r global-age}
+final_prediction$age <- granular_predictions %>%
+  filter(type == "region") %>%
+  grouped_predictions(age_group)
+
+final_prediction$age
+```
+
+```{r}
 # calculate 95% CI
 final_prediction <- lapply(final_prediction,
                            FUN = function(x) {
@@ -177,9 +196,5 @@ final_prediction <- lapply(final_prediction,
 
 saveRDS(final_prediction,
         file = here::here("artefacts/manuscript_predictions.rds"))
-head(final_prediction$age_sex)
+
 ```
-
-### Supplement Table 4
-
-Uses the same predictions as Main figure 1
