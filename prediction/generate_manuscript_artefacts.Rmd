@@ -18,6 +18,10 @@ suppressMessages(library(tidyverse))
 library(patchwork)
 library(flextable)
 library(officer)
+absspace <- function(x,...) {
+  format(abs(x), ..., big.mark=" ",scientific = FALSE, trim = TRUE)
+}
+
 ```
 
 ```{r source-data-functions, message=FALSE}
@@ -97,7 +101,7 @@ arima_plots <- pmap(list(ts_list,
          ) +
          scale_color_discrete(guide = "none") +
          scale_fill_discrete(guide = "none") +
-         scale_y_sqrt() +
+         scale_y_sqrt(label=absspace) +
          labs(x = "Year",
               y = "Cases (sqrt transformed)",
               fill = "WHO Region",
@@ -109,6 +113,11 @@ arima_plots <- pmap(list(ts_list,
   scale_fill_discrete()
 
 ggsave(here::here("figures/main/main_arima_plots.png"),
+       arima_plots,
+       width = 15,
+       height = 8)
+
+ggsave(here::here("figures/main/main_arima_plots.eps"),
        arima_plots,
        width = 15,
        height = 8)
