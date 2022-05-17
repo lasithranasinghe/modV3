@@ -139,6 +139,8 @@ agz <- CF[,unique(age)]
 CF[is.na(age)] #using age not age_group automatically drops HBC30
 agz <- c(na.omit(agz))
 
+CF <- CF[iso3!='LBR']
+
 ## loop over ages
 for(a in agz){
   GP <- ggscatter(CF[age==a],x='index',
@@ -150,7 +152,7 @@ for(a in agz){
     geom_text_repel(aes(label=iso3))+
     stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
              label.x = 30,label.y = -60,size=10) +  grids()
-  ggsave(GP,file=here(paste0('plots/StringvTB_',a,'.pdf')),w=15,h=10)
-  ggsave(GP,file=here(paste0('plots/StringvTB_',a,'.png')),w=15,h=10)
-  ggsave(GP,file=here(paste0('plots/StringvTB_',a,'.eps')),w=15,h=10)
+  ggsave(GP,file=here(paste0('plots/StringvTB_noLBR_',a,'.pdf')),w=15,h=10)
+  ggsave(GP,file=here(paste0('plots/StringvTB_noLBR_',a,'.png')),w=15,h=10)
+  ggsave(GP,file=here(paste0('plots/StringvTB_noLBR_',a,'.eps')),w=15,h=10)
 }
