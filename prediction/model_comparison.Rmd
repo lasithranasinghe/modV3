@@ -17,27 +17,43 @@ library(here)
 library(forecast)
 ```
 
-```{r source-functions}
+```{r source-functions, include = FALSE}
 files <- list.files(here("R"))
 walk(files,
      ~source(here("R", .x)))
 # returns a list of constants
 const <- constants()
+
+models <- list(c(2, 0, 0),
+               c(2, 0, 1),
+               c(2, 0, 2))
+
 ```
 
-```{r read-in-data, warning = FALSE, message = FALSE}
+```{r read-in-data, warning = FALSE, message = FALSE, echo = FALSE}
 raw <- read_data("notifications")
 
 ```
 
-```{r generate-data-structures}
+```{r generate-data-structures, echo = FALSE}
 dd <- prepare_data(raw, const = const)
 
 clean <- prepare_long_data(dd)
 
 ```
 
-```{r generate-ts-data }
+## Training data
+
+Three predictive models will be compared with the observed notification data
+for 2019. Predictions will be made on data from the 30 HBCs and the 6 WHO
+regions and will be disaggregated by age group and sex.
+
+The comparison will only use the predicted point estimates.
+
+Similar to the final analysis, linear imputation will be used to replace
+missing values in the 30 HBCs, but not in other country data.
+
+```{r generate-ts-data, include = FALSE }
 ts_list <- bind_rows(clean)  %>%
         filter(year <= 2018) %>%
         group_by(age_group, location, sex) %>%
@@ -49,15 +65,13 @@ ts_list <- bind_rows(clean)  %>%
 ```
 
 ```{r comparison-data, warning = FALSE}
-models <- list(c(2, 0, 0),
-               c(2, 0, 1),
-               c(2, 0, 2))
 
 predictions_df <- map(models,
     function(model_params) {
             forecast_next_year(tbl = ts_list,
                                order = model_params,
-                               drift = TRUE) %>%
+                               drift = TRUE,
+                               log_transform = TRUE) %>%
                     group_by(age_group) %>%
                     group_split() %>%
                     map(function(group) {
@@ -77,10 +91,23 @@ predictions_df <- map(models,
 
 ```
 
+Three models are being assess here - all with drift and log transformations:
+
+```{r present-models, echo = FALSE}
+models
+```
+
+The following models failed to estimate a prediction:
+
+```{r failed-predictions}
+predictions_df %>%
+  filter(is.na(point)) %>%
+  knitr::kable()
+```
+
 ```{r comparison-plot }
 
-# TODO needs to be adjusted to handle data split by sex
-comparison_plot <- bind_rows(clean) %>%
+comparisons_df <- bind_rows(clean) %>%
         filter(year == 2019) %>%
         mutate(model = "observed") %>%
         select(region = location, model, everything(), point = cases) %>%
@@ -88,6 +115,9 @@ comparison_plot <- bind_rows(clean) %>%
         select(-lower95, -upper95) %>%
   group_by(region, model, year, age_group) %>%
   summarise(point = sum(point), .groups = "drop") %>%
+  filter(!is.na(point))
+
+comparison_plot <- comparisons_df %>%
         ggplot(aes(
                 x = region,
                 y = point,
@@ -109,3 +139,41 @@ ggsave(here::here("figures/dev/model_comparison.png"),
 
 comparison_plot
 ```
+
+## Compare predictive differences
+
+```{r create-observed, echo = FALSE}
+observed_df <- clean %>%
+  bind_rows(.id = "type") %>%
+  filter(type != "global",
+         year == 2019) %>%
+  select(everything(), observed_cases = cases, -type)
+
+```
+
+```{r}
+
+difference_df <- predictions_df %>%
+  select(location = region,
+         model, sex, age_group,
+         predicted_cases = point) %>%
+  right_join(observed_df, by = c("location", "age_group", "sex")) %>%
+  mutate(diff = observed_cases - predicted_cases)
+
+
+difference_df %>%
+  group_by(model) %>%
+  filter(!is.na(predicted_cases)) %>%
+  summarise(n = n(),
+            total_diff = sum(diff),
+            abs_total_diff = sum(abs(diff)),
+            abs_mean_total_diff = sum(abs(diff)) / n,
+            .groups = "drop") %>%
+  arrange(abs_mean_total_diff) %>%
+  knitr::kable()
+
+```
+
+The model 2, 0, 0 with drift was ultimately chosen. One model within
+this comparison related to this model did not generate a prediction, however,
+when using the full training data it did generate a prediction.

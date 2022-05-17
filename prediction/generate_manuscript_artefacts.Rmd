@@ -18,8 +18,10 @@ suppressMessages(library(tidyverse))
 library(patchwork)
 library(flextable)
 library(officer)
-absspace <- function(x,...) {
-  format(abs(x), ..., big.mark=" ",scientific = FALSE, trim = TRUE)
+absspace <- function(x, ...) {
+  format(abs(x), ..., big.mark = " ",
+         scientific = FALSE,
+         trim = TRUE)
 }
 
 ```
@@ -101,7 +103,7 @@ arima_plots <- pmap(list(ts_list,
          ) +
          scale_color_discrete(guide = "none") +
          scale_fill_discrete(guide = "none") +
-         scale_y_sqrt(label=absspace) +
+         scale_y_sqrt(label = absspace) +
          labs(x = "Year",
               y = "Cases (sqrt transformed)",
               fill = "WHO Region",
@@ -123,6 +125,44 @@ ggsave(here::here("figures/main/main_arima_plots.eps"),
        height = 8)
 
 arima_plots
+```
+
+### Main table 1
+
+### Main table 2
+
+```{r}
+mt2_data <- clean$region %>%
+  group_by(location, sex, age_group) %>%
+  summarise(cases = sum(cases),
+            .groups = "drop") %>%
+  mutate(sex = factor(sex,
+                      levels = c("m", "f", "All"),
+                      labels = c("Male", "Female", "All"),
+                      ordered = TRUE)) %>%
+  pivot_wider(names_from = "sex", values_from = cases) %>%
+  mutate(abs_diff = Male - Female,
+         # TODO how to calculate relative difference between males and females
+         ratio = Male / Female) %>%
+  arrange(age_group, location)
+# TODO add global values too as "All" location category
+
+
+mt2 <- flextable(mt2_data,
+                 col_keys = c("age_group", "location", "Male",
+                              "Female", "abs_diff", "ratio")) %>%
+  set_header_labels(
+    age_group = "",
+    location = "Region",
+    abs_diff = "Absolute difference (N)",
+    ratio = "Relative difference"
+  ) %>%
+  set_table_properties(layout = "autofit", width = 1) %>%
+  merge_v(j = ~ age_group) %>%
+  fontsize(size = 9, part = "all") %>%
+  theme_box()
+
+mt2
 ```
 
 ### Supplement figure 1
@@ -200,10 +240,12 @@ diff_plot <- ggplot(diff_data,
                   color = "red",
                   alpha = 0.5) +
         geom_hline(yintercept = 100, alpha = 0.6) +
+        theme_minimal() +
         coord_cartesian(ylim = c(50, 150)) +
         facet_grid(age_group ~ .) +
+
         labs(y = "Percent change on previous year",
-             title = "Percentage change in TB notifications by age, WHO region and globally",
+             x = "Year",
              color = "WHO Region")
 
 ggsave(here::here("figures/supplement/supplement4_age_region_annual_change.png"),
@@ -235,6 +277,10 @@ st1_data <- clean$region %>%
               values_from = cases) %>%
    mutate(abs_diff = y_2020 - y_2019,
          perc = round((y_2020 - y_2019) / y_2019 * 100, 2)) %>%
+  mutate(sex = factor(sex,
+                      levels = c("m", "f", "All"),
+                      labels = c("Male", "Female", "All"),
+                      ordered = TRUE)) %>%
   arrange(age_group, sex)
 
 st1 <- flextable(st1_data,
@@ -310,10 +356,12 @@ st3_data <- clean$global %>%
         left_join(preds$age_sex %>% select(-sd, predicted = point),
                   by = c("age_group", "sex")) %>%
         mutate(sex = factor(sex, levels = c("m", "f", "all"),
-                            labels = c("Male", "Female", "All")),
+                            labels = c("Male", "Female", "All"),
+                            ordered = TRUE),
                predicted_text = glue::glue("{predicted} [{as.integer(lower95)} - {as.integer(upper95)}]")) %>%
         mutate(percent_text = glue::glue("{round((actual - predicted) / predicted * 100, 1)} [{round((actual - lower95) / lower95 * 100, 1)} - {round((actual - upper95) / upper95 * 100, 1)}]")) %>%
-        mutate(diff_text = glue::glue("{actual - predicted} [{actual - as.integer(lower95)} - {actual - as.integer(upper95)}]"))
+        mutate(diff_text = glue::glue("{actual - predicted} [{actual - as.integer(lower95)} - {actual - as.integer(upper95)}]")) %>%
+  arrange(age_group, sex)
 
 st3 <- flextable(st3_data,
                 col_keys = c("age_group", "sex", "actual", "predicted_text",
@@ -357,7 +405,11 @@ st4_data <- clean$region %>%
                   by = c("age_group", "location")) %>%
         mutate(predicted_text = glue::glue("{predicted} [{as.integer(lower95)} - {as.integer(upper95)}]")) %>%
         mutate(percent_text = glue::glue("{round((actual - predicted) / predicted * 100, 1)} [{round((actual - lower95) / lower95 * 100, 1)} - {round((actual - upper95) / upper95 * 100, 1)}]")) %>%
-        mutate(diff_text = glue::glue("{actual - predicted} [{actual - as.integer(lower95)} - {actual - as.integer(upper95)}]"))
+        mutate(diff_text = glue::glue("{actual - predicted} [{actual - as.integer(lower95)} - {actual - as.integer(upper95)}]")) %>%
+  mutate(location = factor(location,
+                           levels = c(const$who_regions, "All"),
+                           ordered = TRUE)) %>%
+  arrange(age_group, location)
 
 st4 <- flextable(st4_data,
                 col_keys = c("age_group", "location", "actual", "predicted_text",
