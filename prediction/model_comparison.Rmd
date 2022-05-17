@@ -1,7 +1,7 @@
 ---
-title: "Comparing ARIMA models"
+title: 'Comparing ARIMA models'
 author: 'Jay Achar'
-date: "`r Sys.time()`"
+date: '`r Sys.time()`'
 output:
   html_document:
     code_folding: hide
@@ -39,8 +39,8 @@ clean <- prepare_long_data(dd)
 
 ```{r generate-ts-data }
 ts_list <- bind_rows(clean)  %>%
-        filter(year != 2020) %>%
-        group_by(age_group, location) %>%
+        filter(year <= 2018) %>%
+        group_by(age_group, location, sex) %>%
         nest() %>%
         mutate(ts = map(data, function(series) {
                 select(series, -year) %>%
@@ -53,50 +53,55 @@ models <- list(c(2, 0, 0),
                c(2, 0, 1),
                c(2, 0, 2))
 
-predictions_df <- map(models, 
-    function(model) {
+predictions_df <- map(models,
+    function(model_params) {
             forecast_next_year(tbl = ts_list,
-                               order = model,
-                               drift = TRUE) %>% 
-                    group_by(age_group) %>% 
-                    group_split() %>% 
+                               order = model_params,
+                               drift = TRUE) %>%
+                    group_by(age_group) %>%
+                    group_split() %>%
                     map(function(group) {
     data.frame(
       region = group$location,
-      model = paste0(as.character(model), collapse = ", "),
+      model = paste0(as.character(model_params), collapse = ", "),
+      sex = group$sex,
       age_group = unique(group$age_group),
-      year = 2020,
-      point = as.numeric(map(group$forecast, ~ .x$mean)),
-      lower95 = as.numeric(map(group$forecast, ~ .x$lower[2])),
-      upper95 = as.numeric(map(group$forecast, ~ .x$upper[2]))
+      year = 2019,
+      point = as.numeric(map(group$forecast, ~ .x$point)),
+      lower95 = as.numeric(map(group$forecast, ~ .x$lower95)),
+      upper95 = as.numeric(map(group$forecast, ~ .x$upper95))
     )
   })
-    }) %>% 
+    }) %>%
         reduce(bind_rows)
-        
+
 ```
 
 ```{r comparison-plot }
-comparison_plot <- bind_rows(clean) %>% 
-        filter(year == 2020) %>% 
-        mutate(model = "observed") %>% 
-        select(region = location, model, everything(), point = cases) %>% 
-        bind_rows(predictions_df) %>% 
-        select(-lower95, -upper95) %>% 
+
+# TODO needs to be adjusted to handle data split by sex
+comparison_plot <- bind_rows(clean) %>%
+        filter(year == 2019) %>%
+        mutate(model = "observed") %>%
+        select(region = location, model, everything(), point = cases) %>%
+        bind_rows(predictions_df) %>%
+        select(-lower95, -upper95) %>%
+  group_by(region, model, year, age_group) %>%
+  summarise(point = sum(point), .groups = "drop") %>%
         ggplot(aes(
                 x = region,
-                y = point, 
+                y = point,
                 color = model
-        )) + 
+        )) +
         geom_point(alpha = 0.4) +
         facet_wrap(. ~ age_group, scales = "free_x") +
         coord_flip() +
         theme_bw() +
-        labs(title = "Comparing predicted 2020 notifications by age and WHO region",
-             subtitle = "Two ARIMA models against observed notifications",
-             x = "WHO region",
+        labs(title = "Comparing 2019 notifications by age and location",
+             subtitle = "Three ARIMA models against observed notifications",
+             x = "Location",
              y = "Notifications")
-        
+
 ggsave(here::here("figures/dev/model_comparison.png"),
        comparison_plot,
        width = 15,
@@ -104,4 +109,3 @@ ggsave(here::here("figures/dev/model_comparison.png"),
 
 comparison_plot
 ```
-

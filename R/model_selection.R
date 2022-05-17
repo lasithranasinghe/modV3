@@ -5,7 +5,7 @@ extract_model_fit <- function(models, param) {
         ) %>% sum()
 }
 
-safe_arima <- safely(Arima)
+safe_arima <- safely(forecast::Arima)
 
 calculate_model_fit <- function(df,
                                 model_order,
@@ -37,6 +37,7 @@ forecast_next_year <- function(tbl, order, drift, lambda = NULL, log_transform =
                 if (is.null(model$error)) {
                         return(model$result)
                 } else {
+                        warning("Error fitting model")
                         return(NULL)
                 }
         })

@@ -75,6 +75,8 @@ prepare_long_data <- function(lst) {
         hbc_df <- raw_countries %>%
                 impute_missing_case_counts() %>%
                 select(location = iso3, year, sex, age_group, cases)
+        
+        message("Missing values have been imputed into HBC data")
 
         region_df <- dd$long$region %>%
                 filter(

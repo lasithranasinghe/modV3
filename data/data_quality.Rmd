@@ -1,10 +1,13 @@
 ---
 title: 'Data quality'
 author: 'Jay Achar'
-date: '3/14/2022'
+date: '`r Sys.time()`'
 output:
   html_document:
     code_folding: hide
+    toc: true
+    toc_depth: 2
+    toc_float: true
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +37,133 @@ nested <- dd$wide$country %>%
   nest(data = c(everything(), -year))
 ```
 
-## HBC reporting { .tabset}
+```{r define-functions }
+describe_missingness <- function(df = dd$long$country,
+                                 group = c("hbc", "all")) {
+
+  group <- match.arg(group)
+
+  stopifnot(is.data.frame(df))
+
+  ad <- filter(df,
+               age_group != "014",
+               year >= 2014)
+
+  if (group == "hbc") {
+    ad <- filter(ad,
+                 iso3 %in% const$high_burden)
+  }
+
+        countries_missing <- ad %>%
+                group_by(iso3, country) %>%
+                summarise(na = any(is.na(cases)),
+                          .groups = "drop") %>%
+                filter(na == TRUE) %>%
+          select(iso3, country)
+
+        # most recent year with no missing information for any HBC with missing data
+        recent_no_na_year <- ad %>%
+                filter(year <= 2019) %>%
+                group_by(iso3, year) %>%
+                summarise(not_na = all(!is.na(cases)),
+                          .groups = "drop") %>%
+                filter(not_na == TRUE) %>%
+                group_by(iso3) %>%
+                filter(year == max(year))
+
+        annual_totals <- df %>%
+                filter(year %in% recent_no_na_year$year,
+                       year >= 2014,
+                       age_group != "014") %>%
+                group_by(year) %>%
+                summarise(total_cases = sum(cases, na.rm = TRUE),
+                          .groups = "drop")
+
+        missing_count <- ad %>%
+        group_by(iso3) %>%
+        summarise(total_datapoints = n(),
+                  missing_datapoints = sum(is.na(cases))) %>%
+        filter(missing_datapoints > 0) %>%
+        arrange(desc(missing_datapoints)) %>%
+          select(everything(),
+                 `Total data points` = total_datapoints,
+                 `Total missing data points` = missing_datapoints)
+
+        prop_contributed <- ad %>%
+                filter(year %in% recent_no_na_year$year) %>%
+                group_by(iso3, year) %>%
+                summarise(cases = sum(cases, na.rm = TRUE),
+                          .groups = "drop") %>%
+                semi_join(recent_no_na_year,
+                          by = c("iso3", "year")) %>%
+                right_join(annual_totals, by = "year") %>%
+                mutate(prop = round(cases / total_cases * 100, 2)) %>%
+                arrange(desc(prop)) %>%
+          select(-total_cases, annual_cases = cases, -year) %>%
+          right_join(countries_missing, by = "iso3") %>%
+          select(iso3, country, everything()) %>%
+          left_join(missing_count,
+                    by = "iso3")
+
+
+        return(
+            prop_contributed
+        )
+}
+
+```
+
+## High Burden Countries { .tabset}
+
+```{r hbc-calculations, include = FALSE}
+hbc_missing <- describe_missingness(group = "hbc")
+```
+
+### Commentary
+
+Out of 30 HBCs, `r nrow(hbc_missing)` report some missing data when
+disaggregated by year, age group and sex. The list of countries with their annual total case
+notifications (in a year with no missing data) is shown:
+
+```{r missing-hbc-countries}
+
+hbc_missing %>%
+  select(-iso3,
+         Country = country,
+         `Annual notifications` = annual_cases,
+         `Annual total contribution (%)` = prop) %>%
+  knitr::kable()
+
+```
+
+### Missing by year
+
+```{r hbc-missing-by-year, include = FALSE}
+hbc_missing_by_year <- dd$long$country %>%
+        filter(iso3 %in% const$high_burden,
+               year >= 2014,
+               age_group != "014") %>%
+        group_by(year) %>%
+        summarise(na = sum(is.na(cases)),
+                  length = n(),
+                  perc = round(na / length * 100, 2)) %>%
+        ungroup() %>%
+        mutate(cumsum = cumsum(na))
+```
+
+When disaggregated by sex, age group, HBC and year the total number of
+data points should be `r sum(hbc_missing_by_year$length)`. However,
+`r sum(hbc_missing_by_year$na)` data points are missing - here's a table
+describing their distribution across study years:
+
+```{r hbc-missing-year-table}
+hbc_missing_by_year %>%
+  select(-na, -length,
+         Year = year,
+         `Missing data points (%)` = perc,
+         `Cumulative missing data points` = cumsum) %>%
+  knitr::kable()
+```
 
 ### Missing data
 
@@ -44,6 +173,7 @@ age group:
 ```{r hbc-data-availability}
 hbc <- dd$long$country %>%
   filter(iso3 %in% constants()$high_burden,
+         year >= 2014,
          age_group %in% c("04", "514", "15plus")) %>%
   mutate(age_group = factor(age_group,
                             levels = c("04", "514", "15plus"),
@@ -78,10 +208,10 @@ the tile is coloured red.
 ```{r hbc-reporting}
 
 hbc %>%
-  group_by(iso3, age_group) %>% 
-  mutate(rel_change = ifelse(all_cases > 1000, 
+  group_by(iso3, age_group) %>%
+  mutate(rel_change = ifelse(all_cases > 1000,
                              all_cases / lag(all_cases, 1),
-                             1)) %>% 
+                             1)) %>%
   ggplot(
     aes(x = year,
         y = iso3,
@@ -100,15 +230,15 @@ hbc %>%
 
 The log percent change from one year to the next is plotted by country and age group. High
 positive numbers (representing large increases in notifications) and numbers less than zero
-(decreases in notifications) are worth looking more carefully at. 
+(decreases in notifications) are worth looking more carefully at.
 
 ### All cases
 
 ```{r hbc-quality}
 
 hbc_plots <- hbc %>%
-  group_by(iso3) %>% 
-  nest() %>% 
+  group_by(iso3) %>%
+  nest() %>%
   mutate(plots = map2(data, iso3, function(df, country) {
     ggplot(df, aes(x = year, y = all_cases, group = age_group)) +
       geom_line() +
@@ -118,12 +248,46 @@ hbc_plots <- hbc %>%
       theme_minimal() +
       labs(title = country) +
       scale_y_continuous(limits = c(0, max(df$all_cases) * 1.1))
-    
+
   }))
 
 hbc_plots$plots
 ```
 
+## All Countries { .tabset }
+
+```{r all-countries-xcalculations, include = FALSE}
+all_countries_missing <- describe_missingness(group = "all")
+```
+
+### Commentary
+
+Out of `r length(unique(dd$long$country$iso3))` countries,
+`r nrow(all_countries_missing)` report some missing data when
+disaggregated by year, age group and sex. The list of countries
+with their annual total case notifications (in a year with no
+missing data) is shown:
+
+```{r missing-all-countries}
+
+all_countries_missing %>%
+  select(-iso3,
+         Country = country,
+         `Annual notifications` = annual_cases,
+         `Annual total contribution (%)` = prop) %>%
+  knitr::kable()
+
+```
+
+### Country names for manuscript
+
+```{r result = "asis"}
+all_countries_missing %>%
+  arrange(country) %>%
+  pull(country) %>%
+  paste0(collapse = ", ")
+
+```
 
 ## Missing values {.tabset}
 
