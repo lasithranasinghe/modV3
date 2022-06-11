@@ -16,6 +16,8 @@ suppressMessages(library(tidyverse))
 library(here)
 library(naniar)
 library(patchwork)
+library(flextable)
+library(officer)
 ```
 
 ```{r source-functions}
@@ -160,15 +162,26 @@ notifications (in a year with no missing data) is shown:
 
 ```{r missing-hbc-countries}
 
-hbc_missing %>%
-  select(-iso3,
+hbc_missing_table <- hbc_missing %>%
+  select(-iso3, -starts_with("Total "),
          Country = country,
          `Reported year` = year,
          `Annual notifications` = annual_cases,
-         `Annual total contribution (%)` = prop) %>%
-  knitr::kable()
+         `Annual total contribution (%)` = prop) 
+
+knitr::kable(hbc_missing_table)
+
+hbcdq1 <- flextable(hbc_missing_table) %>% 
+  set_table_properties(layout = "autofit", width = 1) %>%
+  fontsize(size = 9, part = "all") %>%
+  theme_box()
 
 ```
+
+```{r}
+  
+```
+
 
 ### Missing by year
 
@@ -304,13 +317,24 @@ missing data) is shown:
 
 ```{r missing-all-countries}
 
-all_countries_missing %>%
-  select(-iso3,
+all_countries_missing_table <- all_countries_missing %>%
+  select(iso3, -starts_with("Total "),
          Country = country,
          `Reported year` = year,
          `Annual notifications` = annual_cases,
-         `Annual total contribution (%)` = prop) %>%
-  knitr::kable()
+         `Annual total contribution (%)` = prop)
+
+knitr::kable(all_countries_missing_table %>% select(-iso3))
+
+acdq1 <- all_countries_missing_table %>% 
+  filter(!iso3 %in% const$high_burden) %>% 
+  select(-iso3) %>% 
+  slice_max(`Annual total contribution (%)`,
+            n = 10) %>% 
+  flextable() %>% 
+  set_table_properties(layout = "autofit", width = 1) %>%
+  fontsize(size = 9, part = "all") %>%
+  theme_box()
 
 ```
 
@@ -555,10 +579,23 @@ aggregated_male %>%
   pull(hb)
 ```
 
-```{r}
-# aggregate_male %>%
-#   slice_head(n = 15) %>%
-#   ggplot(aes(x = iso3,
-#              y = newrel_m014)) +
-#   geom_col() + coord_flip()
+```{r print-docx}
+ps_landscape <- prop_section(page_size = page_size(orient = "landscape"))
+ps_portrait <- prop_section(page_size = page_size(orient = "portrait"))
+
+tables_doc <- read_docx() %>%
+  body_add_par("HBC Missing country contribution data quality table",
+               style = "heading 1") %>%
+  body_add_flextable(value = hbcdq1) %>%
+  body_add_break() %>%  
+  body_add_par("Top 10 missing country contribution data quality table",
+               style = "heading 1") %>%
+  body_add_flextable(value = acdq1) %>%
+  body_add_break() %>%  
+  body_end_block_section(value = block_section(property = ps_landscape))
+
+print(tables_doc, target = here::here("figures/data_quality_tables.docx"))
+
+
 ```
+

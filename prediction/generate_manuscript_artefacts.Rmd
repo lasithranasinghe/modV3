@@ -129,10 +129,76 @@ arima_plots
 
 ### Main table 1
 
+```{r main-table-1}
+
+mt1_data <- clean$global %>%
+  select(-location) %>%
+  mutate(sex = factor(sex,
+                      levels = c("m", "f", "All"),
+                      labels = c("Male", "Female", "All"),
+                      ordered = TRUE)) %>%
+  group_by(age_group) %>%
+  group_split() %>%
+  map(function(x) {
+  wide <- pivot_wider(
+    x,
+    id_cols = year,
+    names_from = sex,
+    values_from = cases
+  ) %>%
+          select(year, Male, Female)
+
+  wide$abs_diff <- wide[[grep("Male", names(wide))]] - wide[[grep("Female", names(wide))]]
+  wide$ratio <- round(wide[[grep("Male", names(wide))]] / wide[[grep("Female", names(wide))]],
+                       3)
+  wide
+  }) %>%
+  purrr::reduce(left_join, by = "year")
+
+mt1 <- flextable(mt1_data) %>%
+  set_header_labels(
+    year = "Year",
+    "year",
+    Female.x = "Female",
+    Male.x = "Male",
+    abs_diff.x = "Difference (n)",
+    ratio.x = "M:F ratio",
+    Female.y = "Female",
+    Male.y = "Male",
+    abs_diff.y = "Difference (n)",
+    ratio.y = "M:F ratio",
+    Female = "Female",
+    Male = "Male",
+    abs_diff = "Difference (n)",
+    ratio = "M:F ratio"
+  ) %>%
+  add_header_row(
+    values = c("", "0-4 years",
+               "5-14 years",
+               "15+ years"),
+    colwidths = c(1, 4, 4, 4)
+  ) %>%
+  set_table_properties(layout = "autofit", width = 1) %>%
+  fontsize(size = 9, part = "all") %>%
+  theme_box()
+mt1
+```
+
 ### Main table 2
 
-```{r}
+```{r main-table-2}
+mt2_all_regions <- clean$global %>%
+  filter(year == 2019) %>%
+  group_by(age_group, sex) %>%
+  mutate(sex = ifelse(sex == "m", "Male", "Female")) %>%
+  summarise(cases = sum(cases),
+            location = "All",
+            .groups = "drop") %>%
+  select(location, sex, age_group, cases)
+
+
 mt2_data <- clean$region %>%
+  filter(year == 2019) %>%
   group_by(location, sex, age_group) %>%
   summarise(cases = sum(cases),
             .groups = "drop") %>%
@@ -140,12 +206,14 @@ mt2_data <- clean$region %>%
                       levels = c("m", "f", "All"),
                       labels = c("Male", "Female", "All"),
                       ordered = TRUE)) %>%
+  bind_rows(mt2_all_regions) %>%
   pivot_wider(names_from = "sex", values_from = cases) %>%
   mutate(abs_diff = Male - Female,
-         # TODO how to calculate relative difference between males and females
-         ratio = Male / Female) %>%
+         ratio = round(Male / Female, 3)) %>%
+  mutate(location = factor(location,
+                           levels = c(const$who_regions, "All"),
+                           ordered = TRUE)) %>%
   arrange(age_group, location)
-# TODO add global values too as "All" location category
 
 
 mt2 <- flextable(mt2_data,
@@ -154,8 +222,8 @@ mt2 <- flextable(mt2_data,
   set_header_labels(
     age_group = "",
     location = "Region",
-    abs_diff = "Absolute difference (N)",
-    ratio = "Relative difference"
+    abs_diff = "Difference (N)",
+    ratio = "M:F ratio"
   ) %>%
   set_table_properties(layout = "autofit", width = 1) %>%
   merge_v(j = ~ age_group) %>%
@@ -291,7 +359,7 @@ st1 <- flextable(st1_data,
     sex = "Sex",
     y_2019 = "Observed 2019",
     y_2020 = "Observed 2020",
-    abs_diff = "Absolute difference (N)",
+    abs_diff = "Difference (N)",
     perc = "Percent difference (%)"
   ) %>%
   set_table_properties(layout = "autofit", width = 1) %>%
@@ -305,15 +373,28 @@ st1
 ### Supplement table 2
 
 ```{r supp-table-2}
+
+st2_all_regions <- clean$global %>%
+  filter(year %in% c(2019, 2020)) %>%
+  group_by(age_group, year) %>%
+  summarise(cases = sum(cases),
+            location = "All",
+            .groups = "drop") %>%
+  select(location, year, age_group, cases)
+
 st2_data <- clean$region %>%
   filter(year >= 2019) %>%
   group_by(location, year, age_group) %>%
   summarise(cases = sum(cases),
             .groups = "drop") %>%
+  bind_rows(st2_all_regions) %>%
   pivot_wider(names_from = "year", values_from = cases,
               names_prefix = "y_" ) %>%
   mutate(abs_diff = y_2020 - y_2019,
          perc = round((y_2020 - y_2019) / y_2019 * 100, 2)) %>%
+  mutate(location = factor(location,
+                           levels = c(const$who_regions, "All"),
+                           ordered = TRUE)) %>%
   arrange(age_group, location)
 
 
@@ -325,7 +406,7 @@ st2 <- flextable(st2_data,
     location = "Region",
     y_2019 = "Observed 2019",
     y_2020 = "Observed 2020",
-    abs_diff = "Absolute difference (N)",
+    abs_diff = "Difference (N)",
     perc = "Percent difference (%)"
   ) %>%
   set_table_properties(layout = "autofit", width = 1) %>%
@@ -431,6 +512,12 @@ ps_landscape <- prop_section(page_size = page_size(orient = "landscape"))
 ps_portrait <- prop_section(page_size = page_size(orient = "portrait"))
 
 tables_doc <- read_docx() %>%
+  body_add_par("Main Table 1", style = "heading 1") %>%
+  body_add_flextable(value = mt1) %>%
+  body_add_break() %>%
+  body_add_par("Main Table 2", style = "heading 1") %>%
+  body_add_flextable(value = mt2) %>%
+  body_add_break() %>%
   body_add_par("Supplement Table 1", style = "heading 1") %>%
   body_add_flextable(value = st1) %>%
   body_add_break() %>%
