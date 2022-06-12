@@ -127,6 +127,107 @@ ggsave(here::here("figures/main/main_arima_plots.eps"),
 arima_plots
 ```
 
+### Main figure 2
+
+```{r main-figure-2 }
+# Same as PD but does not include 'global'
+hbc_predicted <- preds$age_hbc %>%
+        select(location, age_group, predicted = point)
+
+# notification data
+mf2_data <- clean$hbc %>%
+        filter(year == 2020) %>%
+        group_by(location, age_group) %>%
+        summarise(cases = sum(cases), .groups = "drop") %>%
+        left_join(hbc_predicted,
+                  by = c("location", "age_group")) %>%
+        left_join(dd$long$country %>%
+                          select(country, iso3) %>% distinct(),
+                  by = c("location" = "iso3")) %>%
+        filter(location != "LBR") %>%
+        mutate(color = NA_character_)
+
+# calculate order
+hbc_order <- mf2_data %>%
+        filter(age_group != "15+ years") %>%
+        group_by(country) %>%
+        summarise(
+                dfr = sum(cases - predicted)
+        ) %>%
+        arrange(dfr) %>% pull(country)
+
+# create percentage burden text labels
+age_totals <- mf2_data %>%
+        group_by(age_group) %>%
+        summarise(total = sum(cases))
+
+mf2_data <- mf2_data %>%
+        left_join(age_totals,
+                  by = "age_group") %>%
+        mutate(pctext = 100 * cases / total,
+               pctext = paste0(sprintf(pctext, fmt = '%#.1f'),'%'))
+
+# add HBC29 data
+hb29_df <- mf2_data %>%
+        group_by(age_group) %>%
+        summarise(cases = sum(cases),
+                  predicted = sum(predicted)) %>%
+        mutate(country = "HBC29",
+               pctext = "100%",
+               color = "black")
+
+mf2_data <- bind_rows(mf2_data,
+          hb29_df) %>%
+        mutate(percent_change = 100 * (cases - predicted) / predicted,
+               color = case_when(
+                       is.na(color) & percent_change < 0 ~ "#930000",
+                       is.na(color) & percent_change > 0 ~ "#00639d",
+                       TRUE ~ "black"
+               ))
+
+# add order
+mf2_data$country <- factor(mf2_data$country,
+                           levels = c(rev(hbc_order), "HBC29"),
+                           ordered = TRUE)
+
+
+scl <- 1e2
+mf2 <- ggplot(mf2_data,
+              aes(
+                      x = country,
+                      y = percent_change / scl,
+                      label = pctext,
+                      fill = I(color)
+              )) +
+        geom_bar(stat = "identity") +
+        geom_text(aes(x = country,
+                      y = 90 / scl)) +
+        facet_wrap(~ age_group) +
+        scale_y_continuous(limits = c(-100 / scl, 100 / scl),
+                           label = scales::percent) +
+        coord_flip() +
+        labs(y = "Estimated reduction in notifications in 2020",
+             x = "Country or countries") +
+        theme_minimal() +
+        theme(
+                panel.border = element_rect(colour = "black",
+                                            size = 1,
+                                            fill = NA)
+        )
+
+ggsave(here::here("figures/main/main_figure_2.png"),
+       mf2,
+       width = 15,
+       height = 8)
+
+ggsave(here::here("figures/main/main_figure_2.eps"),
+       mf2,
+       width = 15,
+       height = 8)
+
+mf2
+```
+
 ### Main table 1
 
 ```{r main-table-1}
