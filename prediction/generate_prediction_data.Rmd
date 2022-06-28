@@ -33,9 +33,8 @@ raw <- read_data("notifications")
 dd <- prepare_data(raw, const = const)
 ```
 
-
 ```{r handle-missing-data}
-clean <- prepare_long_data(dd)
+clean <- prepare_long_data(dd, const = const)
 ```
 
 ## Predict 2020 notifications
@@ -46,7 +45,8 @@ In this analysis, that is country and regional level data by age group and sex.
 ```{r create-predicted-data }
 # create training data
 ## remove 2020
-forecasts <- bind_rows(clean,
+
+forecasts <- bind_rows(clean[c("region", "imputed_hbc", "global")],
           .id = "type") %>%
   filter(year != 2020) %>%
   group_by(location, age_group, type, sex) %>%

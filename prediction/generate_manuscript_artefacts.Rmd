@@ -18,6 +18,8 @@ suppressMessages(library(tidyverse))
 library(patchwork)
 library(flextable)
 library(officer)
+library(data.table)
+library(metafor)
 absspace <- function(x, ...) {
   format(abs(x), ..., big.mark = " ",
          scientific = FALSE,
@@ -35,13 +37,13 @@ const <- constants()
 
 raw <- suppressWarnings(read_data("notifications"))
 dd <- prepare_data(raw, const = const)
-clean <- prepare_long_data(dd)
+clean <- prepare_long_data(dd, const = const)
 
 preds <- readRDS(here::here("artefacts/manuscript_predictions.rds"))
 
 ```
 
-## Figures {.tabset .tabset-pills }
+## Figures {.tabset .tabset-pills}
 
 ### Main figure 1
 
@@ -135,7 +137,7 @@ hbc_predicted <- preds$age_hbc %>%
         select(location, age_group, predicted = point)
 
 # notification data
-mf2_data <- clean$hbc %>%
+mf2_data <- clean$imputed_hbc %>%
         filter(year == 2020) %>%
         group_by(location, age_group) %>%
         summarise(cases = sum(cases), .groups = "drop") %>%
@@ -206,7 +208,7 @@ mf2 <- ggplot(mf2_data,
         scale_y_continuous(limits = c(-100 / scl, 100 / scl),
                            label = scales::percent) +
         coord_flip() +
-        labs(y = "Estimated reduction in notifications in 2020",
+        labs(y = "Estimated change in notifications in 2020",
              x = "Country or countries") +
         theme_minimal() +
         theme(
@@ -376,6 +378,49 @@ ggsave(here::here("figures/supplement/supplement1_age_sex_region_notifcations.pn
 
 aggregate_plot
 ```
+
+### Supplement figure 2
+
+```{r supp-fig-2}
+# use non-imputed HBC data
+md <- calculate_sex_meta_data(data = clean$raw_hbc)
+
+ggplot(md$fans,
+       aes(x = iso3, y = mid, ymin = lo, ymax = hi)) +
+  geom_point(data = md$M, shape=1, alpha = 0.5) +
+  geom_errorbar(width = 0, col = "blue") +
+        geom_point(col = "blue") +
+  scale_y_continuous(label = scales::percent,
+                     limits = c(0.25, 0.75)) +
+  facet_wrap(~age_group) +
+        coord_flip() +
+  theme_minimal() +
+  geom_hline(yintercept = 0.5, col = 2) +
+  ylab('Proportion of notifications from males')
+
+ggsave(file = here('figures/supplement/supplement2_forest.png'),
+       w = 10,
+       h = 7)
+
+# 55.6% (95%CI: 54.3% to 56.9%)
+
+ratios <- md$ans %>%
+        mutate(across(.cols = where(is.numeric), ~ round(.x * 100, 1)))
+
+strings <- lapply(ratios$age_group,
+       function(age_group) {
+               x <- ratios %>%
+                       filter(age_group == {{age_group}})
+               glue::glue("{x$pred[1]}% (95%CI: {x$ci.lb[1]}% to {x$ci.ub[1]}%)")
+       }) %>% set_names(ratios$age_group)
+
+```
+
+#### Text for manuscript
+
+The meta-analytic summary proportions of notifications from males were: `r strings[["0-4 years"]]`
+for ages 0-4 years; `r strings[["5-14 years"]]` for ages 5-14 years;
+and `r strings[["15+ years"]]`for ages 15+ years
 
 ### Supplement figure 4
 

@@ -8,3 +8,27 @@ To create manuscript figures and tables:
 The resulting figures and tables are saved in the `figures` directory.
 This is sub-divided into a `main` and `supplment` directory. Note that
 the generated tables are embedded in `tables.docx`
+
+## Dependencies
+
+```r
+suppressMessages(library(tidyverse))
+library(here)
+library(data.table)
+library(metafor)
+library(forecast)
+library(imputeTS)
+library(patchwork)
+library(flextable)
+library(officer)
+library(scales)
+```
+
+## To keep
+
+- R folder
+- `TB_notifications.csv`
+- artefacts folder
+- figures folder
+  - main folder
+  - supplement folder

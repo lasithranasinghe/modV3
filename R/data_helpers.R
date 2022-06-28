@@ -58,7 +58,7 @@ prepare_data <- function(raw, const = constants()) {
         ))
 }
 
-prepare_long_data <- function(lst) {
+prepare_long_data <- function(lst, const) {
         raw_countries <- lst$long$country %>%
                 filter(
                         iso3 %in% const$high_burden,
@@ -75,10 +75,10 @@ prepare_long_data <- function(lst) {
         hbc_df <- raw_countries %>%
                 impute_missing_case_counts() %>%
                 select(location = iso3, year, sex, age_group, cases)
-        
+
         message("Missing values have been imputed into HBC data")
 
-        region_df <- dd$long$region %>%
+        region_df <- lst$long$region %>%
                 filter(
                         year >= 2014,
                         age_group != "014"
@@ -89,20 +89,23 @@ prepare_long_data <- function(lst) {
                         ordered = TRUE
                 )) %>%
                 select(location = g_whoregion, year, sex, age_group, cases)
-        
-        global_df <- dd$long$global %>% 
-                filter(year >= 2014,
-                       age_group != "014") %>% 
+
+        global_df <- lst$long$global %>%
+                filter(
+                        year >= 2014,
+                        age_group != "014"
+                ) %>%
                 mutate(age_group = factor(age_group,
-                                          levels = c("04", "514", "15plus"),
-                                          labels = c("0-4 years", "5-14 years", "15+ years"),
-                                          ordered = TRUE
+                        levels = c("04", "514", "15plus"),
+                        labels = c("0-4 years", "5-14 years", "15+ years"),
+                        ordered = TRUE
                 )) %>%
                 select(location = id, year, sex, age_group, cases)
 
         list(
                 region = region_df,
-                hbc = hbc_df,
+                raw_hbc = raw_countries,
+                imputed_hbc = hbc_df,
                 global = global_df
         )
 }

@@ -38,7 +38,7 @@ raw <- read_data("notifications")
 ```{r generate-data-structures, echo = FALSE}
 dd <- prepare_data(raw, const = const)
 
-clean <- prepare_long_data(dd)
+clean <- prepare_long_data(dd, const = const)
 
 ```
 

@@ -6,7 +6,6 @@ library(metafor)
 ## read and reform data
 N <- fread(here('data/tb_cleaned_notifs.csv'))
 
-
 M <- melt(N[,.(iso3,year,
                newrel_m04,newrel_m514,newrel_m15plus,
                newrel_f04,newrel_f514,newrel_f15plus)],
@@ -90,7 +89,7 @@ ans <- rbindlist(ans)
 fans <- rbindlist(fans)
 
 
-fwrite(ans,file=here('plots/sexmetaresults.csv'))
+# fwrite(ans,file=here('plots/sexmetaresults.csv'))
 
 
 M[,c('mid','lo','hi'):=.(male/tot,NA_real_,NA_real_)]
@@ -110,5 +109,7 @@ ggplot(fans,aes(x=iso3,y=mid,ymin=lo,ymax=hi))+
   geom_hline(yintercept=0.5,col=2)+
   ylab('Proportion of notifications from males')
 
-ggsave(file=here('plots/forest.png'),w=10,h=7)
-ggsave(file=here('plots/forest.pdf'),w=10,h=7)
+ggsave(file = here('figures/supplement/supplement2_forest.png'),
+       w = 10,
+       h = 7)
+# ggsave(file=here('plots/forest.pdf'),w=10,h=7)
