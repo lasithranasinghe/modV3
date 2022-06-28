@@ -27,13 +27,7 @@ walk(files,
 const <- constants()
 
 raw <- read_data("notifications")
-```
-
-```{r restructure-data}
 dd <- prepare_data(raw, const = const)
-```
-
-```{r handle-missing-data}
 clean <- prepare_long_data(dd, const = const)
 ```
 
@@ -111,7 +105,7 @@ head(final_prediction$age_region)
 
 ```{r aggregate-age-hbc}
 final_prediction$age_hbc <- granular_predictions %>%
-  filter(type == "hbc") %>%
+  filter(type == "imputed_hbc") %>%
   grouped_predictions(age_group, location)
 
 head(final_prediction$age_hbc)

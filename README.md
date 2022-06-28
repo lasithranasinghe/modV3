@@ -22,6 +22,10 @@ library(patchwork)
 library(flextable)
 library(officer)
 library(scales)
+library(ggrepel)
+library(ggpubr)
+library(wbmapdata) # devtools::install_github('petedodd/wbmapdata')
+library(sf)
 ```
 
 ## To keep
