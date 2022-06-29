@@ -1,0 +1,83 @@
+---
+title: 'Maps'
+author: 'Jay Achar'
+date: '2/24/2022'
+output:
+  html_document:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(tidyverse))
+library(here)
+```
+
+```{r source-functions}
+files <- list.files(here("R"))
+walk(files,
+     ~source(here("R", .x)))
+```
+
+```{r read-in-data}
+raw <- read_data("notifications")
+```
+
+```{r define-constants}
+# returns a list of constants
+const <- constants()
+```
+
+```{r generate-data-structures}
+# creates a list of country and region specific data frames in
+# wide and long format
+dd <- prepare_data(raw)
+```
+
+# Missing values
+
+For each country, there we're taking notification data for 4 age categories from
+2019 and 2020 to calculate the percentage change in notifications.
+
+This will result in each country being represented by 4 rows each with a
+percentage change value.
+
+However, the following countries have missing values for both 2019 and 2020 in
+the designated age group (`age_group`):
+
+```{r missing-data}
+countries <- dd$long$country %>%
+        filter(year %in% c(2019, 2020)) %>%
+        # add male and female case together
+        pivot_wider(names_from = sex, values_from = cases) %>%
+        mutate(cases = m + f) %>%
+        group_by(iso3, age_group) %>%
+        mutate(percent_change = (cases - lag(cases, 1)) / lag(cases, 1) * 100) %>%
+        arrange(country, age_group)
+
+
+countries %>%
+        group_by(iso3, country, age_group) %>%
+        summarise(missing = sum(is.na(percent_change))) %>%
+        filter(missing == 2)
+
+```
+
+The majority appear to be small island states so can probably excluded
+from this analysis.
+
+```{r}
+mpd <- countries %>%
+        filter(year == 2020) %>%
+        filter(!is.na(percent_change)) %>%
+        select(-m, -f)
+mpd
+```
+
+The `percent_change` variable represents the 2020 notifications divided by 2019 notifications.
+Therefore, values less than 1 represent a drop in notifications while values greater than 1
+signify an increase.
+
+```{r}
+save(mpd, file = here('plots/mpd.Rdata'))
+```
