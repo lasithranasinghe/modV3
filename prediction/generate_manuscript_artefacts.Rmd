@@ -140,17 +140,19 @@ hbc_predicted <- preds$age_hbc %>%
         select(location, age_group, predicted = point)
 
 # notification data
-mf2_data <- clean$imputed_hbc %>%
+mf2_data <- clean$raw_hbc %>%
         filter(year == 2020) %>%
-        group_by(location, age_group) %>%
+        group_by(iso3, age_group) %>%
         summarise(cases = sum(cases), .groups = "drop") %>%
         left_join(hbc_predicted,
-                  by = c("location", "age_group")) %>%
+                  by = c("iso3" = "location", "age_group")) %>%
         left_join(dd$long$country %>%
                           select(country, iso3) %>% distinct(),
-                  by = c("location" = "iso3")) %>%
-        filter(location != "LBR") %>%
-        mutate(color = NA_character_)
+                  by = c("iso3")) %>%
+        filter(iso3 != "LBR") %>%
+        mutate(color = NA_character_) %>%
+        select(location = iso3,
+               everything())
 
 # calculate order
 hbc_order <- mf2_data %>%
@@ -235,7 +237,63 @@ mf2
 
 ### Main figure 3
 
-In progress
+```{r main-figure-3}
+stringency <- read_csv(here::here("plots/stringency_index.csv"))
+
+stringency_2020 <- stringency %>%
+        select(-X1, -country_name, iso3 = country_code) %>%
+        pivot_longer(col = -iso3,
+                     names_to = "dates", values_to = "index") %>%
+        filter(str_ends(dates, "2020")) %>%
+        group_by(iso3) %>%
+        summarise(index = mean(index), .groups = "drop")
+
+hbc_predicted <- preds$age_hbc %>%
+        select(location, age_group, predicted = point)
+
+# notification data
+mf3_data <- clean$raw_hbc %>%
+        filter(year == 2020) %>%
+        group_by(iso3, age_group) %>%
+        summarise(cases = sum(cases), .groups = "drop") %>%
+        left_join(hbc_predicted,
+                  by = c("iso3" = "location", "age_group")) %>%
+        left_join(dd$long$country %>%
+                          select(country, iso3) %>% distinct(),
+                  by = c("iso3")) %>%
+        filter(iso3 != "LBR") %>%
+        select(location = iso3,
+               everything(), -country) %>%
+
+        mutate(percent_change = 100 * (cases - predicted) / predicted) %>%
+        left_join(stringency_2020, by = c("location" = "iso3"))
+
+mf3 <- mf3_data %>%
+        filter(!is.na(index)) %>%
+        ggscatter(
+                x = "index",
+                y = "percent_change",
+                add = "reg.line",
+                conf.int = TRUE,
+                xlim = c(23, 70),
+                ylim = c(-100, 50),
+                xlab = "Mean COVID stringency index 2020",
+                ylab = "Percent change in TB notifications"
+        ) +
+        geom_text_repel(aes(label = location)) +
+        facet_wrap(~ age_group, ncol = 1) +
+        stat_cor(
+                aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")),
+      label.x = 25, label.y = 45, size = 4
+      ) + theme_minimal() + grids()
+
+mf3
+
+ggsave(here::here("figures/main/main_figure_3.png"),
+       mf3,
+       width = 7,
+       height = 12)
+```
 
 ### Main table 1
 
@@ -478,6 +536,8 @@ sf3 <- ggplot(data = map_sf,
     axis.text.x = element_blank(),
     axis.text.y = element_blank()
   )
+
+sf3
 
 ggsave(sf3,
         file = here('figures/supplement/supplement3_map.png'),
