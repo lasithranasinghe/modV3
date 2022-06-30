@@ -124,7 +124,7 @@ ggsave(here::here("figures/main/main_arima_plots.png"),
        width = 15,
        height = 8)
 
-ggsave(here::here("figures/main/main_arima_plots.eps"),
+ggsave(here::here("figures/main/main_arima_plots.svg"),
        arima_plots,
        width = 15,
        height = 8)
@@ -227,7 +227,7 @@ ggsave(here::here("figures/main/main_figure_2.png"),
        width = 15,
        height = 8)
 
-ggsave(here::here("figures/main/main_figure_2.eps"),
+ggsave(here::here("figures/main/main_figure_2.svg"),
        mf2,
        width = 15,
        height = 8)
@@ -290,6 +290,11 @@ mf3 <- mf3_data %>%
 mf3
 
 ggsave(here::here("figures/main/main_figure_3.png"),
+       mf3,
+       width = 7,
+       height = 12)
+
+ggsave(here::here("figures/main/main_figure_3.svg"),
        mf3,
        width = 7,
        height = 12)
@@ -437,6 +442,11 @@ ggsave(here::here("figures/supplement/supplement1_age_sex_region_notifcations.pn
        width = 10,
        height = 15)
 
+ggsave(here::here("figures/supplement/supplement1_age_sex_region_notifcations.svg"),
+       plot = aggregate_plot,
+       width = 10,
+       height = 15)
+
 aggregate_plot
 ```
 
@@ -480,6 +490,12 @@ ggsave(sf2,
        w = 10,
        h = 7)
 
+ggsave(sf2,
+        file = here('figures/supplement/supplement2_forest.svg'),
+       w = 10,
+       h = 7)
+
+# create manuscript text 
 ratios <- md$ans %>%
         mutate(across(.cols = where(is.numeric), ~ round(.x * 100, 1)))
 
@@ -543,6 +559,12 @@ ggsave(sf3,
         file = here('figures/supplement/supplement3_map.png'),
        w = 10,
        h = 7)
+
+ggsave(sf3,
+        file = here('figures/supplement/supplement3_map.svg'),
+       w = 10,
+       h = 7)
+
 ```
 
 ### Supplement figure 4
@@ -564,31 +586,44 @@ global_diff_data <- clean$region %>%
                   .groups = "drop") %>%
         group_by(age_group) %>%
         mutate(diff = cases - lag(cases),
-               percent = round(cases / lag(cases) * 100, 1)) %>%
+               percent = round(cases / lag(cases) * 100, 1),
+               location = "Global") %>%
         filter(!is.na(diff))
 
-diff_plot <- ggplot(diff_data,
+sf4_data <- bind_rows(global_diff_data,
+                      diff_data) %>%
+        mutate(location = factor(location,
+                                 levels = c("Global",
+                                            unique(diff_data$location))),
+               alpha = if_else(location == "Global",
+                               1, 0.3))
+
+diff_plot <- ggplot(sf4_data,
                     aes(x = year,
-                        y = percent)) +
-        geom_line(aes(group = location,
-                      color = location), alpha = 0.2) +
-        geom_point(data = global_diff_data, color = "red") +
-        geom_line(data = global_diff_data,
-                  color = "red",
-                  alpha = 0.5) +
-        geom_hline(yintercept = 100, alpha = 0.6) +
+                        y = percent,
+                        color = location,
+                        group = location, 
+                        alpha = alpha)) +
+        geom_line() +
+        geom_point(color = "black", size = 0.7) +
+        geom_hline(yintercept = 100, alpha = 0.4) +
         theme_minimal() +
         coord_cartesian(ylim = c(50, 150)) +
         facet_grid(age_group ~ .) +
+        scale_alpha_continuous(guide = "none") +
 
         labs(y = "Percent change on previous year",
              x = "Year",
              color = "WHO Region")
 
+diff_plot
+
 ggsave(here::here("figures/supplement/supplement4_age_region_annual_change.png"),
        plot = diff_plot)
 
-diff_plot
+ggsave(here::here("figures/supplement/supplement4_age_region_annual_change.svg"),
+       plot = diff_plot)
+
 
 ```
 
