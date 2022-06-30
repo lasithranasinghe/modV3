@@ -15,9 +15,9 @@ constants <- function() {
                         "newrel_f014",
                         "newrel_f15plus"
                 )
-        
-        age_groups <- c("04", "514", "014", "15plus" )
-        
+
+        age_groups <- c("04", "514", "014", "15plus")
+
         high_burden <-
                 c(
                         "AGO",
@@ -51,26 +51,26 @@ constants <- function() {
                         "SLE",
                         "ZMB"
                 )
-        
+
         model_performance_metrics <- c("aic", "aicc", "bic")
-        
+
         model_params <- do.call(expand_grid, list(
-                        a = c(0, 1, 2, 3),
-                        b = c(0, 1, 2),
-                        c = c(0, 1, 2, 3),
-                        drift = c(TRUE, FALSE)
-                )) %>%
+                a = c(0, 1, 2, 3),
+                b = c(0, 1, 2),
+                c = c(0, 1, 2, 3),
+                drift = c(TRUE, FALSE)
+        )) %>%
                 filter(!(b >= 2 & drift == TRUE))
 
-        
+
         return(
                 list(
-                  who_regions = who_regions,
-                  raw_vars_keep = raw_vars_keep,
-                  age_groups = age_groups,
-                  high_burden = high_burden,
-                  model_performance_metrics = model_performance_metrics,
-                  model_params = model_params
+                        who_regions = who_regions,
+                        raw_vars_keep = raw_vars_keep,
+                        age_groups = age_groups,
+                        high_burden = high_burden,
+                        model_performance_metrics = model_performance_metrics,
+                        model_params = model_params
                 )
         )
 }
